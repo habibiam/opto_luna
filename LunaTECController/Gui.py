@@ -15,10 +15,10 @@ luna.wm_title("GUI TEC CONTROLLER v1.0")
 
 class TECParamaters():
     def __init__(self):
+        self.entry = 0
         self.kp = 0
         self.kd = 0
         self.ki = 0
-        self.ts = 0
         self.ts = 0
         self.vol = 0
         self.temp = 0
@@ -30,21 +30,41 @@ class TECParamaters():
         self.step3_time = 0
 
 #Functions
+#REFRESH FRAME
 def updateTime(number):
     cur_temp.set(str(number))
     luna.update()
 
+#RUNS PID FUNCTION
 def runStep():
+    tecPara = TECParamaters
     count = 0
+    checkpoint = False
+    checkpointVal = int(check_entry.get())
+    #SETUP AND CHECK FOR ENTRY IF VALID NUMBER
     try:
-        int(check_entry.get())
+        tecPara.entry = int(check_entry.get())
+        tecPara.kd = float(kd_entry.get())
+        tecPara.kp = float(kp_entry.get())
+        tecPara.ki = float(ki_entry.get())
+        tecPara.ts = float(ts_entry.get())
+        tecPara.vol = float(vol_entry.get())
+        tecPara.temp = float(idle_temp_entry.get())
+        tecPara.step1_temp = float(step1_temp_entry.get())
+        tecPara.step1_time = float(step1_time_entry.get())
+        tecPara.step2_temp = float(step2_temp_entry.get())
+        tecPara.step2_time = float(step2_time_entry.get())
+        tecPara.step3_temp = float(step3_temp_entry.get())
+        tecPara.step3_time = float(step3_time_entry.get())
+        checkpoint = True        
+
     except:
-        print 'Error not a Valid Number'
-    while count <= check_entry.get():
-        count += 1
-        #pidFunc
-        #pidFunc
-        #pidFunc
+        print 'One or more entries are incorrect.'
+    if int(check_entry.get()) > 0 and checkpoint:
+        while count < checkpointVal:
+            count += 1
+            #pidFunc(step1)
+    
     
 
 #labels
@@ -99,7 +119,7 @@ step3_time_entry = Entry(luna, justify = CENTER, width = 7)
 step3_time_entry.grid(row = 7, column = 1)
 step2_time_entry.grid(row = 6, column = 1)
 step1_time_entry.grid(row = 5, column = 1)
-run_btn = Button(luna, text = "Run").grid(row = 9, column = 0)
+run_btn = Button(luna, text = "Run", command = runStep).grid(row = 9, column = 0)
 #List
 
 luna.mainloop()
