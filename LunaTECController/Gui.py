@@ -7,12 +7,15 @@ Created on Aug 18, 2016
 
 from Tkinter import *
 from time import sleep
+import serial
+from CheckSerial import *
+
 
 #Global
 #GUI
 luna = Tk()
 luna.wm_title("GUI TEC CONTROLLER v1.0")
-
+input = serial.Serial()
 class TECParamaters():
     def __init__(self):
         self.entry = 0
@@ -31,6 +34,19 @@ class TECParamaters():
 
 #Functions
 #REFRESH FRAME
+def connectBtn():
+    try:
+        input.port = variable.get()
+        input.baudrate = 9600
+        input.writeTimeout = 1
+        input.timeout = 0
+        input.open()
+        input.close()
+        print "Success Opening Port"
+    except:
+        print 'Error Opening Port'
+        
+
 def updateTime(number):
     cur_temp.set(str(number))
     luna.update()
@@ -65,7 +81,6 @@ def runStep():
             count += 1
             #pidFunc(step1)
     
-    
 
 #labels
 cur_temp = StringVar()
@@ -84,6 +99,9 @@ vol_label = Label(luna, text = "  Volume: ").grid(row = 7, column = 5)
 step1_degree_label = Label(luna, text = "°F    ").grid(row = 5, column = 4)
 step2_degree_label = Label(luna, text = "°F    ").grid(row = 6, column = 4)
 step3_degree_label = Label(luna, text = "°F    ").grid(row = 7, column = 4)
+step1_seconds_label = Label(luna, text = "Seconds").grid(row = 5, column = 2)
+step2_seconds_label = Label(luna, text = "Seconds").grid(row = 6, column = 2)
+step3_seconds_label = Label(luna, text = "Seconds").grid(row = 7, column = 2)
 cur_temp_label = Label(luna, text = "Current Temperature: ").grid(row = 0, column = 6)
 cur_temp_dynamic_label = Label(luna, textvariable = cur_temp).grid(row = 0, column = 7)
 cur_label_label = Label(luna, text = "°F").grid(row = 0, column = 8)
@@ -120,6 +138,15 @@ step3_time_entry.grid(row = 7, column = 1)
 step2_time_entry.grid(row = 6, column = 1)
 step1_time_entry.grid(row = 5, column = 1)
 run_btn = Button(luna, text = "Run", command = runStep).grid(row = 9, column = 0)
-#List
 
+#List
+port_list = serial_ports()
+variable = StringVar(luna)
+variable.set("None")
+try:
+    coms_list = apply(OptionMenu, (luna, variable) + tuple(port_list))
+    coms_list.grid(row = 0, column = 2)
+except:
+    print 'Error Finding Ports No Ports Found'
+    
 luna.mainloop()
