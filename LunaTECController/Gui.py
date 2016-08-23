@@ -7,7 +7,7 @@ Created on Aug 18, 2016
 
 from Tkinter import *
 from time import sleep
-import serial
+from serial import *
 from CheckSerial import *
 
 
@@ -36,15 +36,17 @@ class TECParamaters():
 #REFRESH FRAME
 def connectBtn():
     try:
-        input.port = variable.get()
-        input.baudrate = 9600
+        input.port = variable_port.get()
+        input.baudrate = 115200
+        input.stopbits = STOPBITS_ONE
+        input.parity = PARITY_NONE
         input.writeTimeout = 1
         input.timeout = 0
         input.open()
         input.close()
         print "Success Opening Port"
-    except:
-        print 'Error Opening Port'
+    except EXCEPTION, e1:
+        print 'Error Opening Port' + str(e1)
         
 
 def updateTime(number):
@@ -81,7 +83,22 @@ def runStep():
             count += 1
             #pidFunc(step1)
     
-
+def defaultRun():
+    try:
+        print variable_port.get()
+        input.close()
+        input.open()
+        print 1
+        input.write("\x2a1c03e894\x0d")
+        sleep(0.5)
+        print 2
+        ans = input.readline()
+        print ans
+        input.close()
+        print 3
+    except Exception, e1:
+        input.close()
+        print "ERROR SENDING VALUE" + str(e1)
 #labels
 cur_temp = StringVar()
 idle_temp_label = Label(luna, text = "IDLE Temperature").grid(row = 2, column = 0)
@@ -130,7 +147,7 @@ ts_entry.grid(row = 6, column = 6)
 vol_entry.grid(row = 7, column = 6)
 
 #Buttons
-port_connect = Button(luna, text = "Connect").grid (row = 0, column = 0)
+port_connect = Button(luna, text = "Connect", command = connectBtn).grid (row = 0, column = 0)
 step1_time_entry = Entry(luna, justify = CENTER, width = 7)
 step2_time_entry = Entry(luna, justify = CENTER, width = 7)
 step3_time_entry = Entry(luna, justify = CENTER, width = 7)
@@ -138,13 +155,13 @@ step3_time_entry.grid(row = 7, column = 1)
 step2_time_entry.grid(row = 6, column = 1)
 step1_time_entry.grid(row = 5, column = 1)
 run_btn = Button(luna, text = "Run", command = runStep).grid(row = 9, column = 0)
-
+test_btn = Button(luna, text = "Test Run", command = defaultRun).grid(row = 9, column = 1)
 #List
 port_list = serial_ports()
-variable = StringVar(luna)
-variable.set("None")
+variable_port = StringVar(luna)
+variable_port.set("None")
 try:
-    coms_list = apply(OptionMenu, (luna, variable) + tuple(port_list))
+    coms_list = apply(OptionMenu, (luna, variable_port) + tuple(port_list))
     coms_list.grid(row = 0, column = 2)
 except:
     print 'Error Finding Ports No Ports Found'
