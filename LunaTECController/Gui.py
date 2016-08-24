@@ -9,7 +9,7 @@ from Tkinter import *
 from time import sleep
 from serial import *
 from CheckSerial import *
-
+from Function import *
 
 #Global
 #GUI
@@ -85,20 +85,29 @@ def runStep():
     
 def defaultRun():
     try:
-        print variable_port.get()
         input.close()
         input.open()
-        print 1
-        input.write("\x2a1c03e894\x0d")
-        sleep(0.5)
-        print 2
-        ans = input.readline()
-        print ans
+        input.write(get_command('1c','03e8'))
+        sleep(0.2)
+        print input.readline()
         input.close()
-        print 3
+        print 'Success'
     except Exception, e1:
         input.close()
         print "ERROR SENDING VALUE" + str(e1)
+        
+def outputEnable():
+    try:
+        input.close()
+        input.open()
+        input.write(get_command('24',""))
+        sleep(0.2)
+        print input.readline()
+        input.close()
+    except EXCEPTION, e1:
+        input.close()
+        print "Error Enabling Output" + str(e1)
+            
 #labels
 cur_temp = StringVar()
 idle_temp_label = Label(luna, text = "IDLE Temperature").grid(row = 2, column = 0)
@@ -156,6 +165,7 @@ step2_time_entry.grid(row = 6, column = 1)
 step1_time_entry.grid(row = 5, column = 1)
 run_btn = Button(luna, text = "Run", command = runStep).grid(row = 9, column = 0)
 test_btn = Button(luna, text = "Test Run", command = defaultRun).grid(row = 9, column = 1)
+output_enable_btn = Button (luna, text = "Output Enable", command = outputEnable).grid(row = 9, column = 2)
 #List
 port_list = serial_ports()
 variable_port = StringVar(luna)
