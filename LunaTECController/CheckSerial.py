@@ -6,9 +6,6 @@ Created on Aug 3, 2016
 import sys
 import glob
 import serial
-from Tkinter import *
-import tkMessageBox
-import Tkinter
 
 def serial_ports():
     """ Lists serial port names
@@ -20,11 +17,14 @@ def serial_ports():
     """
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
+        print "Windows Detected"
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
         # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
+        print "Linux Detected"
     elif sys.platform.startswith('darwin'):
         ports = glob.glob('/dev/tty.*')
+        print "Mac Detected"
     else:
         raise EnvironmentError('Unsupported platform')
 
