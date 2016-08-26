@@ -7,9 +7,11 @@ Created on Jul 21, 2016
 
 import binascii
 
+#dec to hex converter
 def tohex(val, nbits):
     return str(hex((val + (1 << nbits)) % (1 << nbits)))[2:]
 
+#gets value from input
 def get_value(value_input):
     number = 0
     for count in value_input:
@@ -19,6 +21,7 @@ def get_value(value_input):
     else:
         return "0000"
 
+#creates checksum
 def get_checksum(string_input):
     sum = 0
     curString = string_input[1:]
@@ -27,6 +30,7 @@ def get_checksum(string_input):
     sum = sum % 256
     return str(hex(sum)[2:])
 
+#gets command str input line
 def get_command(command, value):
     stringInput = "*"
     stringInput += command #Command
@@ -37,6 +41,7 @@ def get_command(command, value):
 
     return stringInput
 
+#padHex
 def padHex(value):
     return value
     

@@ -49,6 +49,7 @@ def connectBtn():
         print 'Error Opening Port' + str(e1)
         
 
+#Update Function
 def updateTime(number):
     cur_temp.set(str(number))
     luna.update()
@@ -82,12 +83,13 @@ def runStep():
         while count < checkpointVal:
             count += 1
             #pidFunc(step1)
-    
+            
+#default code run    
 def defaultRun():
     try:
         input.close()
         input.open()
-        input.write(get_command('1c','0000'))
+        input.write(get_command('10','00c8'))
         sleep(0.2)
         print input.readline()
         input.close()
@@ -96,14 +98,13 @@ def defaultRun():
         input.close()
         print "ERROR SENDING VALUE" + str(e1)
         
+#Enable Output First        
 def outputEnable():
     try:
         input.close()
         input.open()
         input.write(get_command('24',"0001"))
         sleep(0.2)
-        print input.readline()
-        input.write(get_command('50',"0000"))
         print input.readline()
         input.close()
     except EXCEPTION, e1:
