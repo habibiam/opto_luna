@@ -3,6 +3,9 @@
 Created on Aug 18, 2016
 
 @author: Xianguang Yan
+
+Description: This python file sets the interface of the GUI and opens the port
+
 '''
 
 from Tkinter import *
@@ -11,11 +14,12 @@ from serial import *
 from CheckSerial import *
 from Function import *
 
-#Global
-#GUI
+#Global Variables
 luna = Tk()
 luna.wm_title("GUI TEC CONTROLLER v1.0")
 input = serial.Serial()
+
+#Sets up the class to pass in paramaters from the user input
 class TECParamaters():
     def __init__(self):
         self.entry = 0
@@ -33,7 +37,12 @@ class TECParamaters():
         self.step3_time = 0
 
 #Functions
-#REFRESH FRAME
+"""
+Description: Sets up the default values to talk to the com port, this is set for windows. Throws
+    an exception if there was an error opening port.
+Input: None
+Return: None
+"""
 def connectBtn():
     try:
         input.port = variable_port.get()
@@ -41,20 +50,30 @@ def connectBtn():
         input.stopbits = STOPBITS_ONE
         input.parity = PARITY_NONE
         input.writeTimeout = 1
-        input.timeout = 0
+        input.timeout = 1
         input.open()
         input.close()
         print "Success Opening Port"
     except EXCEPTION, e1:
         print 'Error Opening Port' + str(e1)
         
+"""
+Description: This function sets the display temperature on the gui
+Input: Value of temperature can be an int or float
+Return: None
+"""
 
-#Update Function
 def updateTime(number):
     cur_temp.set(str(number))
     luna.update()
 
-#RUNS PID FUNCTION
+"""
+Description: Gets all the paramters from the entry fields of the GUI and stores it in "tecPara". Then passes it into the pidFunction
+#Note: Work in Progress
+Input: None
+Return: None
+"""
+
 def runStep():
     tecPara = TECParamaters
     count = 0
@@ -84,34 +103,42 @@ def runStep():
             count += 1
             #pidFunc(step1)
             
-#default code run    
+"""
+Description: A test Function that executes one single command, will return an error if failed to send due to com port issue. If so, please initialize the port before sending
+Input: None
+Return: None
+"""    
 def defaultRun():
     try:
         input.close()
         input.open()
-        input.write(get_command('10','00c8'))
-        sleep(0.2)
+        input.write(get_command('10','00c8')) #get command takes in "command"(2bytes), and then "Value" (8bytes)
         print input.readline()
         input.close()
-        print 'Success'
+        print "Executed"
     except Exception, e1:
         input.close()
         print "ERROR SENDING VALUE" + str(e1)
         
-#Enable Output First        
+"""
+Description: Enables output, I would run this just in case, if the command returns 1 in its value then it is enabled, "0000" is disable. Discription is taken from the manual.
+Input: None
+Return: None
+"""
+
 def outputEnable():
     try:
         input.close()
         input.open()
         input.write(get_command('24',"0001"))
-        sleep(0.2)
         print input.readline()
         input.close()
+        print "Executed"
     except EXCEPTION, e1:
         input.close()
         print "Error Enabling Output" + str(e1)
             
-#labels
+#String Variable lables for the GUI
 cur_temp = StringVar()
 idle_temp_label = Label(luna, text = "IDLE Temperature").grid(row = 2, column = 0)
 step1_label = Label(luna, text = "STEP 1: ").grid(row = 5, column = 0)
@@ -135,7 +162,7 @@ cur_temp_label = Label(luna, text = "Current Temperature: ").grid(row = 0, colum
 cur_temp_dynamic_label = Label(luna, textvariable = cur_temp).grid(row = 0, column = 7)
 cur_label_label = Label(luna, text = "°F").grid(row = 0, column = 8)
 
-#Entry
+#Entry Labels For the GUI
 idle_temp_entry = Entry(luna, justify = CENTER)
 step1_temp_entry = Entry(luna, justify = CENTER, width = 7)
 step2_temp_entry = Entry(luna, justify = CENTER, width = 7)
@@ -158,7 +185,7 @@ ki_entry.grid(row = 5, column = 6)
 ts_entry.grid(row = 6, column = 6)
 vol_entry.grid(row = 7, column = 6)
 
-#Buttons
+#Buttons For the GUI
 port_connect = Button(luna, text = "Connect", command = connectBtn).grid (row = 0, column = 0)
 step1_time_entry = Entry(luna, justify = CENTER, width = 7)
 step2_time_entry = Entry(luna, justify = CENTER, width = 7)
@@ -169,10 +196,15 @@ step1_time_entry.grid(row = 5, column = 1)
 run_btn = Button(luna, text = "Run", command = runStep).grid(row = 9, column = 0)
 test_btn = Button(luna, text = "Test Run", command = defaultRun).grid(row = 9, column = 1)
 output_enable_btn = Button (luna, text = "Output Enable", command = outputEnable).grid(row = 9, column = 2)
-#List
+
+#List/Dropdown Menu for the GUI
 port_list = serial_ports()
 variable_port = StringVar(luna)
 variable_port.set("None")
+"""
+When executing this python script it will try and find open ports, if there are no available ports, you must close and double check if there
+is any connected ports. If no ports are found then there will be no dropdown menu to selected a port.
+"""
 try:
     coms_list = apply(OptionMenu, (luna, variable_port) + tuple(port_list))
     coms_list.grid(row = 0, column = 2)
