@@ -7,6 +7,9 @@ Created on Jul 21, 2016
 
 import binascii
 
+def tohex(val, nbits):
+    return str(hex((val + (1 << nbits)) % (1 << nbits)))[2:]
+
 def get_value(value_input):
     number = 0
     for count in value_input:
@@ -31,6 +34,9 @@ def get_command(command, value):
     stringInput += get_checksum(stringInput) #Gets Checksum
     stringInput += "\x0d"
     print stringInput
-    print success
+
     return stringInput
+
+def padHex(value):
+    return value
     

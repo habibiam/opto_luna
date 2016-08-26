@@ -87,7 +87,7 @@ def defaultRun():
     try:
         input.close()
         input.open()
-        input.write(get_command('1c','03e8'))
+        input.write(get_command('1c','0000'))
         sleep(0.2)
         print input.readline()
         input.close()
@@ -100,8 +100,10 @@ def outputEnable():
     try:
         input.close()
         input.open()
-        input.write(get_command('24',""))
+        input.write(get_command('24',"0001"))
         sleep(0.2)
+        print input.readline()
+        input.write(get_command('50',"0000"))
         print input.readline()
         input.close()
     except EXCEPTION, e1:
