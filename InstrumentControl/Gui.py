@@ -11,7 +11,7 @@ Description: This python file sets the interface of the GUI and opens the port
 from Tkinter import *
 #import Tkinter as tk
 from time import sleep
-from serial import *
+import serial
 from CheckSerial import *
 from Function import *
 # Class LunaUI, container for the UI communication
