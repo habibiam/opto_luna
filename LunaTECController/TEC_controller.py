@@ -20,7 +20,7 @@ import time
 import os
 from sys import argv
 
-IDLE_TMPR = 30
+IDLE_TMPR = 30  # 12% duty cycle set block tmpr to about 30C
 graph_points = 100
 global gSerial_port
 global gTmpr
