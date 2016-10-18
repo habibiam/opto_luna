@@ -13,17 +13,21 @@ import matplotlib.pyplot as plt
 import numpy  # Import numpy
 import matplotlib.pyplot as plt #import matplotlib library
 from drawnow import *
-# from Function import *
+from Function import *
 from CheckSerial import *
-from test.test_zlib import ChecksumTestCase
+#from test.test_zlib import ChecksumTestCase
 import time
 import os
 from sys import argv
+import posix_ipc # sudo pip install posix_ipc
+import mmap
 
 IDLE_TMPR = 30  # 12% duty cycle set block tmpr to about 30C
 graph_points = 100
 global gSerial_port
 global gTmpr
+#mapfile is a descriptor to a memory mapped file
+mapfile = None
 # initial setup for manual control = 1, output = 2
 CMD_TYPE_CFG    = 1
 CMD_TYPE_OUTPUT = 2
@@ -137,6 +141,12 @@ Sample_time_constant = 0
 # y = ax^2 + bx + c
 Sample_time_constant = 5.0 # secs
 
+
+def write_to_shared_memory(a_map_file, s):
+    a_map_file.seek(0)
+    a_map_file.write(s)
+
+
 #===============================================================================
 # Create figure window
 #===============================================================================
@@ -203,7 +213,7 @@ def load_cntrl_k(prntflag):
            step4_Ti_ramp,step4_Ti_ss,step4_Kd_ramp,step4_Kd_ss,\
            step4_U_ss, step4_st1st2trans_blk, step4_st2st3trans_smp
                       
-    fname_h = open('C:/python_workspace/logs/config/PID_gains.txt', 'r+')
+    fname_h = open('/home/clawton/workspace/logs/config/PID_gains.txt', 'r+')
     for line in fname_h.readlines():
         gains = line.split(',')
         if gains[0] == 'step0':
@@ -292,7 +302,7 @@ def read_cofig_file():
            gStpoint_step4,gOvershoot_step4,gOvershoot_hold_time_step4,gHold_time_step4,\
            gCoef0,gCoef1,gCoef1,Sample_time_constant
    
-    Tec_config_h   = open('C:/python_workspace/logs/config/TEC_config.txt', 'r+')
+    Tec_config_h   = open('/home/clawton/workspace/logs/config/TEC_config.txt', 'r+')
     
     for line in Tec_config_h.readlines():
         param_list = line.split(',')
@@ -401,7 +411,7 @@ def twoscomp(number, nBits):
 def open_serial_port ():
     global gSerial_port
     
-    gSerial_port = serial.Serial('com12', 115200, timeout=1)  
+    gSerial_port = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)  
     print gSerial_port  
 
 # ==================================================================
@@ -549,7 +559,7 @@ def step0 ():
            step0_Kp_ramp, step0_Kp_ss,step0_Kp_ss_hold,\
            step0_Ti_ramp,step0_Ti_ss,step0_Kd_ramp,step0_Kd_ss,\
            gStpoint_step0,gOvershoot_step0,gOvershoot_hold_time_step0,gHold_time_step0,\
-           gCoef0,gCoef1,gCoef1,Sample_time_constant 
+           gCoef0,gCoef1,gCoef1,Sample_time_constant,mapfile
     
     # any updates for the control loop should be in this block
     # update gains
@@ -668,6 +678,12 @@ def step0 ():
         dbg_msg = "STP0<st%2d><sp%5.2f><BlkT %5.2f><SmpT %5.2f><Err %5.2f> <U %5.2f>   <Up %5.2f> <Ui_k %5.2f>  <Ud %5.2f>  <tec_out %4d> \
         <Kp =%5.2f><Ti =%5.2f><Kd =%5.2f>"  % (state, sp, Tblock, gTsample, e,    U,    Up,  Ui_k, Ud, tec_output, Kp, Ti, Kd)
         log_dbg(dbg_msg)
+        #print dbg_msg
+
+        #Write to shared memory
+        sm = "%5.6f  %5.6f" % (Tblock, gTsample)
+        write_to_shared_memory(mapfile, sm)
+
 
         if (ss_flag):  # Start hold time clock
             if abs(ma_e) < 0.5:
@@ -1366,6 +1382,7 @@ def main(*argv):
     global manual_output_enble
     global gdbg_file_h, gtmpr_logfile_h #, gTec_config_h, gPID_gains_h
     global gTmpr, gTsample
+    global mapfile
     if len(sys.argv) > 1:
         num_cycles = int (sys.argv[1])
     else: 
@@ -1373,14 +1390,20 @@ def main(*argv):
 
     dbg_file_n = "TEC_logfile-" + time.strftime("%Y%m%d-%H%M%S") +'.txt'
     tmpr_log_n = "TEC_tmprlog-" + time.strftime("%Y%m%d-%H%M%S") +'.txt'    
-    gdbg_file_h     = open ("C:/python_workspace/logs/tec_logs/" + dbg_file_n,'w')
-    gtmpr_logfile_h = open ("C:/python_workspace/logs/tmpr_log/" + tmpr_log_n,'w')
+    gdbg_file_h     = open ("/home/clawton/workspace/logs/tec_logs/" + dbg_file_n,'w')
+    gtmpr_logfile_h = open ("/home/clawton/workspace/logs/tmpr_log/" + tmpr_log_n,'w')
     
     dbg_msg = " <TEC_cntrl version 26>"
     log_dbg(dbg_msg)
     dbg_msg = " ** Starting Luna logfile ** %s " % file
     log_dbg(dbg_msg)
-    #------------------------------------------------------------------------------ 
+
+    sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT|posix_ipc.O_TRUNC, size=128)
+
+    # MMap the shared memory
+    mapfile = mmap.mmap(sharedmem.fd, sharedmem.size)
+    sharedmem.close_fd() # Safe to close this.
+    #------------------------------------------------------------------------------
 #     print " <TEC_cntrl version 26>"
     # open serial port
     open_serial_port()
@@ -1444,6 +1467,9 @@ def main(*argv):
     dbg_msg = 'End .... '
     log_dbg(dbg_msg)
     print dbg_msg
+
+    mapfile.close()
+    posix_ipc.unlink_shared_memory(tecControllerSM)
     
     gSerial_port.close()
     close_log_tmpr_file()
