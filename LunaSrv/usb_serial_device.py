@@ -36,7 +36,7 @@ class USBSerialDevice(device.Device):
                 self.serialPort.close()
             self.serialPort = None
 
-        if self.proc is not None:
+        if self.proc is not None and self.proc.returncode is None:
             self.proc.kill()
             self.proc = None
 
@@ -169,7 +169,7 @@ class USBSerialDevice(device.Device):
 
         blockTemp = -100.0
         sampleTemp = -100.0
-        while self.stop == False:
+        while self.stop == False and self.proc is not None and self.proc.returncode is None:
             mapfile.seek(0)
             data = mapfile.readline()
             data = data.strip()
@@ -194,7 +194,9 @@ class USBSerialDevice(device.Device):
                     pass
 
             time.sleep(0.5)
+            self.proc.poll()
 
+        self.lastMsg = "FAIL"
         self.logger.debug("Exit shared memory reader for device on " + self.name)
 
     # Write data to the serial port.
