@@ -83,7 +83,7 @@ class USBSerialDevice(device.Device):
         if self.serialPort is None and self.subProc is None:
             return
 
-        if self.subProc is not None:
+        if self.name == "TECController":
             self.stop = False
             self.thread = Thread(target=self.ThreadReadSharedMemory)
             self.thread.start()
