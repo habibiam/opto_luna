@@ -37,7 +37,8 @@ class USBSerialDevice(device.Device):
             self.serialPort = None
 
         if self.proc is not None:
-            self.proc.terminate()
+            self.proc.kill()
+            self.proc = None
 
         if self.name == "TECController":
             tu = tec_utils.TECUtil()
@@ -209,4 +210,7 @@ class USBSerialDevice(device.Device):
         time.sleep(0.01)  # Give a bit of delay for the data to go through.
 
     def GetLastResponse(self):
+        if self.name == "TECController" and self.proc is None:
+            return "FAIL"
+
         return self.lastMsg

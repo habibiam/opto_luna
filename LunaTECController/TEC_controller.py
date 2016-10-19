@@ -145,8 +145,11 @@ Sample_time_constant = 5.0 # secs
 
 
 def write_to_shared_memory(a_map_file, s):
-    a_map_file.seek(0)
-    a_map_file.write(s)
+    try:
+        a_map_file.seek(0)
+        a_map_file.write(s)
+    except Exception, e:
+        pass # okay to swallow. This can occur durring a shutdown.
 
 
 #===============================================================================
