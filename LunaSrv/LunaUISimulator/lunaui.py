@@ -6,6 +6,7 @@ import os
 
 
 def printmenu():
+    os.system('clear')
     print ""
     print "----------Available Commands----------"
     print " 1\tInventory Devices"
