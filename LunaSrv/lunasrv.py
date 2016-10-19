@@ -21,7 +21,8 @@ def processINVTHW(receivedDeviceName, recievedArgs):
     
     # Get full path to our xml device configuration file
     path = os.path.dirname(os.path.abspath(__file__))
-    configFile = path + "/DeviceConfig.xml"
+    path += "/../config"
+    configFile = path + "/LunaSrvDeviceConfig.xml"
     
     if scanner != None:
         for aDevice in scanner.foundDevices:
@@ -315,8 +316,14 @@ if __name__ == '__main__':
                "STOPSEQ": processSTOPSEQ,
                "READSEQD": processREADSEQD}
 
+    # Get path to this file...
     path = os.path.dirname(os.path.abspath(__file__))
-    loggerIniFile = path + "/logger.ini"
+    # ...and set our current directory to that same location so
+    # that we know where we are and where to look for other files.
+    os.chdir(path)
+
+    path += "/../config"
+    loggerIniFile = path + "/LunaSrvLogger.ini"
     
     fileConfig(loggerIniFile)
     logger = logging.getLogger()
