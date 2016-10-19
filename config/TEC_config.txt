@@ -2,8 +2,8 @@
 Luna TEC params
 ##############################################################################
 #            setpoint,   overshoot,  overshoot_hold_time(sec), hold_time(sec)
-step0,       80,         2,          2,                        1
-step1,       80,         2,          3,                        10
+step0,       95,         2,          2,                        15
+step1,       95,         2,          3,                        10
 step2,       55,         2,          2,                        10
 step3,       72,         2,          1,                        10
 step4,       72,         0,          0,                        20
