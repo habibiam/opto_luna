@@ -21,6 +21,7 @@ import os
 from sys import argv
 import posix_ipc # sudo pip install posix_ipc
 import mmap
+import signal
 
 IDLE_TMPR = 30  # 12% duty cycle set block tmpr to about 30C
 graph_points = 100
@@ -43,6 +44,7 @@ Tblock_arr  = []
 Tsample_arr = []
 plot_data_ctr = 0 # reset data plot 
 default_num_cycles = 1
+current_cycle = 0
 gTsample = Tblock = 0
 
 # controller gains
@@ -213,7 +215,7 @@ def load_cntrl_k(prntflag):
            step4_Ti_ramp,step4_Ti_ss,step4_Kd_ramp,step4_Kd_ss,\
            step4_U_ss, step4_st1st2trans_blk, step4_st2st3trans_smp
                       
-    fname_h = open('/home/clawton/workspace/logs/config/PID_gains.txt', 'r+')
+    fname_h = open('../config/PID_gains.txt', 'r+')
     for line in fname_h.readlines():
         gains = line.split(',')
         if gains[0] == 'step0':
@@ -302,7 +304,7 @@ def read_cofig_file():
            gStpoint_step4,gOvershoot_step4,gOvershoot_hold_time_step4,gHold_time_step4,\
            gCoef0,gCoef1,gCoef1,Sample_time_constant
    
-    Tec_config_h   = open('/home/clawton/workspace/logs/config/TEC_config.txt', 'r+')
+    Tec_config_h   = open('../config/TEC_config.txt', 'r+')
     
     for line in Tec_config_h.readlines():
         param_list = line.split(',')
@@ -559,7 +561,8 @@ def step0 ():
            step0_Kp_ramp, step0_Kp_ss,step0_Kp_ss_hold,\
            step0_Ti_ramp,step0_Ti_ss,step0_Kd_ramp,step0_Kd_ss,\
            gStpoint_step0,gOvershoot_step0,gOvershoot_hold_time_step0,gHold_time_step0,\
-           gCoef0,gCoef1,gCoef1,Sample_time_constant,mapfile
+           gCoef0,gCoef1,gCoef1,Sample_time_constant
+    global mapfile,current_cycle
     
     # any updates for the control loop should be in this block
     # update gains
@@ -681,7 +684,7 @@ def step0 ():
         #print dbg_msg
 
         #Write to shared memory
-        sm = "%5.6f  %5.6f" % (Tblock, gTsample)
+        sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 0)
         write_to_shared_memory(mapfile, sm)
 
 
@@ -732,7 +735,8 @@ def Step1 ():
            step1_Ti_ramp,step1_Ti_ss,step1_Kd_ramp,step1_Kd_ss,\
            gStpoint_step1,gOvershoot_step1,gOvershoot_hold_time_step1,gHold_time_step1,\
            gCoef0,gCoef1,gCoef1,Sample_time_constant 
-    
+    global mapfile,current_cycle
+
     # any updates for the control loop should be in this block
     # update gains
     Kp_ramp    = step1_Kp_ramp
@@ -850,6 +854,11 @@ def Step1 ():
         <Kp =%5.2f><Ti =%5.2f><Kd =%5.2f>"  % (state, sp, Tblock, gTsample, e,    U,    Up,  Ui_k, Ud, tec_output, Kp, Ti, Kd)
         log_dbg(dbg_msg)
 
+        #Write to shared memory
+        sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 1)
+        write_to_shared_memory(mapfile, sm)
+
+
         if (ss_flag):  # Start hold time clock
             if abs(ma_e) < 0.5:
                 ss_clock += Ts # increment by Ts seconds
@@ -897,8 +906,9 @@ def Step2():
            step2_Kp_ramp,step2_Kp_ss,step2_Kp_ss_hold,\
            step2_Ti_ramp,step2_Ti_ss,step2_Kd_ramp,step2_Kd_ss,\
            gStpoint_step2,gUndershoot_step2,gUndershoot_hold_time_step2,gHold_time_step2,\
-           gCoef0,gCoef1,gCoef1,Sample_time_constant 
- 
+           gCoef0,gCoef1,gCoef1,Sample_time_constant
+    global mapfile, current_cycle
+
     Kp_ramp    = step2_Kp_ramp
     Kp_ss      = step2_Kp_ss
     Kp_ss_hold = step2_Kp_ss_hold
@@ -1007,6 +1017,11 @@ def Step2():
         dbg_msg = "STP2<st%2d><sp%5.2f><BlkT %5.2f><SmpT %5.2f><Err %5.2f> <U %5.2f>   <Up %5.2f> <Ui_k %5.2f>  <Ud %5.2f>  <tec_out %4d> \
         <Kp =%5.2f><Ti =%5.2f><Kd =%5.2f>"  % (state, sp, Tblock, gTsample, e,    U,    Up,  Ui_k, Ud, tec_output, Kp, Ti, Kd)
         log_dbg(dbg_msg)
+
+        #Write to shared memory
+        sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 2)
+        write_to_shared_memory(mapfile, sm)
+
                        
         if (ss_flag):  # Start hold time clock
             if abs(ma_e) < 0.5:
@@ -1060,8 +1075,9 @@ def Step3():
            step3_Kp_ramp,step3_Kp_ss,step3_Kp_ss_hold,\
            step3_Ti_ramp,step3_Ti_ss,step3_Kd_ramp,step3_Kd_ss,\
            gStpoint_step3,gOvershoot_step3,gOvershoot_hold_time_step3,gHold_time_step3,\
-           gCoef0,gCoef1,gCoef1,Sample_time_constant 
-    
+           gCoef0,gCoef1,gCoef1,Sample_time_constant
+    global mapfile,current_cycle
+
     Kp_ramp    = step3_Kp_ramp
     Kp_ss      = step3_Kp_ss
     Kp_ss_hold = step3_Kp_ss_hold
@@ -1174,6 +1190,10 @@ def Step3():
         <Kp =%5.2f><Ti =%5.2f><Kd =%5.2f>"  % (state, sp, Tblock, gTsample, e,    U,    Up,  Ui_k, Ud, tec_output, Kp, Ti, Kd)
         log_dbg(dbg_msg)
 
+        #Write to shared memory
+        sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 3)
+        write_to_shared_memory(mapfile, sm)
+
         if (ss_flag):  # Start hold time clock
             if abs(ma_e) < 0.5:
                 ss_clock += Ts # increment by Ts seconds
@@ -1225,8 +1245,9 @@ def step4():
            step4_Kp_ramp,step4_Kp_ss,step4_Kp_ss_hold,\
            step4_Ti_ramp,step4_Ti_ss,step4_Kd_ramp,step4_Kd_ss,\
            gStpoint_step4,gOvershoot_step4,gOvershoot_hold_time_step4,gHold_time_step4,\
-           gCoef0,gCoef1,gCoef1,Sample_time_constant 
-    
+           gCoef0,gCoef1,gCoef1,Sample_time_constant
+    global mapfile,current_cycle
+
     Kp_ramp    = step4_Kp_ramp
     Kp_ss      = step4_Kp_ss
     Kp_ss_hold = step4_Kp_ss_hold
@@ -1282,7 +1303,11 @@ def step4():
     sp = setpoint + overshoot
     dbg_msg = 'Starting step4 ....'  
     log_dbg(dbg_msg)
-    
+
+    # Write to shared memory
+    sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 4)
+    write_to_shared_memory(mapfile, sm)
+
     print "step 4 start tmpr and overshoot setpoint", tmpr, overshoot, setpoint
     
     while (1):
@@ -1383,6 +1408,8 @@ def main(*argv):
     global gdbg_file_h, gtmpr_logfile_h #, gTec_config_h, gPID_gains_h
     global gTmpr, gTsample
     global mapfile
+    global current_cycle
+
     if len(sys.argv) > 1:
         num_cycles = int (sys.argv[1])
     else: 
@@ -1390,8 +1417,8 @@ def main(*argv):
 
     dbg_file_n = "TEC_logfile-" + time.strftime("%Y%m%d-%H%M%S") +'.txt'
     tmpr_log_n = "TEC_tmprlog-" + time.strftime("%Y%m%d-%H%M%S") +'.txt'    
-    gdbg_file_h     = open ("/home/clawton/workspace/logs/tec_logs/" + dbg_file_n,'w')
-    gtmpr_logfile_h = open ("/home/clawton/workspace/logs/tmpr_log/" + tmpr_log_n,'w')
+    gdbg_file_h     = open ("../logs/tec_logs/" + dbg_file_n,'w')
+    gtmpr_logfile_h = open ("../logs/tmpr_log/" + tmpr_log_n,'w')
     
     dbg_msg = " <TEC_cntrl version 26>"
     log_dbg(dbg_msg)
@@ -1438,6 +1465,7 @@ def main(*argv):
 
     # start cycles 
     for cycle in range (1, num_cycles):
+        current_cycle = cycle
         tmpr = Tblock = write_control_output (CMD_TYPE_OUTPUT, IDLE_TMPR)
 #         Tsample = rcFilter(Tblock, Tsample, Ts, Sample_time_constant)    
         Tsample = rcFilter(Tblock, Tsample, 0.5, Sample_time_constant)
@@ -1469,14 +1497,51 @@ def main(*argv):
     print dbg_msg
 
     mapfile.close()
-    posix_ipc.unlink_shared_memory(tecControllerSM)
+    posix_ipc.unlink_shared_memory("tecControllerSM")
     
     gSerial_port.close()
     close_log_tmpr_file()
     close_log_dbg()
 
+
+def sigterm_handler(_signo, _stack_frame):
+    do_exit()
+
+
+def do_exit():
+    global mapfile
+
+    mapfile.close()
+    posix_ipc.unlink_shared_memory("tecControllerSM")
+    TECOff('/dev/ttyUSB0')
+
+def TECOff(serialPortName):
+    try:
+        bst = ['*', '1', '0', '0', '0', '0', '0', '2', '1', '\r']  # 0 output
+        buf = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        print ("Turn TEC off ....")
+        ser = serial.Serial(serialPortName, 115200, timeout=1)
+        for pn in range(0, 10):
+            ser.write(bst[pn])
+        for pn in range(0, 8):
+            buf[pn] = ser.read(1)
+            # print(buf[pn])
+        ser.close()
+        temp1 = hexc2dec(buf)
+        print ("TEC Temp at TECOff: " + str(temp1 / 10.0))
+        return True
+    except Exception, e:
+        print ("Failed to communicate with TEC.")
+        return False
+
+
+
+
 #===============================================================================
 # main()
 #===============================================================================
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, sigterm_handler)
+    signal.signal(signal.SIGINT, sigterm_handler)
     main()
