@@ -1,0 +1,3 @@
+class deviceSubProcess:
+    cmd=""
+    args=[]
