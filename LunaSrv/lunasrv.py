@@ -1,3 +1,12 @@
+"""
+Module: lunasrv.py
+Author: Chris Lawton, DLS Solutions, Inc.
+Description:  This module is the entry point for the Luna system's instrument controller software,
+known as LunaSrv.  Communication to LunaSrv is via pipes where this processes' stdin is monitored
+for commands and responses are sent out on stdout.  There are two supporting classes: device_scanner and
+device (and its derived types).  They are responsible for handling system setup discovery and communication
+with an individual device in the system,
+"""
 import device_scanner
 import logging
 from logging.config import fileConfig
@@ -14,6 +23,16 @@ cnum = 0
 
 
 def processINVTHW(receivedDeviceName, recievedArgs):
+    """
+    Process the INVenTory HardWare command.  Will initiate a scan of the system
+    looking for expected devices. Expected devices are defined in the config file
+    ..\config\LunaSrvDeviceConfig.xml.  Found devices are initialized as per their
+    type.  Finally, for each expected device a status message is sent to the pipe
+    containing the name of a specific device and its status.
+    :param receivedDeviceName: Target device, in this case should be empty
+    :param recievedArgs: Expected command arguments, None for this command
+    :return: None
+    """
     global scanner
     global cnum
     
@@ -23,7 +42,8 @@ def processINVTHW(receivedDeviceName, recievedArgs):
     path = os.path.dirname(os.path.abspath(__file__))
     path += "/../config"
     configFile = path + "/LunaSrvDeviceConfig.xml"
-    
+
+    # Clean up old status so we can go again if needed.
     if scanner != None:
         for aDevice in scanner.foundDevices:
             aDevice.Shutdown()
@@ -33,7 +53,7 @@ def processINVTHW(receivedDeviceName, recievedArgs):
         scanner = None
 
     # Get a device scanner.  This will also read and parse the xml file.
-    if scanner == None: 
+    if scanner is None:
         scanner = device_scanner.DeviceScanner(configFile)
     
     # Perform an inventory of devices using the xml as a guide as to what to look for.
@@ -54,7 +74,7 @@ def processINVTHW(receivedDeviceName, recievedArgs):
         args = ""
         if (aDevice.checked == True and aDevice.initialized == True):
             args = "READY"
-        elif (aDevice.checked == True and aDevice.initialized == True):
+        elif (aDevice.checked == True and aDevice.initialized == False):
             args = "NOT READY"
         else:
             args = "NOT FOUND"
@@ -70,19 +90,31 @@ def processINVTHW(receivedDeviceName, recievedArgs):
         sys.stdout.flush()
         
         
-        
 def processGETVI(receivedDeviceName, recievedArgs):
+    """
+    Process the GET Voltage and Current(I) command.
+    Queries the High Voltage Power Supply device for Voltage and Current.
+    Sends back data to caller.
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
     global scanner
     global cnum
     
     logger.info("Handle GETVI command")
     
-    if scanner == None:
+    if scanner is None:
         sendFAILResponse("GETVI", receivedDeviceName)
         return
 
-    
-    aDevice = next(x for x in scanner.foundDevices if x.name == receivedDeviceName)
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("GETVI", receivedDeviceName)
+        return
+
     aDevice.Write("GETVI\n")
     data = aDevice.GetLastResponse()
     
@@ -100,9 +132,9 @@ def processGETVI(receivedDeviceName, recievedArgs):
         args = data[16:]
     else:
         args = "SYNTAX"
-        
 
-    size = 94 + len(args) + 1           
+    # Send back results
+    size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
         {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "GETVI", "args": args }
     
@@ -112,18 +144,33 @@ def processGETVI(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-        
+
+
+
 def processSETV(receivedDeviceName, recievedArgs):
+    """
+    Process the SET Voltage command.  Sends a set voltage command to the named device
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Voltage to set.
+    :return: None
+    """
     global scanner
     global cnum
     
     logger.info("Handle SETV command")
-    
-    if scanner == None:
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
         sendFAILResponse("SETV", receivedDeviceName)
         return
-    
-    aDevice = next(x for x in scanner.foundDevices if x.name == receivedDeviceName)
+
+    #Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("SETV", receivedDeviceName)
+        return
+
     aDevice.Write("SETV " + str(recievedArgs) + "\n")
     data = aDevice.GetLastResponse()
     
@@ -142,7 +189,7 @@ def processSETV(receivedDeviceName, recievedArgs):
     else:
         args = "SYNTAX"
         
-
+    # Send results back to caller
     size = 94 + len(args) + 1           
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
         {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "SETV", "args": args }
@@ -155,38 +202,52 @@ def processSETV(receivedDeviceName, recievedArgs):
 
 
 def processSHUTDOWN(receivedDeviceName, recievedArgs):
+    """
+    Process SHUTDOWN command.  Will shutdown all devices and exit.
+    No response is sent.
+    :param receivedDeviceName: None
+    :param recievedArgs: None
+    :return: None
+    """
     logger.info("Handle SHUTDOWN command")
     do_exit()
 
 
 def processSTARTSEQ(receivedDeviceName, recievedArgs):
+    """
+    Process the START SEQuence command.  The sequence is a thermocycler sequence.
+    :param receivedDeviceName: The target device.
+    :param recievedArgs: Number of cycles
+    :return: None
+    """
     global scanner
     global cnum
 
     logger.info("Handle STARTSEQ command")
 
-    if scanner == None:
+    if scanner is None:
         sendFAILResponse("STARTSEQ", receivedDeviceName)
         return
 
-    aDevice = next(x for x in scanner.foundDevices if x.name == receivedDeviceName)
+    aDevice = get_device_by_name(receivedDeviceName)
     if aDevice is None:
         sendFAILResponse("STARTSEQ", receivedDeviceName)
         return
 
     cycles = int(recievedArgs)
 
-    #Start the TEC Sequence.  This launches a speparate python process to control the sequence.
+    # Start the TEC Sequence.  This launches a speparate python process to control the sequence.
     success = aDevice.StartTECSequence(cycles)
 
     args = ""
     if success == True:
-        #Now it's okay to start listening for data from the TEC.
-        aDevice.Read()
+        # Now it's okay to start listening for data from the TEC.
+        aDevice.Read() # Non-blocking
         args = "OK"
     else:
         args = "FAIL"
 
+    # Send caller response
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STARTSEQ", "args": args}
@@ -198,16 +259,23 @@ def processSTARTSEQ(receivedDeviceName, recievedArgs):
 
 
 def processSTOPSEQ(receivedDeviceName, recievedArgs):
+    """
+    Process the STOP SEQuence command. Will stop a running thermocycler sequence.
+    :param receivedDeviceName: The target device.
+    :param recievedArgs: None.
+    :return: None
+    """
     global scanner
     global cnum
 
     logger.info("Handle STOPSEQ command")
 
-    if scanner == None:
+    if scanner is None:
         sendFAILResponse("STOPSEQ", receivedDeviceName)
         return
 
-    aDevice = next(x for x in scanner.foundDevices if x.name == receivedDeviceName)
+    # Find the device and perform a shutdown.
+    aDevice = get_device_by_name(receivedDeviceName)
     if aDevice is None:
         sendFAILResponse("STOPSEQ", receivedDeviceName)
         return
@@ -216,7 +284,7 @@ def processSTOPSEQ(receivedDeviceName, recievedArgs):
 
     args = "OK"
 
-
+    # Send caller response
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STOPSEQ", "args": args}
@@ -228,22 +296,33 @@ def processSTOPSEQ(receivedDeviceName, recievedArgs):
 
 
 def processREADSEQD(receivedDeviceName, recievedArgs):
+    """
+    Process the READ SEQuence Data command.  Will read current date from the thermocycler device.
+    This includes block temp, sample temp, current cycle and current step/
+    :param receivedDeviceName: The target device
+    :param recievedArgs: None
+    :return: None
+    """
     global scanner
     global cnum
 
     logger.info("Handle READSEQD command")
 
-    if scanner == None:
+    if scanner is None:
         sendFAILResponse("READSEQD", receivedDeviceName)
         return
 
-    aDevice = next(x for x in scanner.foundDevices if x.name == receivedDeviceName)
+    # Find device, read last data, and send response.
+    aDevice = get_device_by_name(receivedDeviceName)
+    if aDevice is None:
+        sendFAILResponse("READSEQD", receivedDeviceName)
+        return
+
+    # Get last bit of data from device
     aDevice.Write("READSEQD\n")
     args = aDevice.GetLastResponse()
 
-
-
-
+    # Send our response
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "READSEQD", "args": args}
@@ -254,9 +333,30 @@ def processREADSEQD(receivedDeviceName, recievedArgs):
     sys.stdout.flush()
 
 
+def get_device_by_name(receivedDeviceName):
+    """
+    Get a device by its name from the scanners found devices/
+    :param receivedDeviceName: Device to look for.
+    :return: a device on success, None otherwise
+    """
+    global scanner
+    try:
+        aDevice = next(x for x in scanner.foundDevices if x.name == receivedDeviceName)
+        return aDevice
+    except Exception, e:
+        return None
+
+
 def sendFAILResponse(recievedCmd, receivedDeviceName):
+    """
+    Send a general FAIL response for a given command and device
+    :param recievedCmd: Failed command.
+    :param receivedDeviceName: Device Name
+    :return: None
+    """
     global cnum
 
+    # Send the FAIL status
     args = "FAIL"
     size = 94 + len(args) + 1           
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
@@ -269,29 +369,42 @@ def sendFAILResponse(recievedCmd, receivedDeviceName):
 
 
 def waitForCommands():
+    """
+    Poll for commands on stdin.  Commands are expected to be line-feed terminated.
+    See the document: "Instrument Control Command Set" for details on command layout
+    and supported commands.
+    :return:
+    """
     global cnum
     
     while (1):
-        #Wait for data to arrive on stdin(==0)
+        # Wait for data to arrive on stdin(==0)
         if select.select([sys.stdin,],[],[])[0]:
             line = sys.stdin.readline()
             line = line.strip()
             if len(line) > 0:
                 logger.debug(line)
-                
+
+                # Parse out individual fields
                 cnum = int (line[0:10].strip())
                 cmdLen =int (line[10:20].strip())
                 cmd = line[84:93].strip()
                 devName=line[20:83].strip()
                 args = line[94:cmdLen].strip()
                 logger.debug("Command Number: " + str(cnum) + " Device Name" + devName + "  Parsed command: <"+cmd+">  Args: <" + args + ">" )
+                # Call the appropriate handler function.
                 cmdmap[cmd](devName,args)
                 
 
 def do_exit():
+    """
+    Gracefully shutdown the system and exit.
+    :return: None
+    """
     global scanner
     logger.info('Stopping devices...')
 
+    # Stop every device.
     if scanner is not None:
         for aDevice in scanner.foundDevices:
             aDevice.Shutdown()
@@ -302,12 +415,22 @@ def do_exit():
 
 
 def sigterm_handler(_signo, _stack_frame):
+    """
+    Handle a unix style signal.  In this case, handle SIGTERM.
+    Will call our shutdown routine.
+    :param _signo: Unix Signal Number, e.g. SIGTERM
+    :param _stack_frame: Current stack
+    :return: None
+    """
     do_exit()
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGTERM, sigterm_handler)
-    
+    # Set up a signal handler to handle most common reasons for stopping.
+    signal.signal(signal.SIGTERM, sigterm_handler) # kill
+    signal.signal(signal.SIGINT, sigterm_handler) # Ctrl-C
+
+    # Setup all function calling vector for each supported command.
     cmdmap = {"INVTHW": processINVTHW,
                "GETVI": processGETVI,
                "SETV": processSETV,
@@ -324,10 +447,12 @@ if __name__ == '__main__':
 
     path += "/../config"
     loggerIniFile = path + "/LunaSrvLogger.ini"
-    
+
+    # Start our logger
     fileConfig(loggerIniFile)
     logger = logging.getLogger()
     logger.info('--------------Start--------------')
-    
+
+    # loop forever
     waitForCommands()
     

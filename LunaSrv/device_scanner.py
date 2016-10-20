@@ -1,4 +1,14 @@
-
+"""
+Module: device_scanner.py
+Author: Chris Lawton, DLS Solutions, Inc.
+Description:  This module is resposible for performing a system scan (aka an inventory)
+of devices that are expected to be present on the system.  These devices are defined in
+the ../config/LunaSrv/LunaSrcDeviceConfig.xml file.  There are currently three types of
+devices supported and are categorized by how they communicate with the OS.
+  1) USB-Serial:    Devices that communicate via a serial port (e.g. /dev/ttyXXXX
+  2) USB:           Devices that communicate via a vendor supplied API
+  3) Ethernet:      Devices that communicate via TCP/IP
+"""
 import xml.etree.ElementTree as ET
 import usb_serial_device
 import usb_device
@@ -12,16 +22,22 @@ import os
 import logbase
 
 
-
-# A class to scan (i.e. look for) devices on the system
-# It uses an XML file as directions for what to look for.
 class DeviceScanner(logbase.LogBase):
+    """
+    A class to scan (i.e. look for) devices on the system
+    It uses an XML file as directions for what to look for.
+    """
     
     configurationFile = ""
-    expectedDevices = []
-    foundDevices = []
+    expectedDevices = [] # List of expected devices
+    foundDevices = []    # List of devices actually found on the system
     
     def __init__(self, fullPathToConfigFile):
+        """
+        Constructor, will scan the config file and record info found there.
+        :param fullPathToConfigFile: Full path to file to read
+        """
+
         self.configurationFile=fullPathToConfigFile
 
         self.logger.debug("Read XML file: " + self.configurationFile)
@@ -40,7 +56,8 @@ class DeviceScanner(logbase.LogBase):
             aUSBSerialDevice.uid = elemUSBSerial.attrib['Uid']
             
             for x in  elemUSBSerial:
-            
+
+                # A serial USB device should have port settings associated with it
                 elemPortSettings = None
                 if x.tag == 'PortSettings':
                     elemPortSettings = x
@@ -50,7 +67,10 @@ class DeviceScanner(logbase.LogBase):
                     aUSBSerialDevice.portSettings.parity = elemPortSettings.attrib['Parity']
                     aUSBSerialDevice.portSettings.dataBits = int(elemPortSettings.attrib['DataBits'])
                     aUSBSerialDevice.portSettings.stopBits = int(elemPortSettings.attrib['StopBits'])
-                    
+
+                # Some of our serial USB devices have a special intermediate process that does the
+                # actual communication with the device.  How to start that process is defined in the
+                # subprocess element.
                 elemSubProcess = None
                 if x.tag == 'SubProcess':
                     elemSubProcess = x
@@ -60,13 +80,10 @@ class DeviceScanner(logbase.LogBase):
                     for anArg in elemSubProcess.iter('Arg'):
                         aUSBSerialDevice.subProc.args.append(anArg.attrib['arg'])
                     
-                    
-                    
-                
-                
             if len(aUSBSerialDevice.subProc.cmd) == 0:
                 aUSBSerialDevice.subProc = None    
-            
+
+            # Remember what we've read.
             self.expectedDevices.append(aUSBSerialDevice)
             
             
@@ -94,16 +111,18 @@ class DeviceScanner(logbase.LogBase):
             
             self.expectedDevices.append(anEthernetDevice)
             
-    
     def InventoryDevices(self):
+        """
+        Perform an inventory of the expected devices.  Record the results in foundDevices
+        :return: None
+        """
         self.logger.debug("Start Inventory...")
-        
-        
         
         # Find our desired usb devices.  These should be present in /dev somewhere.
         osDevices = os.listdir("/dev")
         osDevices.sort()
-        
+
+        # Loop through all devices in /dev asking them what they are.
         for anOSDevice in osDevices:
             
             deviceName = "/dev/" + anOSDevice
@@ -127,6 +146,7 @@ class DeviceScanner(logbase.LogBase):
                     if len(parts) > 1:
                         kvParts = re.split("[=]", parts[1].__str__())
                         #print(kvParts)
+                        # We care about procuct id, vendor id and serial number.
                         if (kvParts[0] == "ID_VENDOR_ID"):
                             vid = kvParts[1][:-1]
                         if (kvParts[0] == "ID_MODEL_ID"):
@@ -136,6 +156,7 @@ class DeviceScanner(logbase.LogBase):
                 else:
                     break
 
+            # We found a device with a Product ID and Vendor ID.  Is it one were expecting?
             if len(pid) > 0 and len(vid) > 0:
                 self.logger.info( "Checking if device with ProductID: " + pid + " and VendorID: " + vid + " on " + deviceName + " is needed...") 
                 foundItem = next((x for x in self.expectedDevices if isinstance(x, (usb_serial_device.USBSerialDevice, usb_device.USBDevice)) and 
@@ -147,6 +168,7 @@ class DeviceScanner(logbase.LogBase):
                 if foundItem is not None:
                     if isinstance(foundItem, usb_serial_device.USBSerialDevice) == True:
                         if anOSDevice.startswith( 'tty') == True:
+                            # Device is a Serial USB device.
                             foundItem.devPath = deviceName
                             foundItem.inventoried = True
                             foundItem.checked = True
@@ -182,7 +204,7 @@ class DeviceScanner(logbase.LogBase):
             else:
                 break
                 
-            
+        # Record what we found.
         self.logger.info("The following devices were inventoried:")
         for x in self.expectedDevices:
             if x.inventoried == True:
