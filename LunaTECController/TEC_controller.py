@@ -148,13 +148,12 @@ Sample_time_constant = 5.0 # secs
 def write_to_shared_memory(a_map_file, s):
     global shared_mem_sema
 
-    shared_mem_sema.acquire()
     try:
-
+        shared_mem_sema.acquire(0.1)
         a_map_file.seek(0)
         a_map_file.write(s)
     except Exception, e:
-        pass # okay to swallow. This can occur durring a shutdown.
+        log_dbg(e)
     shared_mem_sema.release()
 
 #===============================================================================
@@ -163,14 +162,14 @@ def write_to_shared_memory(a_map_file, s):
 def plot_blk_smp(): 
     global gTmpr
     
-    plt.ylim(30,105)                                 # y axis limits
+    plt.ylim(30,110)                                 # y axis limits
     plt.title('Block Data (thermister')             
     plt.grid(True)                                  # grid on
     plt.ylabel('Tmpr deg C')                            
     plt.plot(Tblock_arr, 'r-', label='Tblock')       #plot the temperature
     plt.legend(loc='upper left')                    
     plt2=plt.twinx()
-    plt.ylim(0, 110) 
+    plt.ylim(30, 110)
     major_ytick = numpy.arange(0, 110, 5)
     minor_ytick = numpy.arange(0, 110, 2)
 #     plt.set_yticks( major_ytick )
@@ -1433,7 +1432,7 @@ def main(*argv):
     dbg_msg = " ** Starting Luna logfile ** %s " % file
     log_dbg(dbg_msg)
 
-    shared_mem_sema = posix_ipc.Semaphore("/tecSMProtection", posix_ipc.O_CREAT, initial_value = 1)
+    shared_mem_sema = posix_ipc.Semaphore("/tecSMProtection", posix_ipc.O_CREAT)
     shared_mem_sema.release()
     sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT|posix_ipc.O_TRUNC, size=128)
 
