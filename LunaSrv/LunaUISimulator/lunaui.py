@@ -15,7 +15,7 @@ def printmenu():
     print " 4\tStart Thermo Cycler Sequence"
     print " 5\tAbort Thermo Cycler Sequence"
     print " 6\tRead Thermo Cycler Sequence Data"
-    print " -1\tQuit"
+    print " 0\tQuit"
     
     sys.stdout.write("Select Command: ")
     sys.stdout.flush()
@@ -23,7 +23,7 @@ def printmenu():
  
 def getChoice():
     c = getUserInt()
-    if c == -1 or c>0:
+    if c >= 0:
         return c
     else:
         print "Invalid Choice"
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         printmenu()
         choice = getChoice()
     
-        if choice == -1:
+        if choice == 0:
             doSHUTDOWN(cnum)
             w = proc.wait()
             if w is None:

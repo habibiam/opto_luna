@@ -301,7 +301,7 @@ class USBSerialDevice(device.Device):
         if self.name == "TECController" and self.proc is None:
             return "FAIL"
 
-        if self.serialPort is None:
+        if self.serialPort is None and self.name != "TECController":
             return "FAIL"
 
         return self.lastMsg
