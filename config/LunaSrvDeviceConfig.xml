@@ -24,7 +24,7 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 			<SubProcess cmd="/usr/bin/python">
 				<Args>
 					<Arg arg="-u"/>
-					<Arg arg="/home/clawton/opto_luna/LunaTECController/TEC_controller.py"/>
+					<Arg arg="../LunaTECController/TEC_controller.py"/>
 				</Args>
 			</SubProcess>
 		</USBSerial>
