@@ -221,6 +221,9 @@ class USBSerialDevice(device.Device):
         """
         self.logger.debug("Start shared memory reader for device on " + self.name)
 
+        # Get our shared memorm protection semaphore. The name should be the same as used
+        # in the TEC Controller subprocess.
+        shared_mem_sema = posix_ipc.Semaphore("/tecSMProtection", posix_ipc.O_CREAT)
         # Open our known shared memory.  The name should be the same as used in the TEC Controller subprocess.
         sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT | posix_ipc.O_TRUNC, size=128)
 
@@ -238,8 +241,11 @@ class USBSerialDevice(device.Device):
         while self.stop == False and self.proc is not None and self.proc.returncode is None:
 
             # Read from the beginning of shared memory to a new line.
+            shared_mem_sema.acquire()
+            # with posix_ipc.Semaphore("/tecSMProtection"):
             mapfile.seek(0)
             data = mapfile.readline()
+            shared_mem_sema.release()
             data = data.strip()
             # self.logger.debug("SM Data: <" + data + ">")
 

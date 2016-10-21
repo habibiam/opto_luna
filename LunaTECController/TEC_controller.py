@@ -29,6 +29,7 @@ global gSerial_port
 global gTmpr
 #mapfile is a descriptor to a memory mapped file
 mapfile = None
+shared_mem_sema = None
 # initial setup for manual control = 1, output = 2
 CMD_TYPE_CFG    = 1
 CMD_TYPE_OUTPUT = 2
@@ -145,12 +146,16 @@ Sample_time_constant = 5.0 # secs
 
 
 def write_to_shared_memory(a_map_file, s):
+    global shared_mem_sema
+
+    shared_mem_sema.acquire()
     try:
+
         a_map_file.seek(0)
         a_map_file.write(s)
     except Exception, e:
         pass # okay to swallow. This can occur durring a shutdown.
-
+    shared_mem_sema.release()
 
 #===============================================================================
 # Create figure window
@@ -1410,7 +1415,7 @@ def main(*argv):
     global manual_output_enble
     global gdbg_file_h, gtmpr_logfile_h #, gTec_config_h, gPID_gains_h
     global gTmpr, gTsample
-    global mapfile
+    global mapfile, shared_mem_sema
     global current_cycle
 
     if len(sys.argv) > 1:
@@ -1428,6 +1433,8 @@ def main(*argv):
     dbg_msg = " ** Starting Luna logfile ** %s " % file
     log_dbg(dbg_msg)
 
+    shared_mem_sema = posix_ipc.Semaphore("/tecSMProtection", posix_ipc.O_CREAT, initial_value = 1)
+    shared_mem_sema.release()
     sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT|posix_ipc.O_TRUNC, size=128)
 
     # MMap the shared memory
@@ -1513,9 +1520,11 @@ def sigterm_handler(_signo, _stack_frame):
 
 def do_exit():
     global mapfile
+    global shared_mem_sema
 
     mapfile.close()
     posix_ipc.unlink_shared_memory("tecControllerSM")
+    shared_mem_sema.close()
     TECOff('/dev/ttyUSB0')
 
 def TECOff(serialPortName):
