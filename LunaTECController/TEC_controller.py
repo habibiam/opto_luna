@@ -1307,10 +1307,6 @@ def step4():
     dbg_msg = 'Starting step4 ....'  
     log_dbg(dbg_msg)
 
-    # Write to shared memory
-    sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 4)
-    write_to_shared_memory(mapfile, sm)
-
     print "step 4 start tmpr and overshoot setpoint", tmpr, overshoot, setpoint
     
     while (1):
@@ -1369,6 +1365,10 @@ def step4():
         dbg_msg = "STP4<st%2d><sp%5.2f><BlkT %5.2f><SmpT %5.2f><Err %5.2f> <U %5.2f>   <Up %5.2f> <Ui_k %5.2f>  <Ud %5.2f>  <tec_out %4d> \
         <Kp =%5.2f><Ti =%5.2f><Kd =%5.2f>"  % (state, sp, Tblock, gTsample, e,    U,    Up,  Ui_k, Ud, tec_output, Kp, Ti, Kd)
         log_dbg(dbg_msg)
+
+        # Write to shared memory
+        sm = "%5.6f  %5.6f %-04d %-04d\n" % (Tblock, gTsample, current_cycle, 4)
+        write_to_shared_memory(mapfile, sm)
 
         if (ss_flag):  # Start hold time clock
             if abs(ma_e) < 0.5:
