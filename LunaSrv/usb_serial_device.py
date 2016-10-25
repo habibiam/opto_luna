@@ -16,6 +16,7 @@ import subprocess
 import tec_utils
 import mmap
 import posix_ipc
+import process_lock
 
 
 class USBSerialDevice(device.Device):
@@ -204,11 +205,16 @@ class USBSerialDevice(device.Device):
             # Get a /dev/null to send stderr to.
             FNULL = open(os.devnull, 'w')
             self.logger.debug("Starting subprocess:" + str(cmd))
-            self.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=FNULL)
+            self.proc = subprocess.Popen(cmd, stdout=FNULL, stderr=FNULL)
 
-            if self.proc is None:
-                self.logger.debug("Failed to start process.")
+            if self.proc is None or self.proc.returncode is not None:
+                if self.proc.returncode is not None:
+                    self.logger.debug("Process exited immediately with return code: " + str(self.proc.returncode))
+                    self.proc = None
+                else:
+                    self.logger.debug("Failed to start process.")
                 return False
+
             # Give the process time to start up before continuing
             time.sleep(5)
             return True
@@ -223,7 +229,8 @@ class USBSerialDevice(device.Device):
 
         # Get our shared memorm protection semaphore. The name should be the same as used
         # in the TEC Controller subprocess.
-        shared_mem_sema = posix_ipc.Semaphore("/tecSMProtection", posix_ipc.O_CREAT)
+        shared_mem_lock = process_lock.ProcessLock("/tmp/TECControllerSMLock.tmp")
+
         # Open our known shared memory.  The name should be the same as used in the TEC Controller subprocess.
         sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT | posix_ipc.O_TRUNC, size=128)
 
@@ -241,11 +248,14 @@ class USBSerialDevice(device.Device):
         while self.stop == False and self.proc is not None and self.proc.returncode is None:
 
             # Read from the beginning of shared memory to a new line.
-            shared_mem_sema.acquire()
-            # with posix_ipc.Semaphore("/tecSMProtection"):
-            mapfile.seek(0)
-            data = mapfile.readline()
-            shared_mem_sema.release()
+            try:
+                shared_mem_lock.acquire()
+                mapfile.seek(0)
+                data = mapfile.readline()
+                shared_mem_lock.release()
+            except Exception,e:
+                self.logger.error(e.message)
+
             data = data.strip()
             # self.logger.debug("SM Data: <" + data + ">")
 
@@ -270,7 +280,6 @@ class USBSerialDevice(device.Device):
 
                 except Exception, e:
                     self.logger.debug("Bad sm data")
-                    pass
 
             time.sleep(0.5)
 

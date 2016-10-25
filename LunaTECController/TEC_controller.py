@@ -22,6 +22,9 @@ from sys import argv
 import posix_ipc # sudo pip install posix_ipc
 import mmap
 import signal
+import process_lock
+
+
 
 IDLE_TMPR = 30  # 12% duty cycle set block tmpr to about 30C
 graph_points = 100
@@ -29,7 +32,8 @@ global gSerial_port
 global gTmpr
 #mapfile is a descriptor to a memory mapped file
 mapfile = None
-shared_mem_sema = None
+shared_mem_lock = None
+
 # initial setup for manual control = 1, output = 2
 CMD_TYPE_CFG    = 1
 CMD_TYPE_OUTPUT = 2
@@ -146,15 +150,15 @@ Sample_time_constant = 5.0 # secs
 
 
 def write_to_shared_memory(a_map_file, s):
-    global shared_mem_sema
+    global shared_mem_lock
 
     try:
-        shared_mem_sema.acquire(0.1)
+        shared_mem_lock.acquire()
         a_map_file.seek(0)
         a_map_file.write(s)
+        shared_mem_lock.release()
     except Exception, e:
-        log_dbg(e)
-    shared_mem_sema.release()
+        log_dbg(e.message)
 
 #===============================================================================
 # Create figure window
@@ -368,6 +372,7 @@ def log_dbg(msg):
     gdbg_file_h.write (msg)
     if LOG == True:
         gdbg_file_h.write ('\n')
+        gdbg_file_h.flush()
     if prntflg == 1:
         print (msg)
 
@@ -1414,8 +1419,9 @@ def main(*argv):
     global manual_output_enble
     global gdbg_file_h, gtmpr_logfile_h #, gTec_config_h, gPID_gains_h
     global gTmpr, gTsample
-    global mapfile, shared_mem_sema
+    global mapfile, shared_mem_lock
     global current_cycle
+
 
     if len(sys.argv) > 1:
         num_cycles = int (sys.argv[1])
@@ -1432,13 +1438,19 @@ def main(*argv):
     dbg_msg = " ** Starting Luna logfile ** %s " % file
     log_dbg(dbg_msg)
 
-    shared_mem_sema = posix_ipc.Semaphore("/tecSMProtection", posix_ipc.O_CREAT)
-    shared_mem_sema.release()
-    sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT|posix_ipc.O_TRUNC, size=128)
 
-    # MMap the shared memory
-    mapfile = mmap.mmap(sharedmem.fd, sharedmem.size)
-    sharedmem.close_fd() # Safe to close this.
+    try:
+        shared_mem_lock = process_lock.ProcessLock("/tmp/TECControllerSMLock.tmp")
+        sharedmem = posix_ipc.SharedMemory("tecControllerSM", posix_ipc.O_CREAT|posix_ipc.O_TRUNC, size=128)
+
+        # MMap the shared memory
+        mapfile = mmap.mmap(sharedmem.fd, sharedmem.size)
+        sharedmem.close_fd()  # Safe to close this.
+    except Exception, e:
+        log_dbg(e.message)
+
+
+
     #------------------------------------------------------------------------------
 #     print " <TEC_cntrl version 26>"
     # open serial port
@@ -1555,4 +1567,8 @@ def TECOff(serialPortName):
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
+
+
+
+
     main()
