@@ -4,8 +4,14 @@ from time import sleep
 from serial import *
 
 from threading import Thread
-
 import subprocess
+
+cnum = 1
+
+# current_volts = None
+# current_amps = None
+# list_box = None
+
 """
 Luna Server Process
 """
@@ -27,10 +33,6 @@ def the_reader_thread():
     Continuously runs in order to read stdout and then from there display it onto the status window
     :return:
     """
-    global proc
-    global current_amps
-    global current_volts
-    global current_status
 
     while(True):
         out = proc.stdout.readline()
@@ -45,7 +47,6 @@ def the_reader_thread():
             list_box.insert(END, instrument_name+" is "+args)
         elif cmd=="SHUTDOWN": #Won't output Shutdown because there's no response.
             luna.quit()
-            pass
         elif cmd=="GETVI":
             if args == "SYNTAX" or args == "":
                 # Error Checking, sometimes hardware issues. Not connected properly.
@@ -65,7 +66,16 @@ def the_reader_thread():
         elif cmd=="STOPSEQ":
             pass
         elif cmd=="READSEQD":
-            pass
+            message_status = args.split()
+            if message_status[0] == "OK":
+                block_temp = message_status[1]
+                sample_temp = message_status[2]
+                cycle = message_status[3]
+                step = message_status[4]
+                current_block_temp.set(block_temp)
+                current_sample_temp.set(sample_temp)
+                current_cycle.set(cycle)
+                current_number_of_steps.set(step)
 
 reader_thread = Thread(target=the_reader_thread)
 # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
@@ -84,59 +94,14 @@ class LunaUI(Tk):
 
     def quit(self):
         self.destroy()
-        self.quit()
 
 luna = LunaUI()
 
-# luna = LunaUI()
-# luna.wm_title("Status Window")
-# # input = serial.Serial()
-#
-# current_volts = StringVar()
-# current_amps = StringVar()
-# cur_temp = StringVar()
-#
-#
-# def connectBtn():
-#     data = luna._pipe.recv()
-#     cur_temp.set(str(data))
-#     luna.update()
-#
-# def display_current_volt_and_current():
-#     volts, current = luna._pipe.recv()
-#     current_volts.set(str(volts))
-#     current_amps.set(str(current))
-#     luna.update()
-#
-#
-# voltage_label = Label(luna, text="Voltage (V):")
-# current_label = Label(luna, text="Current (A):")
-# sample_temp_label = Label(luna, text="Temperature(C):")
-#
-# current_volts_dynamic_label = Label(luna, textvariable=current_volts)
-# current_amps_dynamic_label = Label(luna, textvariable=current_amps)
-# current_temp_dynamic_label = Label(luna, textvariable=cur_temp)
-#
-# set_voltage_label = Label(luna, text="Volts")
-# set_voltage_entry = Entry(luna)
-# write_button = Button(luna, text="SEND", command=display_current_volt_and_current)
-#
-# voltage_label.grid(row=0, column=0)
-# current_label.grid(row=0, column=1)
-# sample_temp_label.grid(row=0, column=2)
-#
-# current_volts_dynamic_label.grid(row=1, column=0)
-# current_amps_dynamic_label.grid(row=1, column=1)
-# current_temp_dynamic_label.grid(row=1, column=2)
-#
-# set_voltage_label.grid(row=2, column=0)
-# set_voltage_entry.grid(row=2, column=1)
-# write_button.grid(row=2, column=2)
-"""
-Inventory Hardware
-INVTHW
-"""
 def on_send_button_click():
+    """
+    INVTHW
+    :return:
+    """
     global proc
     global cnum
     size = 94
@@ -242,50 +207,17 @@ def read_TEC_Seq_button_click():
     proc.stdin.write(cmd)
     cnum+=1
 
-cnum = 1
-reader_thread = None
-
-current_volts = None
-current_amps = None
-current_status = None
-list_box = None
-
 if __name__ == '__main__':
-    # cmd = [
-    #     "python",
-    #     "../LunaSrv/lunasrv.py"
-    # ]
-    """
-    Process to run LunaSRV
-    """
-
-    # """
-    # start reader thread
-    # Separate thread to display the message/status of the Devices
-    # """
-    # reader_thread = Thread(target=the_reader_thread)
-    # """
-    # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
-    # """
-    # reader_thread.daemon = True
-    # reader_thread.start()
-    # """
-    # start GUI
-    # """
-    # luna = LunaUI()
     """
     1) Start reader_thread
     """
-
+    """"Title ('Optokey')"""
     luna.wm_title("Status Window")
     title_label = Label(luna, text="OPTOKEY", fg="red", font=("Helvetica", 16))
     title_label.grid(row=0, column=0, columnspan=8)
 
     current_status_label = Label(luna, text="Current Status")
     current_status_label.grid(row=1, column=0, columnspan=4)
-    # current_status = StringVar()
-    # status_label = Label(luna, textvariable=current_status)
-    # status_label.grid(row=1, column=0, rowspan=2, columnspan=2)
     list_box = Listbox(luna, width=40)
     list_box.grid(row=2, column=0, columnspan=4)
 
@@ -306,10 +238,10 @@ if __name__ == '__main__':
 
     current_volts = StringVar()
     current_amps = StringVar()
-    sample_temp = StringVar()
-    block_temp = StringVar()
+    current_sample_temp = StringVar()
+    current_block_temp = StringVar()
     current_cycle = StringVar()
-    number_of_steps = StringVar()
+    current_number_of_steps = StringVar()
 
     getvi_button = Button(luna, text="GETVI", command=on_getvi_button_click)
     getvi_button.grid(row=5, column=2, columnspan=2)
@@ -317,10 +249,10 @@ if __name__ == '__main__':
     current_amps_dynamic_label = Label(luna, textvariable=current_amps, width=10)
     current_volts_dynamic_label.grid(row=3, column=1)
     current_amps_dynamic_label.grid(row=3, column=3)
-    sample_temp_dynamic_label = Label(luna, textvariable=sample_temp, width=10)
-    block_temp_dynamic_label = Label(luna, textvariable=block_temp, width=10)
+    sample_temp_dynamic_label = Label(luna, textvariable=current_sample_temp, width=10)
+    block_temp_dynamic_label = Label(luna, textvariable=current_block_temp, width=10)
     current_cycle_dynamic_label = Label(luna, textvariable=current_cycle, width=10)
-    number_of_steps_dynamic_label = Label(luna, textvariable=number_of_steps, width=10)
+    number_of_steps_dynamic_label = Label(luna, textvariable=current_number_of_steps, width=10)
     sample_temp_dynamic_label.grid(row=6, column=1)
     block_temp_dynamic_label.grid(row=6, column=3)
     current_cycle_dynamic_label.grid(row=7, column=1)
@@ -345,7 +277,7 @@ if __name__ == '__main__':
     start_TEC_Seq_button = Button(luna, text="Start TEC", command=lambda:start_TEC_Seq_button_click(set_cycle_number_entry))
     start_TEC_Seq_button.grid(row=8, column=3)
 
-    read_TEC_Seq_button = Button(luna, text="TEC status", command=read_TEC_Seq_button_click)
+    read_TEC_Seq_button = Button(luna, text="Read TEC status", command=read_TEC_Seq_button_click)
     read_TEC_Seq_button.grid(row=9, column=0)
     stop_TEC_Seq_button = Button(luna, text="Stop TEC", command=stop_TEC_Seq_button_click)
     stop_TEC_Seq_button.grid(row=9, column=1)

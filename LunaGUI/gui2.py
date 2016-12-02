@@ -6,132 +6,43 @@ from serial import *
 from threading import Thread
 
 import subprocess
-"""
-Luna Server Process
-"""
+
 cmd = [
     "python",
     "../LunaSrv/lunasrv.py"
 ]
 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-"""
-READER Thread
-
-start reader thread
-Separate thread to display the message/status of the Devices
-"""
-def the_reader_thread():
-    """
-    A function that starts in another thread.
-    Continuously runs in order to read stdout and then from there display it onto the status window
-    :return:
-    """
-    global proc
-    global current_amps
-    global current_volts
-    global current_status
-
-    while(True):
-        out = proc.stdout.readline()
-        print "output is "+out
-        cmd = out[84:93].strip()
-        args = out[94:].strip()
-        print "cmd is "+cmd
-        print "args is "+args
-
-        if cmd=="INVTHW":
-            instrument_name = out[20:65].strip()
-            list_box.insert(END, instrument_name+" is "+args)
-        elif cmd=="SHUTDOWN": #Won't output Shutdown because there's no response.
-            luna.quit()
-            pass
-        elif cmd=="GETVI":
-            if args == "SYNTAX" or args == "":
-                # Error Checking, sometimes hardware issues. Not connected properly.
-                on_getvi_button_click()
-            elif args !="FAIL":
-                args = out[94:]
-                args_list = args.split()
-                volt = args_list[0]
-                current = args_list[1]
-                current_volts.set(volt)
-                current_amps.set(current)
-                list_box.insert(END, "Received current voltage and current.")
-        elif cmd=="SETV":
-            list_box.insert(END, "Set voltage")
-        elif cmd == "STARTSEQ":
-            pass
-        elif cmd=="STOPSEQ":
-            pass
-        elif cmd=="READSEQD":
-            pass
-
-reader_thread = Thread(target=the_reader_thread)
-# Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
-reader_thread.daemon = True
-reader_thread.start()
-
-"""
-start GUI
-"""
 class LunaUI(Tk):
     def setReaderPipe(self, pipe):
         self._pipe = pipe
 
     def __init__(self):
         Tk.__init__(self)
-
     def quit(self):
-        self.destroy()
         self.quit()
 
-luna = LunaUI()
+class Luna_gui():
+    def __init__(self, master):
+        self.master = master
+        master.title("GUI I'm working on")
+        # Set cycle number row on GUI
+        self.set_cycle_number_label = Label(luna, text="Cycle Number:")
+        self.set_cycle_number_label.grid(row=8, column=0)
+        self.set_cycle_number_entry = Entry(luna)
+        self.set_cycle_number_entry.grid(row=8, column=1, columnspan=2)
+        self.start_TEC_Seq_button = Button(luna, text="Start TEC",
+                                      command=lambda: start_TEC_Seq_button_click(self.set_cycle_number_entry))
+        self.start_TEC_Seq_button.grid(row=8, column=3)
 
-# luna = LunaUI()
-# luna.wm_title("Status Window")
-# # input = serial.Serial()
-#
-# current_volts = StringVar()
-# current_amps = StringVar()
-# cur_temp = StringVar()
-#
-#
-# def connectBtn():
-#     data = luna._pipe.recv()
-#     cur_temp.set(str(data))
-#     luna.update()
-#
-# def display_current_volt_and_current():
-#     volts, current = luna._pipe.recv()
-#     current_volts.set(str(volts))
-#     current_amps.set(str(current))
-#     luna.update()
-#
-#
-# voltage_label = Label(luna, text="Voltage (V):")
-# current_label = Label(luna, text="Current (A):")
-# sample_temp_label = Label(luna, text="Temperature(C):")
-#
-# current_volts_dynamic_label = Label(luna, textvariable=current_volts)
-# current_amps_dynamic_label = Label(luna, textvariable=current_amps)
-# current_temp_dynamic_label = Label(luna, textvariable=cur_temp)
-#
-# set_voltage_label = Label(luna, text="Volts")
-# set_voltage_entry = Entry(luna)
-# write_button = Button(luna, text="SEND", command=display_current_volt_and_current)
-#
-# voltage_label.grid(row=0, column=0)
-# current_label.grid(row=0, column=1)
-# sample_temp_label.grid(row=0, column=2)
-#
-# current_volts_dynamic_label.grid(row=1, column=0)
-# current_amps_dynamic_label.grid(row=1, column=1)
-# current_temp_dynamic_label.grid(row=1, column=2)
-#
-# set_voltage_label.grid(row=2, column=0)
-# set_voltage_entry.grid(row=2, column=1)
-# write_button.grid(row=2, column=2)
+        self.read_TEC_Seq_button = Button(luna, text="TEC status", command=read_TEC_Seq_button_click)
+        self.read_TEC_Seq_button.grid(row=9, column=0)
+        self.stop_TEC_Seq_button = Button(luna, text="Stop TEC", command=stop_TEC_Seq_button_click)
+        self.stop_TEC_Seq_button.grid(row=9, column=1)
+        self.shutdown_button = Button(luna, text="Shutdown", command=shutdown_button_click)
+        self.shutdown_button.grid(row=9, column=3)
+
+
 """
 Inventory Hardware
 INVTHW
@@ -223,8 +134,10 @@ def shutdown_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SHUTDOWN", "args": args}
     proc.stdin.write(cmd)
-    proc.stdin.flush()
+    # proc.stdin.flush()
+    proc.terminate()
     luna.quit()
+
     cnum+=1
 
 def read_TEC_Seq_button_click():
@@ -241,6 +154,54 @@ def read_TEC_Seq_button_click():
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "READSEQD", "args": args}
     proc.stdin.write(cmd)
     cnum+=1
+
+"""
+READER Thread
+"""
+def the_reader_thread():
+    """
+    A function that starts in another thread.
+    Continuously runs in order to read stdout and then from there display it onto the status window
+    :return:
+    """
+    global proc
+    global current_amps
+    global current_volts
+    global current_status
+
+    while(True):
+        out = proc.stdout.readline()
+        print "output is "+out
+        cmd = out[84:93].strip()
+        args = out[94:].strip()
+        print "cmd is "+cmd
+        print "args is "+args
+
+        if cmd=="INVTHW":
+            instrument_name = out[20:65].strip()
+            list_box.insert(END, instrument_name+" is "+args)
+        elif cmd=="SHUTDOWN":
+            pass
+        elif cmd=="GETVI":
+            if args == "SYNTAX" or args == "":
+                # Error Checking, sometimes hardware issues. Not connected properly.
+                on_getvi_button_click()
+            elif args !="FAIL":
+                args = out[94:]
+                args_list = args.split()
+                volt = args_list[0]
+                current = args_list[1]
+                current_volts.set(volt)
+                current_amps.set(current)
+                list_box.insert(END, "Received current voltage and current.")
+        elif cmd=="SETV":
+            list_box.insert(END, "Set voltage")
+        elif cmd == "STARTSEQ":
+            pass
+        elif cmd=="STOPSEQ":
+            pass
+        elif cmd=="READSEQD":
+            pass
 
 cnum = 1
 reader_thread = None
@@ -259,24 +220,30 @@ if __name__ == '__main__':
     Process to run LunaSRV
     """
 
-    # """
-    # start reader thread
-    # Separate thread to display the message/status of the Devices
-    # """
-    # reader_thread = Thread(target=the_reader_thread)
-    # """
-    # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
-    # """
-    # reader_thread.daemon = True
-    # reader_thread.start()
-    # """
-    # start GUI
-    # """
-    # luna = LunaUI()
     """
-    1) Start reader_thread
+    start reader thread
+    Separate thread to display the message/status of the Devices
     """
+    reader_thread = Thread(target=the_reader_thread)
+    """
+    Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
+    """
+    reader_thread.daemon = True
+    reader_thread.start()
+    """
+    start GUI
+    """
+    root = Tk()
+    luna = Luna_gui(root)
+    """
+    Turn off gui, then terminate the subproccess
+    """
+    luna.mainloop()
+    proc.terminate()
+# luna.mainloop()
 
+"""
+    luna = LunaUI()
     luna.wm_title("Status Window")
     title_label = Label(luna, text="OPTOKEY", fg="red", font=("Helvetica", 16))
     title_label.grid(row=0, column=0, columnspan=8)
@@ -306,10 +273,10 @@ if __name__ == '__main__':
 
     current_volts = StringVar()
     current_amps = StringVar()
-    sample_temp = StringVar()
-    block_temp = StringVar()
+    current_sample_temp = StringVar()
+    current_block_temp = StringVar()
     current_cycle = StringVar()
-    number_of_steps = StringVar()
+    current_number_of_steps = StringVar()
 
     getvi_button = Button(luna, text="GETVI", command=on_getvi_button_click)
     getvi_button.grid(row=5, column=2, columnspan=2)
@@ -317,10 +284,10 @@ if __name__ == '__main__':
     current_amps_dynamic_label = Label(luna, textvariable=current_amps, width=10)
     current_volts_dynamic_label.grid(row=3, column=1)
     current_amps_dynamic_label.grid(row=3, column=3)
-    sample_temp_dynamic_label = Label(luna, textvariable=sample_temp, width=10)
-    block_temp_dynamic_label = Label(luna, textvariable=block_temp, width=10)
+    sample_temp_dynamic_label = Label(luna, textvariable=current_sample_temp, width=10)
+    block_temp_dynamic_label = Label(luna, textvariable=current_block_temp, width=10)
     current_cycle_dynamic_label = Label(luna, textvariable=current_cycle, width=10)
-    number_of_steps_dynamic_label = Label(luna, textvariable=number_of_steps, width=10)
+    number_of_steps_dynamic_label = Label(luna, textvariable=current_number_of_steps, width=10)
     sample_temp_dynamic_label.grid(row=6, column=1)
     block_temp_dynamic_label.grid(row=6, column=3)
     current_cycle_dynamic_label.grid(row=7, column=1)
@@ -351,10 +318,4 @@ if __name__ == '__main__':
     stop_TEC_Seq_button.grid(row=9, column=1)
     shutdown_button = Button(luna, text="Shutdown", command=shutdown_button_click)
     shutdown_button.grid(row=9, column=3)
-
-    """
-    Turn off gui, then terminate the subproccess
-    """
-    luna.mainloop()
-    proc.terminate()
-# luna.mainloop()
+"""
