@@ -151,6 +151,8 @@ class DeviceScanner(logbase.LogBase):
                             vid = kvParts[1][:-1]
                         if (kvParts[0] == "ID_MODEL_ID"):
                             pid = kvParts[1][:-1]
+                        if (kvParts[0] == "ID_SERIAL"):
+                            uid = kvParts[1][:-1]
                         if (kvParts[0] == "ID_SERIAL_SHORT"):
                             uid = kvParts[1][:-1]
                 else:

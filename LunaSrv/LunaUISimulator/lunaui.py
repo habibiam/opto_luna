@@ -15,6 +15,10 @@ def printmenu():
     print " 4\tStart Thermo Cycler Sequence"
     print " 5\tAbort Thermo Cycler Sequence"
     print " 6\tRead Thermo Cycler Sequence Data"
+    print " 7\tRead OBIS Laser Power"
+    print " 8\tTurn OBIS Laser ON"
+    print " 9\tTurn OBIS Laser OFF"
+    print " 10\tSet OBIS Laser Power"
     print " 0\tQuit"
     
     sys.stdout.write("Select Command: ")
@@ -106,6 +110,31 @@ def doREADSEQD(cnum):
     proc.stdin.write(cmd)
     proc.stdin.flush()
 
+def doGETLPWR(cnum):
+    size = 94
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "OBISLaser", "cmd": "GETLPWR", "args": ""}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+def doSETLSTATE(cnum, state):
+    size = 94 + len(state)
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "OBISLaser", "cmd": "SETLSTATE", "args": state}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+def doSETLPWR(cnum):
+    sys.stdout.write("  Power: ")
+    sys.stdout.flush()
+    f = getUserFloat()
+
+    size = 94 + len(str(f)) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "OBISLaser", "cmd": "SETLPWR", "args": f}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
 
 if __name__ == '__main__':
     cnum = 1
@@ -149,4 +178,20 @@ if __name__ == '__main__':
 
         if choice == 6:
             doREADSEQD(cnum)
+            cnum += 1
+
+        if choice == 7:
+            doGETLPWR(cnum)
+            cnum += 1
+
+        if choice == 8:
+            doSETLSTATE(cnum, "ON")
+            cnum += 1
+
+        if choice == 9:
+            doSETLSTATE(cnum, "OFF")
+            cnum += 1
+
+        if choice == 10:
+            doSETLPWR(cnum)
             cnum += 1
