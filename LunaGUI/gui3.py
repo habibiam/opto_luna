@@ -39,8 +39,8 @@ def the_reader_thread():
         print "output is "+out
         cmd = out[84:93].strip()
         args = out[94:].strip()
-        print "cmd is "+cmd
-        print "args is "+args
+        # print "cmd is "+cmd
+        # print "args is "+args
 
         if cmd=="INVTHW":
             instrument_name = out[20:65].strip()
@@ -50,7 +50,8 @@ def the_reader_thread():
         elif cmd=="GETVI":
             if args == "SYNTAX" or args == "":
                 # Error Checking, sometimes hardware issues. Not connected properly.
-                on_getvi_button_click()
+                # on_getvi_button_click()
+                pass
             elif args !="FAIL":
                 args = out[94:]
                 args_list = args.split()
