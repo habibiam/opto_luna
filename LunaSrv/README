@@ -1,0 +1,8 @@
+This python code requires the posix_ipc python module to be installed.
+Steps to install:
+1) Make sure python dev is setup: sudo apt-get install python-dev (for 2.7)
+2) Download the posix_ipc package: wget http://semanchuk.com/philip/posix_ipc/posix_ipc-1.0.0.tar.gz
+3) Extract the posix_ipc code somewhere:
+   3a) cd XXX
+   3b) tar -xvf posix_ipc-1.0.0.tar.gz
+4) Build and install: sudo python setup.py install

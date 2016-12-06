@@ -333,6 +333,180 @@ def processREADSEQD(receivedDeviceName, recievedArgs):
     sys.stdout.flush()
 
 
+def processGETLPWR(receivedDeviceName, recievedArgs):
+    """
+    Process the GET Laser PoWeR command.
+    Queries the laser device for its current power.
+    Sends back data to caller.
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle LPWR command")
+
+    if scanner is None:
+        sendFAILResponse("LPWR", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("LPWR", receivedDeviceName)
+        return
+
+    sendData = "SOUR:POW:LEV?\r\n"
+    aDevice.Write(sendData)
+    data = aDevice.GetLastResponse()
+
+    if "ERR" in data:
+        # retry once
+        aDevice.Write(sendData)
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "ERR" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        # Parse the returned data.
+        # Expected X.XXXXX\r\nOK
+        parts = data.split()
+        if (len(parts) == 2):
+            args = parts[0]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "LPWR", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processSETLSTATE(receivedDeviceName, recievedArgs):
+    """
+    Process the GET Laser PoWeR command.
+    Queries the laser device for its current power.
+    Sends back data to caller.
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmdName = "SETLSTATE"
+
+    logger.info("Handle SETLSTATE command")
+
+    if scanner is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    if recievedArgs != "ON" and recievedArgs != "OFF":
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+
+    sendData = "SOUR:AM:STAT " + recievedArgs + "\r\n"
+    aDevice.Write(sendData)
+    data = aDevice.GetLastResponse()
+
+    if "ERR" in data:
+        # retry once
+        aDevice.Write(sendData)
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "ERR" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        # Parse the returned data.
+        # Expected OK
+        args = data
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmdName, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processSETLPWR(receivedDeviceName, recievedArgs):
+    """
+    Process the SET Laser PoWeR command.  Sends a set power command to the named device
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Power to set.
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmdName = "SETLPWR"
+
+
+    logger.info("Handle SETLPWR command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    sendData = "SOUR:POW:LEV:IMM:AMPL " + recievedArgs + "\r\n"
+    aDevice.Write(sendData)
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(sendData)
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "SETV", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
 def get_device_by_name(receivedDeviceName):
     """
     Get a device by its name from the scanners found devices/
@@ -437,7 +611,10 @@ if __name__ == '__main__':
                "SHUTDOWN": processSHUTDOWN,
                "STARTSEQ": processSTARTSEQ,
                "STOPSEQ": processSTOPSEQ,
-               "READSEQD": processREADSEQD}
+               "READSEQD": processREADSEQD,
+               "SETLSTATE": processSETLSTATE,
+               "SETLPWR": processSETLPWR,
+               "GETLPWR": processGETLPWR}
 
     # Get path to this file...
     path = os.path.dirname(os.path.abspath(__file__))

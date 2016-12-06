@@ -22,6 +22,10 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
 
+		<USBSerial Name="OBISLaser" Pid="003b" Vid="0d4d" Uid="Coherent__Inc._Coherent_OBIS_Device" >
+			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
+		</USBSerial>
+
 		<USBSerial Name="TECController" Pid="6001" Vid="0403" Uid="FTFMI0CS" >
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 			<SubProcess cmd="/usr/bin/python">
