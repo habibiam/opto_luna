@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include <stdint.h>
+#include <unistd.h>
 #include "SpectroLib.h"
 
 using namespace std;
@@ -17,31 +18,6 @@ using namespace std;
 
 
 int main() {
-
-//	try {
-//		SpectroLib::SpectroController controller;
-//		controller.readSerailNumber();
-//		controller.getPixelsPerImage();
-//		controller.SetExposureMS(250);
-//		controller.ResetSpectroBuffers();
-//
-//		uint16_t size = 2048;
-//		uint16_t data[size];
-//		controller.Capture(&data[0], &size);
-//
-//		for (int i=0; i<size; i++) {
-//			std::cout << i << "," << data[i] << std::endl;
-//		}
-//		std::cout << std::endl;
-//		std::cout.flush();
-//
-//
-//		cout << "Done." << endl;
-//	}
-//	catch (std::runtime_error &ex)
-//	{
-//		cout << ex.what();
-//	}
 
 	char error[1024];
 	bool err = false;
@@ -82,8 +58,21 @@ int main() {
 
 
 	uint32_t delay_between = 0;
-	uint32_t duration_ms = 5000;
-	CaptureContinuousSpectrum("/home/optokey/foo.csv", delay_between, duration_ms);
+	uint32_t duration_ms = 1000 * 10; // capture for 10 seconds.
+	CaptureContinuousSpectrum("foo.csv", delay_between, duration_ms);
+
+	int count=0;
+	while (IsCaptureContinuousSpectrumDone() == false)
+	{
+		usleep(200000);
+		count++;
+//		if (count > 50)
+//		{
+//			ExitCaptureContinuousSpectrum();
+//		}
+	}
+	GetLastErrorMsg((char *)&error, 1024);
+	std::cout << "A) Error: " << error << std::endl;
 
 	std::cout << "Done." << std::endl;
 

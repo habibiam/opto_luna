@@ -22,6 +22,7 @@
 #include <atomic>
 
 #include <string.h>
+#include <unistd.h>
 
 
 
@@ -34,7 +35,7 @@ std::atomic<bool> continuousCaptureThreadDone(true);
 std::string lastError;
 
 
-void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS, bool *ret);
+void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS);
 
 bool Initialize()
 {
@@ -148,103 +149,121 @@ bool CaptureContinuousSpectrum(const char *filename, uint32_t delayBetweenMS, ui
 	}
 
 
-	continuousCaptureThread = std::thread(CaptureContinuousSpectrumThread, filename, delayBetweenMS, durationMS,&continuousCaptureThreadRetCode);
+	continuousCaptureThread = std::thread(CaptureContinuousSpectrumThread, filename, delayBetweenMS, durationMS);
+	continuousCaptureThread.detach();
+
+	usleep(50000);
 
 	return true;
 
 }
 
 
-void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS, bool *ret)
+void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS)
 {
-	*ret = true;
-	std::ofstream myfile;
-	myfile.open (filename, std::ios::trunc);
-	if (myfile.is_open() == false)
-	{
-		lastError = "Could not open output file.";
-		*ret = false;
-		continuousCaptureThreadDone = true;
-		return;
-	}
-
 	continuousCaptureThreadDone = false;
 
-	std::stringstream ss;
-
-	ss << "Pixels,,,";
-	int c=2048;
-	for(int i =0; i < c; i++)
+	try
 	{
-		ss << i;
-		if (i < c-1)
-			ss << ",";
-	}
-	ss << std::endl;
-
-	ss << "Wavelength,,,";
-	for(int i =0; i < c; i++)
-	{
-		ss << 0;
-		if (i < c-1)
-			ss << ",";
-	}
-	ss << std::endl;
-
-	myfile << ss.str();
-	ss.str("");
-
-
-	auto start_time = std::chrono::high_resolution_clock::now();
-	auto current_time = std::chrono::high_resolution_clock::now();
-	auto elapsedMS = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
-
-	bool error=false;
-	while (elapsedMS < durationMS && continuousCaptureThreadExitFlag == false)
-	{
-		uint16_t size = 2048;
-		uint16_t data[size];
-
-		if (!CaptureSingleSpectrum(&data[0], &size))
+		//std::cout << "Start  thread..." << std::endl;
+		std::ofstream myfile;
+		myfile.open (filename, std::ios::trunc);
+		if (myfile.is_open() == false)
 		{
-			// Don't change last error here.
-			error = true;
-			break;
+			lastError = "Could not open output file.";
+			//std::cout << lastError << std::endl;
+			continuousCaptureThreadDone = true;
+			return;
 		}
 
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(delayBetweenMS));
+		std::stringstream ss;
 
-		current_time = std::chrono::high_resolution_clock::now();
-		elapsedMS = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
-
-
-		std::time_t t = std::time(nullptr);
-		std::tm tm = *std::localtime(&t);
-		char tstr[64];
-
-		std::strftime(tstr, sizeof(tstr), "%m/%d/%Y,%r", &tm);
-		ss << tstr << "," << t;
+		ss << "Pixels,,,";
+		int c=2048;
 		for(int i =0; i < c; i++)
 		{
-			ss << data[i];
+			ss << i;
 			if (i < c-1)
 				ss << ",";
 		}
 		ss << std::endl;
+
+		ss << "Wavelength,,,";
+		for(int i =0; i < c; i++)
+		{
+			ss << 0;
+			if (i < c-1)
+				ss << ",";
+		}
+		ss << std::endl;
+
 		myfile << ss.str();
 		ss.str("");
-	}
 
-	myfile.close();
-	if (error)
-	{
-		*ret = false;
+
+		auto start_time = std::chrono::high_resolution_clock::now();
+		auto current_time = std::chrono::high_resolution_clock::now();
+		auto elapsedMS = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+
+		bool error=false;
+		while (elapsedMS < durationMS && continuousCaptureThreadExitFlag == false)
+		{
+			uint16_t size = 2048;
+			uint16_t data[size];
+
+			if (!CaptureSingleSpectrum(&data[0], &size))
+			{
+				// Don't change last error here.
+				error = true;
+				break;
+			}
+
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(delayBetweenMS));
+
+			current_time = std::chrono::high_resolution_clock::now();
+			elapsedMS = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+
+
+			std::time_t t = std::time(nullptr);
+			std::tm tm = *std::localtime(&t);
+			char tstr[64];
+
+			std::strftime(tstr, sizeof(tstr), "%m/%d/%Y,%r", &tm);
+			ss << tstr << "," << t;
+			for(int i =0; i < c; i++)
+			{
+				ss << data[i];
+				if (i < c-1)
+					ss << ",";
+			}
+			ss << std::endl;
+			myfile << ss.str();
+			ss.str("");
+		}
+
+		myfile.close();
+		if (error)
+		{
+			continuousCaptureThreadDone = true;
+			//std::cout << lastError << std::endl;
+			return;
+		}
+
+//		if (continuousCaptureThreadExitFlag)
+//		{
+//			std::cout << "Early exit!" << std::endl;
+//		}
+
 		continuousCaptureThreadDone = true;
-		return;
+//		std::cout << "Success exit" << std::endl;
 	}
-
-	continuousCaptureThreadDone = true;
+	catch (std::exception &ex)
+	{
+		lastError = ex.what();
+		continuousCaptureThreadDone = true;
+	}
 }
 
 bool IsCaptureContinuousSpectrumDone()
@@ -257,7 +276,11 @@ void ExitCaptureContinuousSpectrum()
 	if (continuousCaptureThreadDone == false)
 	{
 		continuousCaptureThreadExitFlag = true;
-		continuousCaptureThread.join();
+		while (continuousCaptureThreadDone != true)
+		{
+			usleep(5000);
+		}
+		//continuousCaptureThread.join();
 	}
 }
 
