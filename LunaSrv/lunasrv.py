@@ -506,6 +506,114 @@ def processSETLPWR(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+"""
+Laser Motor
+"""
+def processMOVELEFT(receivedDeviceName, recievedArgs):
+    """
+    Process the GET Voltage and Current(I) command.
+    Queries the High Voltage Power Supply device for Voltage and Current.
+    Sends back data to caller.
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle MOVELEFT command")
+
+    if scanner is None:
+        sendFAILResponse("MOVELEFT", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("MOVELEFT", receivedDeviceName)
+        return
+
+    aDevice.Write("MOVELEFT\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("MOVELEFT\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "MOVELEFT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processMOVERIGHT(receivedDeviceName, recievedArgs):
+    """
+    Process the GET Voltage and Current(I) command.
+    Queries the High Voltage Power Supply device for Voltage and Current.
+    Sends back data to caller.
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle MOVERIGHT command")
+
+    if scanner is None:
+        sendFAILResponse("MOVERIGHT", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("MOVERIGHT", receivedDeviceName)
+        return
+
+    aDevice.Write("MOVERIGHT\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("MOVERIGHT\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "MOVERIGHT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
 
 def get_device_by_name(receivedDeviceName):
     """
@@ -614,7 +722,10 @@ if __name__ == '__main__':
                "READSEQD": processREADSEQD,
                "SETLSTATE": processSETLSTATE,
                "SETLPWR": processSETLPWR,
-               "GETLPWR": processGETLPWR}
+               "GETLPWR": processGETLPWR,
+               "MOVELEFT": processMOVELEFT,
+               "MOVERIGHT": processMOVERIGHT
+                }
 
     # Get path to this file...
     path = os.path.dirname(os.path.abspath(__file__))
