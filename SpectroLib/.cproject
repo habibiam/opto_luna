@@ -32,6 +32,7 @@
 									<listOptionValue builtIn="false" value=""/>
 									<listOptionValue builtIn="false" value="../../DLNWare/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SpectroLib}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/python2.7"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.1781760322" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0  -std=c++0x" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.1092085925" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
@@ -40,6 +41,9 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.984045426" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.lib.debug.option.optimization.level.1820755056" name="Optimization Level" superClass="gnu.c.compiler.lib.debug.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.debug.option.debugging.level.1734200043" name="Debug Level" superClass="gnu.c.compiler.lib.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.301240525" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include/python2.7"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.11411726" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.765633056" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -85,6 +89,7 @@
 									<listOptionValue builtIn="false" value="/home/clawton/workspace/DLNWare/include"/>
 									<listOptionValue builtIn="false" value="../../../DLNWare/include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SpectroLib}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/python2.7"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.2118605518" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0  -std=c++0x" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.328019919" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -92,6 +97,9 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.860645867" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.696460443" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.release.option.debugging.level.419579526" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.2143851427" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include/python2.7"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1305939130" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.429772940" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>

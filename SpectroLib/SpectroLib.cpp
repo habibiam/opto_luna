@@ -23,6 +23,8 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
+
 
 
 
@@ -37,7 +39,7 @@ std::string lastError;
 
 void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS);
 
-bool Initialize()
+BOOL Initialize(void)
 {
 	try {
 		lastError = "OK";
@@ -57,7 +59,7 @@ void GetLastErrorMsg(char *msg, int msg_size)
 	strncpy(msg, lastError.c_str(), msg_size);
 }
 
-bool ReadSerialNumber(int *SerialNumber)
+BOOL ReadSerialNumber(int *SerialNumber)
 {
 	lastError = "OK";
 	if (SerialNumber == nullptr)
@@ -85,7 +87,7 @@ bool ReadSerialNumber(int *SerialNumber)
 	return true;
 }
 
-bool SetExposureMS(uint32_t exposure)
+BOOL SetExposureMS(uint32_t exposure)
 {
 	lastError = "OK";
 	if (controller == nullptr)
@@ -106,7 +108,7 @@ bool SetExposureMS(uint32_t exposure)
 	return true;
 }
 
-bool CaptureSingleSpectrum(uint16_t *output_data, uint16_t *output_size)
+BOOL CaptureSingleSpectrum(uint16_t *output_data, uint16_t *output_size)
 {
 	lastError = "OK";
 	if (controller == nullptr)
@@ -133,7 +135,7 @@ bool CaptureSingleSpectrum(uint16_t *output_data, uint16_t *output_size)
 	return true;
 }
 
-bool CaptureContinuousSpectrum(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS)
+BOOL CaptureContinuousSpectrum(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS)
 {
 	lastError = "OK";
 	if (controller == nullptr)
@@ -170,7 +172,9 @@ void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetween
 		myfile.open (filename, std::ios::trunc);
 		if (myfile.is_open() == false)
 		{
-			lastError = "Could not open output file.";
+			std::stringstream err;
+			err << "Could not open output file. [" << filename << "]  Errno =" << strerror(errno);
+			lastError = err.str();
 			//std::cout << lastError << std::endl;
 			continuousCaptureThreadDone = true;
 			return;
@@ -266,12 +270,12 @@ void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetween
 	}
 }
 
-bool IsCaptureContinuousSpectrumDone()
+BOOL IsCaptureContinuousSpectrumDone(void)
 {
 	return continuousCaptureThreadDone;
 }
 
-void ExitCaptureContinuousSpectrum()
+void ExitCaptureContinuousSpectrum(void)
 {
 	if (continuousCaptureThreadDone == false)
 	{
