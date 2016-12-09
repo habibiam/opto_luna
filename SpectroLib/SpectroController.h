@@ -27,6 +27,7 @@ public:
 	int readSerialNumber();
 
 private:
+	bool initialized;
 	uint16_t handle;
 	uint8_t port;
 

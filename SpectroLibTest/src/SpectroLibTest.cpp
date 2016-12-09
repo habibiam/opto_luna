@@ -43,16 +43,34 @@ int main() {
 //		cout << ex.what();
 //	}
 
-	Initialize();
+	char error[1024];
+	bool err = false;
+	err = Initialize();
+	if (!err)
+	{
+		GetLastErrorMsg((char *)&error, 1024);
+		std::cout << "Error: " << error << std::endl;
+	}
+
 	int sn;
-	ReadSerialNumber(&sn);
+	err = ReadSerialNumber(&sn);
+	if (!err)
+	{
+		GetLastErrorMsg((char *)&error, 1024);
+		std::cout << "Error: " << error << std::endl;
+	}
 
 	std::cout << "SerialNumber: " << sn << std::endl;
 
-	SetExposureMS(250);
+	err = SetExposureMS(250);
+	if (!err)
+	{
+		GetLastErrorMsg((char *)&error, 1024);
+		std::cout << "Error: " << error << std::endl;
+	}
 
-	uint16_t size = 2048;
-	uint16_t data[size];
+	//uint16_t size = 2048;
+	//uint16_t data[size];
 
 	//CaptureSingleSpectrum(&data[0], &size);
 

@@ -25,6 +25,7 @@
 namespace SpectroLib {
 
 SpectroController::SpectroController() :
+		initialized(false),
 		handle(HDLN_INVALID_HANDLE),
 		port(0)
 {
@@ -112,10 +113,13 @@ SpectroController::SpectroController() :
 		throw std::runtime_error(ss.str());
 	}
 
+	initialized = true;
+
 }
 
 SpectroController::~SpectroController()
 {
+	initialized = false;
 
 	return; // Hmmm the below is causing a hang.
 
@@ -130,6 +134,12 @@ SpectroController::~SpectroController()
 
 int SpectroController::readSerialNumber()
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
 
 	uint8_t frame_size = 8;
 	DLN_RESULT fsresult = DlnSpiMasterSetFrameSize(handle, port, frame_size);
@@ -194,6 +204,13 @@ int SpectroController::readSerialNumber()
 
 void SpectroController::SetExposureMS(uint32_t exposure)
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
+
 	// 1ms = 1000000ns
 	// Exposure register is in 200ns units.
 
@@ -265,6 +282,13 @@ void SpectroController::SetExposureMS(uint32_t exposure)
 
 int SpectroController::getPixelsPerImage()
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
+
 	uint8_t frame_size = 8;
 	DLN_RESULT fsresult = DlnSpiMasterSetFrameSize(handle, port, frame_size);
 	if (!DLN_SUCCEEDED(fsresult)) {
@@ -328,6 +352,13 @@ int SpectroController::getPixelsPerImage()
 
 int SpectroController::getNumPixelsReady()
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
+
 	uint8_t frame_size = 8;
 	DLN_RESULT fsresult = DlnSpiMasterSetFrameSize(handle, port, frame_size);
 	if (!DLN_SUCCEEDED(fsresult)) {
@@ -392,6 +423,12 @@ int SpectroController::getNumPixelsReady()
 
 void SpectroController::ResetSpectroBuffers()
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
 
 
 	uint8_t frame_size = 16;
@@ -443,6 +480,13 @@ void SpectroController::ResetSpectroBuffers()
 
 void SpectroController::Capture(uint16_t *outData, uint16_t *outDataSize)
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
+
 	ResetSpectroBuffers();
 
 	// delay between slave select = 208
@@ -588,6 +632,13 @@ void SpectroController::Capture(uint16_t *outData, uint16_t *outDataSize)
 
 std::string SpectroController::GetDeviceId()
 {
+	if (!initialized)
+	{
+		std::stringstream ss;
+		ss << "SpectroLib library not initialized.";
+		throw std::runtime_error(ss.str());
+	}
+
 	uint32_t id;
 	DLN_RESULT result = DlnGetDeviceId(handle, &id);
 	if (!DLN_SUCCEEDED(result)) {
