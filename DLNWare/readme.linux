@@ -1,0 +1,47 @@
+Warning: some actions require root access.
+
+***********
+I. Prepare
+***********
+
+1. Add permissions to access diolan USB devices: copy file 'diolan.rules' to the /etc/udev/rules.d directory.
+
+   cp diolan.rules /etc/udev/rules.d
+
+2. Install libusb-1.0. Download latest libusb-1.0 archieve and extract it.
+   
+   cd <path_to_libusb_sources>
+   ./configure
+   make
+   make install
+
+
+*******************
+II. Install server
+*******************
+
+1. Copy dln_srv binary to /usr/local/bin directory.
+
+   chmod +x dln_srv
+   cp dln_srv /usr/local/bin
+
+2. Navigate to /usr/local/bin and install dln_srv service.
+   
+   cd /usr/local/bin
+   dln_srv -i
+
+Warning: To run dln_srv service you may need glibc-2.15 and higher to be installed in your Linux system.
+
+*********************
+III. Install library
+*********************
+
+1. Copy libdln.a to the /usr/local/lib directory.
+
+   cp libdln.a /usr/local/lib
+
+
+***********************************
+IV. Build and run example projects
+***********************************
+

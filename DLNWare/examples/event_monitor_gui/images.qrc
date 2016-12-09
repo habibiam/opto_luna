@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>images/clear.png</file>
+        <file>images/autoscroll.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,18 @@
+#! /bin/sh
+# chkconfig: 3 99 1
+# description: DLN Device Server
+
+case "$1" in
+'start')
+/usr/local/bin/dln_srv
+;;
+
+'stop')
+pkill dln_srv
+;;
+
+'restart')
+pkill -HUP dln_srv
+;;
+
+esac

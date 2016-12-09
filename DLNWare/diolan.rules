@@ -1,0 +1,17 @@
+SUBSYSTEM!="usb_device", ACTION!="add", GOTO="diolan_rules_end"
+
+# U2C-12
+SYSFS{idVendor}=="0abf", SYSFS{idProduct}=="3370", GROUP="users", MODE="666"
+# DLN-4M
+SYSFS{idVendor}=="a257", SYSFS{idProduct}=="2010", GROUP="users", MODE="666"
+# DLN-4S
+SYSFS{idVendor}=="a257", SYSFS{idProduct}=="2011", GROUP="users", MODE="666"
+# DLN-3
+SYSFS{idVendor}=="a257", SYSFS{idProduct}=="2012", GROUP="users", MODE="666"
+# DLN-2
+SYSFS{idVendor}=="a257", SYSFS{idProduct}=="2013", GROUP="users", MODE="666"
+# DLN-1
+SYSFS{idVendor}=="a257", SYSFS{idProduct}=="2014", GROUP="users", MODE="666"
+
+
+LABEL="diolan_rules_end"
