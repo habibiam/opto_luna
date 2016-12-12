@@ -222,68 +222,151 @@ if __name__ == '__main__':
     list_box = Listbox(luna, width=40)
     list_box.grid(row=2, column=0, columnspan=4)
 
+    #### START ####
+
+    start_shutdown_label = Label(luna, text="1) Start/Shutdown")
+    start_shutdown_label.grid(row=3, column=0, columnspan=2)
+    start_button = Button(luna, text="START", command = on_send_button_click)
+    start_button.grid(row=3, column=2)
+
+    shutdown_button = Button(luna, text="Shutdown", command=shutdown_button_click)
+    shutdown_button.grid(row=3, column=3)
+
+    high_voltage_label = Label(luna, text="2) High Voltage Supply")
+    high_voltage_label.grid(row=4, column=0, columnspan=4)
+
+
     voltage_label = Label(luna, text="Voltage (V):")
     current_label = Label(luna, text="Current (A):")
 
-    sample_temp_label = Label(luna, text="Sample Temp(C):") # not using right now
-    block_temp_label = Label(luna, text="Block Temp(C):")  # not using right now
-    current_cycle_label = Label(luna, text="Current Cycle:")  # not using right now
-    number_of_steps_label = Label(luna, text="Steps:")  # not using right now
-
-    voltage_label.grid(row=3, column=0)
-    current_label.grid(row=3, column=2)
-    sample_temp_label.grid(row=6, column=0)
-    block_temp_label.grid(row=6, column=2)
-    current_cycle_label.grid(row=7, column=0)
-    number_of_steps_label.grid(row=7, column=2)
+    voltage_label.grid(row=5, column=0)
+    current_label.grid(row=5, column=2)
 
     current_volts = StringVar()
     current_amps = StringVar()
+
+    current_volts_dynamic_label = Label(luna, textvariable=current_volts, width=10)
+    current_amps_dynamic_label = Label(luna, textvariable=current_amps, width=10)
+    current_volts_dynamic_label.grid(row=5, column=1)
+    current_amps_dynamic_label.grid(row=5, column=3)
+
+    getvi_button = Button(luna, text="GETVI", command=on_getvi_button_click)
+    getvi_button.grid(row=6, column=3)
+
+    # Set voltage row on GUI
+    set_voltage_label = Label(luna, text="set volt:")
+    set_voltage_label.grid(row=6, column=0)
+    set_voltage_entry = Entry(luna)
+    set_voltage_entry.grid(row=6, column=1)
+    setv_button = Button(luna, text="SETV", command=lambda: on_setv_button_click(set_voltage_entry))
+    setv_button.grid(row=6, column=2)
+
+
+    """##### TEC Controller #####"""
+
+    TEC_control_label = Label(luna, text="3) TEC Controller")
+    TEC_control_label.grid(row=7, column=0, columnspan=4)
+
+    sample_temp_label = Label(luna, text="Sample Temp(C):")
+    block_temp_label = Label(luna, text="Block Temp(C):")
+    current_cycle_label = Label(luna, text="Current Cycle:")
+    number_of_steps_label = Label(luna, text="Steps:")
+
+    sample_temp_label.grid(row=8, column=0)
+    block_temp_label.grid(row=8, column=2)
+    current_cycle_label.grid(row=9, column=0)
+    number_of_steps_label.grid(row=9, column=2)
+
     current_sample_temp = StringVar()
     current_block_temp = StringVar()
     current_cycle = StringVar()
     current_number_of_steps = StringVar()
 
-    getvi_button = Button(luna, text="GETVI", command=on_getvi_button_click)
-    getvi_button.grid(row=5, column=2, columnspan=2)
-    current_volts_dynamic_label = Label(luna, textvariable=current_volts, width=10)
-    current_amps_dynamic_label = Label(luna, textvariable=current_amps, width=10)
-    current_volts_dynamic_label.grid(row=3, column=1)
-    current_amps_dynamic_label.grid(row=3, column=3)
     sample_temp_dynamic_label = Label(luna, textvariable=current_sample_temp, width=10)
     block_temp_dynamic_label = Label(luna, textvariable=current_block_temp, width=10)
     current_cycle_dynamic_label = Label(luna, textvariable=current_cycle, width=10)
     number_of_steps_dynamic_label = Label(luna, textvariable=current_number_of_steps, width=10)
-    sample_temp_dynamic_label.grid(row=6, column=1)
-    block_temp_dynamic_label.grid(row=6, column=3)
-    current_cycle_dynamic_label.grid(row=7, column=1)
-    number_of_steps_dynamic_label.grid(row=7, column=3)
+    sample_temp_dynamic_label.grid(row=8, column=1)
+    block_temp_dynamic_label.grid(row=8, column=3)
+    current_cycle_dynamic_label.grid(row=9, column=1)
+    number_of_steps_dynamic_label.grid(row=9, column=3)
 
-    send_button = Button(luna, text="START", command = on_send_button_click)
-    send_button.grid(row=5, column=0, columnspan=2)
-
-    # Set voltage row on GUI
-    set_voltage_label = Label(luna, text="set volt:")
-    set_voltage_label.grid(row=4, column=0)
-    set_voltage_entry = Entry(luna)
-    set_voltage_entry.grid(row=4, column=1, columnspan=2)
-    setv_button = Button(luna, text="SETV", command=lambda: on_setv_button_click(set_voltage_entry))
-    setv_button.grid(row=4, column=3)
-
-    # Set cycle number row on GUI
     set_cycle_number_label = Label(luna, text="Cycle Number:")
-    set_cycle_number_label.grid(row=8, column=0)
+    set_cycle_number_label.grid(row=10, column=0, columnspan=2)
     set_cycle_number_entry = Entry(luna)
-    set_cycle_number_entry.grid(row=8, column=1, columnspan=2)
+    set_cycle_number_entry.grid(row=10, column=2, columnspan=2)
     start_TEC_Seq_button = Button(luna, text="Start TEC", command=lambda:start_TEC_Seq_button_click(set_cycle_number_entry))
-    start_TEC_Seq_button.grid(row=8, column=3)
+    start_TEC_Seq_button.grid(row=11, column=1)
 
     read_TEC_Seq_button = Button(luna, text="Read TEC status", command=read_TEC_Seq_button_click)
-    read_TEC_Seq_button.grid(row=9, column=0)
+    read_TEC_Seq_button.grid(row=11, column=2)
     stop_TEC_Seq_button = Button(luna, text="Stop TEC", command=stop_TEC_Seq_button_click)
-    stop_TEC_Seq_button.grid(row=9, column=1)
-    shutdown_button = Button(luna, text="Shutdown", command=shutdown_button_click)
-    shutdown_button.grid(row=9, column=3)
+    stop_TEC_Seq_button.grid(row=11, column=3)
+
+    """##### OBIS Laser #####"""
+
+    OBIS_Laser_label = Label(luna, text="4) OBIS Laser: ")
+    OBIS_Laser_label.grid(row=12, column=0, columnspan=2)
+
+    turn_on_OBIS_Laser_button = Button(luna, text="Turn on Laser", command=None)
+    turn_on_OBIS_Laser_button.grid(row=12, column=2)
+    turn_off_OBIS_Laser_button = Button(luna, text="Turn off Laser", command=None)
+    turn_off_OBIS_Laser_button.grid(row=12, column=3)
+
+    laser_power_label = Label(luna, text="Power (W):")
+    laser_power_label.grid(row=13, column=0)
+    current_power = StringVar()
+    current_power_dynamic_label = Label(luna, textvariable=current_volts, width=10)
+    current_power_dynamic_label.grid(row=13, column=1, columnspan=2)
+    getp_button = Button(luna, text="GETLPWR", command=None)
+    getp_button.grid(row=13, column=3)
+
+    set_power_label = Label(luna, text="set power:")
+    set_power_label.grid(row=14, column=0)
+    set_power_entry = Entry(luna)
+    set_power_entry.grid(row=14, column=1, columnspan=2)
+    setp_button = Button(luna, text="SETLPWR", command=lambda: None)
+    setp_button.grid(row=14, column=3)
+
+    """##### Laser Motor #####"""
+
+    laser_motor_label = Label(luna, text="5) Laser Motor: ")
+    laser_motor_label.grid(row=15, column=0, columnspan=4)
+
+    go_left_laser_motor_button = Button(luna, text="MOVELEFT", command=None)
+    go_left_laser_motor_button.grid(row=16, column=0, columnspan=2)
+    go_right_laser_motor_button = Button(luna, text="MOVERIGHT", command=None)
+    go_right_laser_motor_button.grid(row=16, column=2, columnspan=2)
+    go_left_laser_motor_button = Button(luna, text="RETRACT", command=None)
+    go_left_laser_motor_button.grid(row=17, column=0, columnspan=2)
+    go_right_laser_motor_button = Button(luna, text="CAPREADY", command=None)
+    go_right_laser_motor_button.grid(row=17, column=2, columnspan=2)
+
+    """##### Capillary Heater #####"""
+
+    capillary_heater_label = Label(luna, text="6) Capillary Heater: ")
+    capillary_heater_label.grid(row=18, column=0, columnspan=4)
+
+    turn_on_cap_heater_button = Button(luna, text="Turn On Heater", command=None)
+    turn_on_cap_heater_button.grid(row=19, column=0, columnspan=2)
+    turn_off_cap_heater_button = Button(luna, text="Turn Off Heater", command=None)
+    turn_off_cap_heater_button.grid(row=19, column=2, columnspan=2)
+
+    cap_heater_current_temp_label = Label(luna, text="Current Temp (C):")
+    cap_heater_current_temp_label.grid(row=20, column=0)
+    cap_heater_current_temp = StringVar()
+    cap_heater_current_temp_dynamic_label = Label(luna, textvariable=cap_heater_current_temp, width=10)
+    cap_heater_current_temp_dynamic_label.grid(row=20, column=1, columnspan=2)
+    gett_cap_heater_button = Button(luna, text="GETT", command=None)
+    gett_cap_heater_button.grid(row=20, column=3)
+
+    cap_heater_set_temp_label = Label(luna, text="Set Temp (C):")
+    cap_heater_set_temp_label.grid(row=21, column=0)
+    cap_heater_set_temp_entry = Entry(luna)
+    cap_heater_set_temp_entry.grid(row=21, column=1, columnspan=2)
+
+    sett_cap_heater_button = Button(luna, text="SETT", command=None)
+    sett_cap_heater_button.grid(row=21, column=3, command=None)
 
     """
     Turn off gui, then terminate the subproccess
