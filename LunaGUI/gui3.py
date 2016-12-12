@@ -27,6 +27,7 @@ READER Thread
 start reader thread
 Separate thread to display the message/status of the Devices
 """
+
 def the_reader_thread():
     """
     A function that starts in another thread.
@@ -34,19 +35,37 @@ def the_reader_thread():
     :return:
     """
 
+    # List of commands and devices just to keep track which ones are connected to the reader thread.
+    list_of_commands = ["GETVI", "SETV",
+                        "STARTSEQ", "STOPSEQ", "READSEQD",
+                        "GETLPWR", "SETLPWR", "SETLSTATE",
+                        "MOVELEFT", "MOVERIGHT", "RETRACT", "CAPREADY",
+                        "CAPHEATON", "CAPHEATOFF", "CAPGETT", "CAPSETT",
+                        "GELMV", "GELRET", "GELSTART"]
+
+    list_of_devices = ['HighVoltageSupply',
+                       'TECController',
+                       'OBISLaser',
+                       'LaserMotor',
+                       'CapillaryHeater',
+                       'GelPump']
+
     while(True):
         out = proc.stdout.readline()
-        print "output is "+out
+        print(out)
+        id = out[:9].strip()
+        length = out[10:19].strip()
+        device_name = out[20:83].strip()
         cmd = out[84:93].strip()
         args = out[94:].strip()
-        # print "cmd is "+cmd
-        # print "args is "+args
+        # print (id, length, device_name, cmd, args)
 
         if cmd=="INVTHW":
-            instrument_name = out[20:65].strip()
-            list_box.insert(END, instrument_name+" is "+args)
-        elif cmd=="SHUTDOWN": #Won't output Shutdown because there's no response.
+            list_box.insert(END, device_name+" is "+args)
+        elif cmd=="SHUTDOWN":
             luna.quit()
+
+        # High Voltage Supply
         elif cmd=="GETVI":
             if args == "SYNTAX" or args == "":
                 # Error Checking, sometimes hardware issues. Not connected properly.
@@ -62,6 +81,7 @@ def the_reader_thread():
                 list_box.insert(END, "Received current voltage and current.")
         elif cmd=="SETV":
             list_box.insert(END, "Set voltage")
+        # TEC Controller
         elif cmd == "STARTSEQ":
             pass
         elif cmd=="STOPSEQ":
@@ -77,11 +97,40 @@ def the_reader_thread():
                 current_sample_temp.set(sample_temp)
                 current_cycle.set(cycle)
                 current_number_of_steps.set(step)
+        # OBIS Laser
+        elif cmd == "GETLPWR":
+            list_box.insert(END, out)
+        elif cmd == "SETLPWR":
+            list_box.insert(END, out)
+        elif cmd == "SETLSTATE":
+            list_box.insert(END, out)
+        # Laser's Motor
+        elif cmd == "MOVLEFT":
+            list_box.insert(END, out)
+        elif cmd == "MOVERIGHT":
+            list_box.insert(END, out)
+        elif cmd == "RETRACT":
+            list_box.insert(END, out)
+        elif cmd == "CAPREADY":
+            list_box.insert(END, out)
+        # Cap Heater
+        elif cmd == "CAPHEATON":
+            list_box.insert(END, out)
+        elif cmd == "CAPHEATOFF":
+            list_box.insert(END, out)
+        elif cmd == "CAPGETT":
+            list_box.insert(END, out)
+        elif cmd == "CAPSETT":
+            list_box.insert(END, out)
+        # Gel Pump
+        elif cmd == "GELMV":
+            list_box.insert(END, out)
+        elif cmd == "GELRET":
+            list_box.insert(END, out)
+        elif cmd == "GELSTART":
+            list_box.insert(END, out)
 
-reader_thread = Thread(target=the_reader_thread)
-# Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
-reader_thread.daemon = True
-reader_thread.start()
+
 
 """
 start GUI
@@ -212,6 +261,11 @@ if __name__ == '__main__':
     """
     1) Start reader_thread
     """
+    reader_thread = Thread(target=the_reader_thread)
+    # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
+    reader_thread.daemon = True
+    reader_thread.start()
+
     """"Title ('Optokey')"""
     luna.wm_title("Status Window")
     title_label = Label(luna, text="OPTOKEY", fg="red", font=("Helvetica", 16))
