@@ -1,5 +1,11 @@
-{ "HV1": 10,
-  "run time": 60,
-  "HV2": 15,
-  "laser power": 10,
-  "exposure time": 250}
+{
+  "HV init gel": 10, // kv
+  "run time": 60, // min
+  "init gel time": 3, // min
+  "HV injection": 15, // kv
+  "injection time" : 10, // seconds
+  "laser power": 10, // mW
+  "exposure time": 250, // ms
+  "capillary temperature" : 50, // celcius
+  "log time": 250 // ms
+}
