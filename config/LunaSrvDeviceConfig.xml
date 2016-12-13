@@ -25,6 +25,11 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
 
+		<USBSerial Name="FluidValve" Pid="ea60" Vid="10c4" Uid="010D050C" >
+			<PortSettings Baud="57600" DataBits="8" Parity="N" StopBits="1"/>
+		</USBSerial>
+
+
 		<!--<USBSerial Name="TECController" Pid="6001" Vid="0403" Uid="FTFMI0CS" >-->
 			<!--<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>-->
 			<!--<SubProcess cmd="/usr/bin/python">-->
