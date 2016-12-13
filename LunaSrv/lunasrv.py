@@ -14,12 +14,34 @@ import sys
 import select
 import signal
 import os
-
+import json
 
 
 scanner = None
 cnum = 0
 
+
+def processRUNSAMPLE(receivedDeviceName, recievedArgs):
+    """
+    Started on processRUNSAMPLE in order to add the run_config.json
+    file in to the LunaSrv.
+    Need to built this once all the devices are hooked up and sample runs are ready to be automated
+    as of now, can load and have access to json config file.
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RUNSAMPLE command")
+
+    # Get full path to our json run configuration file
+
+    path = os.path.dirname(os.path.abspath(__file__))
+    path += "/../config"
+    configFile = path + "/run_config.json"
+
+    with open(configFile, 'r') as f:
+        run_config = json.load(f)
+    print run_config
 
 
 def processINVTHW(receivedDeviceName, recievedArgs):
@@ -713,7 +735,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigterm_handler) # Ctrl-C
 
     # Setup all function calling vector for each supported command.
-    cmdmap = {"INVTHW": processINVTHW,
+    cmdmap = { "RUNSAMPLE": processRUNSAMPLE,
+               "INVTHW": processINVTHW,
                "GETVI": processGETVI,
                "SETV": processSETV,
                "SHUTDOWN": processSHUTDOWN,

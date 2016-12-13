@@ -97,6 +97,9 @@ def the_reader_thread():
                 current_sample_temp.set(sample_temp)
                 current_cycle.set(cycle)
                 current_number_of_steps.set(step)
+
+
+
         # OBIS Laser
         elif cmd == "GETLPWR":
             list_box.insert(END, out)
@@ -104,6 +107,9 @@ def the_reader_thread():
             list_box.insert(END, out)
         elif cmd == "SETLSTATE":
             list_box.insert(END, out)
+
+
+
         # Laser's Motor
         elif cmd == "MOVLEFT":
             list_box.insert(END, out)
@@ -441,7 +447,7 @@ if __name__ == '__main__':
     set_power_label.grid(row=14, column=0)
     set_power_entry = Entry(luna)
     set_power_entry.grid(row=14, column=1, columnspan=2)
-    setp_button = Button(luna, text="SETLPWR", command=lambda: set_laser_power_clicked(set_power_entry))
+    setp_button = Button(luna, text="SETLPWR", command=lambda:set_laser_power_clicked(set_power_entry))
     setp_button.grid(row=14, column=3)
 
     """##### Laser Motor #####"""
