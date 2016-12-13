@@ -53,7 +53,7 @@ def the_reader_thread():
     while(True):
         out = proc.stdout.readline()
         print(out)
-        id = out[:9].strip()
+        id = out[:10].strip()
         length = out[10:19].strip()
         device_name = out[20:83].strip()
         cmd = out[84:93].strip()
@@ -257,6 +257,68 @@ def read_TEC_Seq_button_click():
     proc.stdin.write(cmd)
     cnum+=1
 
+""" OBIS Laser Command """
+def turn_on_laser_clicked():
+    """
+    Button click to read data about the currently running sequence.
+    :return:
+    """
+    global proc
+    global cnum
+    args = 'ON'
+    size = 94+len(args)
+    name = 'OBISLaser'
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLSTATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def turn_off_laser_clicked():
+    """
+    Button click to read data about the currently running sequence.
+    :return:
+    """
+    global proc
+    global cnum
+    args = 'OFF'
+    size = 94+len(args)
+    name = 'OBISLaser'
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLSTATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def get_current_laser_power_clicked():
+    """
+    Button click to read data about the currently running sequence.
+    :return:
+    """
+    global proc
+    global cnum
+    args = ''
+    size = 94
+    name = 'OBISLaser'
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETLPWR", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def set_laser_power_clicked(entry):
+    """
+    Button click to read data about the currently running sequence.
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    args = input
+    size = 94 + len(input)
+    name = 'OBISLaser'
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLPWR", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
 if __name__ == '__main__':
     """
     1) Start reader_thread
@@ -362,9 +424,9 @@ if __name__ == '__main__':
     OBIS_Laser_label = Label(luna, text="4) OBIS Laser: ")
     OBIS_Laser_label.grid(row=12, column=0, columnspan=2)
 
-    turn_on_OBIS_Laser_button = Button(luna, text="Turn on Laser", command=None)
+    turn_on_OBIS_Laser_button = Button(luna, text="Turn on Laser", command=turn_on_laser_clicked)
     turn_on_OBIS_Laser_button.grid(row=12, column=2)
-    turn_off_OBIS_Laser_button = Button(luna, text="Turn off Laser", command=None)
+    turn_off_OBIS_Laser_button = Button(luna, text="Turn off Laser", command=turn_off_laser_clicked)
     turn_off_OBIS_Laser_button.grid(row=12, column=3)
 
     laser_power_label = Label(luna, text="Power (W):")
@@ -372,14 +434,14 @@ if __name__ == '__main__':
     current_power = StringVar()
     current_power_dynamic_label = Label(luna, textvariable=current_volts, width=10)
     current_power_dynamic_label.grid(row=13, column=1, columnspan=2)
-    getp_button = Button(luna, text="GETLPWR", command=None)
+    getp_button = Button(luna, text="GETLPWR", command=get_current_laser_power_clicked)
     getp_button.grid(row=13, column=3)
 
     set_power_label = Label(luna, text="set power:")
     set_power_label.grid(row=14, column=0)
     set_power_entry = Entry(luna)
     set_power_entry.grid(row=14, column=1, columnspan=2)
-    setp_button = Button(luna, text="SETLPWR", command=lambda: None)
+    setp_button = Button(luna, text="SETLPWR", command=lambda: set_laser_power_clicked(set_power_entry))
     setp_button.grid(row=14, column=3)
 
     """##### Laser Motor #####"""

@@ -15,13 +15,12 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 
 <Devices>
 	<USBSerialDevices>
-		<!--<USBSerial Name="HighVoltageSupply" Pid="374b" Vid="0483" Uid="066DFF485457725187012845" >-->
-			<!--<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>-->
-		<!--</USBSerial>-->
-		<USBSerial Name="HighVoltageSupply" Pid="0204" Vid="0d28" Uid="101000000000000000000002F7F29E15" >
+		<USBSerial Name="HighVoltageSupply" Pid="374b" Vid="0483" Uid="0670FF485457725187024653">
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
-
+		<!--<USBSerial Name="HighVoltageSupply" Pid="0204" Vid="0d28" Uid="101000000000000000000002F7F29E15" >-->
+			<!--<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>-->
+		<!--</USBSerial>-->
 		<USBSerial Name="OBISLaser" Pid="003b" Vid="0d4d" Uid="Coherent__Inc._Coherent_OBIS_Device" >
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
