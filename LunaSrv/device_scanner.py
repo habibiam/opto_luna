@@ -181,11 +181,66 @@ class DeviceScanner(logbase.LogBase):
                         foundItem.checked = True
                     
             FNULL.close()
-                    
 
-                
-        
-        # Here, we probe to see if any ethernet connected devices are up and listening for connections.   
+
+        # At this point, we may still not have all the found devices.  So we'll fall back to using "lsub" to look for devices.
+        # The reason they are not found is that some devices do not add an entry to /dev.  However, lsusb does not give a
+        # serial number
+        cmd = ["lsusb"]
+        # print(cmd)
+        pid = ""
+        vid = ""
+        uid = ""
+
+        # Launch udevadm for the current device name.
+        FNULL = open(os.devnull, 'w')
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=FNULL)
+        while True:
+            line = proc.stdout.readline()
+            if len(line) != 0:
+                # print(line.rstrip())
+                # Parse out the pieces of the output lines looking for the relavent information.
+                parts = re.split("[ ]", line.__str__())
+                # print(parts)
+                if len(parts) > 1:
+                    kvParts = re.split("[:]", parts[5].__str__())
+                    # print(kvParts)
+                    # We care about procuct id, vendor id.
+                    vid = kvParts[0]
+                    pid = kvParts[1]
+
+                    # We found a device with a Product ID and Vendor ID.  Is it one were expecting?
+                    if len(pid) > 0 and len(vid) > 0:
+                        self.logger.info(
+                            "Checking if device with ProductID: " + pid + " and VendorID: " + vid + " is needed...")
+                        foundItem = next((x for x in self.expectedDevices if
+                                          isinstance(x, (usb_serial_device.USBSerialDevice, usb_device.USBDevice)) and
+                                          x.pid == pid and
+                                          x.vid == vid and
+                                          x.uid == uid and
+                                          x.inventoried == False), None)
+
+                        if foundItem is not None:
+                            if isinstance(foundItem, usb_serial_device.USBSerialDevice) == True:
+                                if anOSDevice.startswith('tty') == True:
+                                    # Device is a Serial USB device.
+                                    foundItem.devPath = deviceName
+                                    foundItem.inventoried = True
+                                    foundItem.checked = True
+                            else:
+                                # Device is a plain USB device.
+                                foundItem.devPath = deviceName
+                                foundItem.inventoried = True
+                                foundItem.checked = True
+
+
+            else:
+                break
+
+
+        FNULL.close()
+
+        # Here, we probe to see if any ethernet connected devices are up and listening for connections.
         while True:
             foundItem = next((x for x in self.expectedDevices if isinstance(x, (ethernet_device.EthernetDevice)) and 
                 x.inventoried == False and x.checked == False), None)

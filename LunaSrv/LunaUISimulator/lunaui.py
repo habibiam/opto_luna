@@ -19,6 +19,7 @@ def printmenu():
     print " 8\tTurn OBIS Laser ON"
     print " 9\tTurn OBIS Laser OFF"
     print " 10\tSet OBIS Laser Power"
+    print " 11\tSet Fluid VALVE Position"
     print " 0\tQuit"
     
     sys.stdout.write("Select Command: ")
@@ -136,6 +137,32 @@ def doSETLPWR(cnum):
     proc.stdin.flush()
 
 
+def doFVALVEPOS(cnum):
+    sys.stdout.write("  Position:\n")
+    sys.stdout.write("  1\tA\n")
+    sys.stdout.write("  2\tCLOSED\n")
+    sys.stdout.write("  3\tB\n")
+    sys.stdout.write("\n")
+    sys.stdout.flush()
+    p = getUserInt()
+    pos = ""
+    if p == 1:
+        pos = "A"
+    elif p == 2:
+        pos = "CLOSED"
+    elif p == 3:
+        pos = "B"
+    else:
+        return
+
+
+    size = 94 + len(str(pos)) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "FluidValve", "cmd": "FVALVEPOS", "args": pos}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+
 if __name__ == '__main__':
     cnum = 1
 
@@ -194,4 +221,8 @@ if __name__ == '__main__':
 
         if choice == 10:
             doSETLPWR(cnum)
+            cnum += 1
+
+        if choice == 11:
+            doFVALVEPOS(cnum)
             cnum += 1

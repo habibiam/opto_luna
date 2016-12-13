@@ -18,16 +18,11 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 		<USBSerial Name="HighVoltageSupply" Pid="374b" Vid="0483" Uid="0670FF485457725187024653">
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
-		<!--<USBSerial Name="HighVoltageSupply" Pid="0204" Vid="0d28" Uid="101000000000000000000002F7F29E15" >-->
-			<!--<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>-->
-		<!--</USBSerial>-->
+		
 		<USBSerial Name="OBISLaser" Pid="003b" Vid="0d4d" Uid="Coherent__Inc._Coherent_OBIS_Device" >
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
 
-		<USBSerial Name="FluidValve" Pid="ea60" Vid="10c4" Uid="010D050C" >
-			<PortSettings Baud="57600" DataBits="8" Parity="N" StopBits="1"/>
-		</USBSerial>
 
 
 		<!--<USBSerial Name="TECController" Pid="6001" Vid="0403" Uid="FTFMI0CS" >-->
@@ -49,6 +44,9 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 	
 	<USBDevices>
 		<!-- <USB Name="Spectrometer" Pid="2222" Vid="BBBB" Uid="abcdef" /> -->
+
+		<USB Name="FluidValve" Pid="ea60" Vid="10c4" Uid="010D050C" />
+
 	</USBDevices>
 	
 	<EthernetDevices>
