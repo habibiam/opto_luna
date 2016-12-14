@@ -150,6 +150,12 @@ BOOL CaptureContinuousSpectrum(const char *filename, uint32_t delayBetweenMS, ui
 		return false;
 	}
 
+	if (continuousCaptureThreadDone == false)
+	{
+		lastError = "Continuous Capture already running.";
+		return false;
+	}
+
 
 	continuousCaptureThread = std::thread(CaptureContinuousSpectrumThread, filename, delayBetweenMS, durationMS);
 	continuousCaptureThread.detach();
@@ -163,6 +169,7 @@ BOOL CaptureContinuousSpectrum(const char *filename, uint32_t delayBetweenMS, ui
 
 void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetweenMS, uint32_t durationMS)
 {
+
 	continuousCaptureThreadDone = false;
 
 	try
@@ -260,6 +267,7 @@ void CaptureContinuousSpectrumThread(const char *filename, uint32_t delayBetween
 //			std::cout << "Early exit!" << std::endl;
 //		}
 
+		lastError = "OK";
 		continuousCaptureThreadDone = true;
 //		std::cout << "Success exit" << std::endl;
 	}
