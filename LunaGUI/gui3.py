@@ -19,7 +19,7 @@ cmd = [
     "python",
     "../LunaSrv/lunasrv.py"
 ]
-proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+global proc
 
 """
 READER Thread
@@ -325,7 +325,84 @@ def set_laser_power_clicked(entry):
     proc.stdin.write(cmd)
     cnum+=1
 
+""" Fluidic Valve Commands """
+def set_fluidic_valve_clicked():
+    input = valve_set.get()
+    global proc
+    global cnum
+    name = 'FluidValve'
+    if input==1:
+        args = 'A'
+    elif input==2:
+        args = 'B'
+    elif input==3:
+        args = 'CLOSED'
+    size = 94 + len(args)
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "FVALVEPOS", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
+""" Spectrometer Commands """
+def spectrometer_set_exposure_time_clicked(entry):
+    """
+    function call to send set exposure time for the spectrometer
+    :param entry:
+    :return:
+    """
+    exp_time = entry.get()
+    args = exp_time
+    global proc
+    global cnum
+    name = "Spectrometer"
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SPCSETEXP ", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+def start_spectrometer_continuous_capture(filename_entry, timeBetween_entry, duration_entry):
+    """
+
+    :param filename_entry:
+    :param timeBetween_entry:
+    :param duration_entry:
+    :return:
+    """
+    filename = filename_entry.get()
+    delayMS = timeBetween_entry.get()
+    durationMS = duration_entry.get()
+    args = filename + " " + str(delayMS) + " " + str(durationMS)
+    global proc
+    global cnum
+    name = "Spectrometer"
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SPCSTARTC", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+def check_continous_capture():
+    global proc
+    global cnum
+    args = ''
+    size = 94
+    name = "Spectrometer"
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SPCISCRUN", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
 if __name__ == '__main__':
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    time.sleep(1)
+    if proc is None or proc.returncode is not None:
+        if proc.returncode is not None:
+            print "LunaSrv exited immediately with a return code" + (str(proc.returncode))
+        else:
+            print " Failed to start LunaSrv"
+        sys.exit(-1)
     """
     1) Start reader_thread
     """
@@ -489,6 +566,56 @@ if __name__ == '__main__':
 
     sett_cap_heater_button = Button(luna, text="SETT", command=None)
     sett_cap_heater_button.grid(row=21, column=3, command=None)
+
+    """##### Fluidic Valve #####"""
+    fluidic_valve_label = Label(luna, text="7) Fluid Valve: ")
+    fluidic_valve_label.grid(row=23, column=0, columnspan=4)
+
+    valve_set = IntVar()
+    valve_set.set(3)
+    valve_options = [
+        ("A", 1),
+        ("B", 2),
+        ("CLOSED", 3)
+    ]
+    for txt, val in valve_options:
+        radio_button = Radiobutton(luna, text=txt, variable=valve_set, command=set_fluidic_valve_clicked, value=val)
+        radio_button.grid(row=24, column=val)
+
+    """##### Spectrometer #####"""
+    spectrometer_label = Label(luna, text="8) Spectrometer: ")
+    spectrometer_label.grid(row=26, column=0, columnspan=4)
+
+    set_exposure_time_label = Label(luna, text="set exposure time:")
+    set_exposure_time_label.grid(row=27, column=0)
+    set_exposure_time_entry = Entry(luna)
+    set_exposure_time_entry.grid(row=27, column=1, columnspan=2)
+    set_exposure_time_button = Button(luna, text="SPCSETEXP", command=lambda:spectrometer_set_exposure_time_clicked(set_exposure_time_entry))
+    set_exposure_time_button.grid(row=27, column=3)
+
+    set_spectrometer_filename_label = Label(luna, text="filename:")
+    set_spectrometer_filename_label.grid(row=28, column=0)
+    set_spectrometer_filename_entry = Entry(luna)
+    set_spectrometer_filename_entry.grid(row=28, column=1)
+
+    set_spectrometer_time_between_label = Label(luna, text="time between reads (ms):")
+    set_spectrometer_time_between_label.grid(row=28, column=2)
+    set_spectrometer_time_between_entry = Entry(luna)
+    set_spectrometer_time_between_entry.grid(row=28, column=3)
+
+    set_spectrometer_duration_label = Label(luna, text="duration (ms):")
+    set_spectrometer_duration_label.grid(row=29, column=0)
+    set_spectrometer_duration_entry = Entry(luna)
+    set_spectrometer_duration_entry.grid(row=29, column=1)
+
+    start_continuous_spectrometer_button = Button(luna,
+                                    text="SPCSTARTC",
+                                    command=lambda:start_spectrometer_continuous_capture(set_spectrometer_filename_entry,
+                                                                                         set_spectrometer_time_between_entry,
+                                                                                         set_spectrometer_duration_entry))
+    start_continuous_spectrometer_button.grid(row=29, column=2)
+    start_continuous_spectrometer_button = Button(luna, text="SPCISCRUN", command=check_continous_capture)
+    start_continuous_spectrometer_button.grid(row=29, column=3)
 
     """
     Turn off gui, then terminate the subproccess

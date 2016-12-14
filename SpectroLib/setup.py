@@ -21,7 +21,7 @@ setup(
 		"SpectroController.cpp",
 		],
 		extra_compile_args = ["-std=c++11"],
-		extra_link_args = ["-L../DLNWare/bin/x64", "-ldln", "-lQtCore"])],
+		extra_link_args = ["-L../DLNWare/bin/x86", "-ldln", "-lQtCore"])],
 		include_dirs = [
 			'/usr/include',
 			'/usr/local/include',
