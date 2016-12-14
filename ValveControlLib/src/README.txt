@@ -2,6 +2,9 @@ ValveControlLib Developer Notes
 Author:  Chris Lawton, DLSSolutions, Inc. (clawton@dlssolutions.com)
 Date:    December 12, 2016
 
+Quick Build for building python module:
+run: make 
+
 1) Building (Library and Python library)
 The ValveControlLib project is currently an Eclipse based project.  Ultimately it will control the LabSmith AV2011-T116 fluid valve.  
 IMPORTANT NOTE: IT IS ASSUMED THAT THERE IS ONE AND ONLY ONE VALVE CONNECTED TO THE SYSTEM! IF MORE ARE ADDED, THIS API WILL

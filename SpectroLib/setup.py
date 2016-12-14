@@ -9,6 +9,15 @@
 
 
 from distutils.core import setup, Extension
+import struct
+bit_size = struct.calcsize("P") * 8
+dln_path = ""
+if bit_size == 64:
+	dln_path = "../DLNWare/bin/x64"
+elif bit_size == 32:
+	dln_path = "../DLNWare/bin/x86"
+	
+	
 
 setup(
 	name="SpectroLib_module", 
@@ -21,7 +30,7 @@ setup(
 		"SpectroController.cpp",
 		],
 		extra_compile_args = ["-std=c++11"],
-		extra_link_args = ["-L../DLNWare/bin/x64", "-ldln", "-lQtCore"])],
+		extra_link_args = ["-L"+dln_path, "-ldln", "-lQtCore"])],
 		include_dirs = [
 			'/usr/include',
 			'/usr/local/include',

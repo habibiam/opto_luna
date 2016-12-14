@@ -23,7 +23,7 @@ extern "C" {
 
 BOOL Initialize(const char *port);
 void GetLastErrorMsg(char *msg, int msg_size);
-int GetStatus();
+int GetStatus(void);
 BOOL SetPosition(int pos);
 
 #ifdef __cplusplus

@@ -2,6 +2,9 @@ SpectroLib Developer Notes
 Author:  Chris Lawton, DLSSolutions, Inc. (clawton@dlssolutions.com)
 Date:    December 9, 2016
 
+Quick Build for building python module:
+run: make 
+
 1) Building (Library and Python library)
 The SpectroLib project is currently and Eclipse based project.  ultimately it will control the Ibesn Spectrometer via the Digital
 Input Sensor Board (DISB).  To build, import the SpectroLib project into your C++ eclipse environment. If you're not using eclipse,
@@ -21,4 +24,3 @@ See the sample script, test.py in this folder.
 Note that in order to run successfully, you need to have started the dln_srv process prior to connecting the spectrometer!
 
 Run the script via: python test.py 
-

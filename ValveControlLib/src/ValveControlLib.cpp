@@ -29,7 +29,7 @@ void GetLastErrorMsg(char *msg, int msg_size)
 	strncpy(msg,err.c_str(), msg_size);
 }
 
-int GetStatus()
+int GetStatus(void)
 {
 	int v=0;
 	bool ret = theValve.CmdGetStatus(v);

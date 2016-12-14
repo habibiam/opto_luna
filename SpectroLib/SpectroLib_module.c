@@ -115,14 +115,14 @@ SpectroLib_ExitCaptureContinuousSpectrum(PyObject *self)
 
 
 static PyMethodDef SpectroLibMethods[] = {
-    {"Initialize",  SpectroLib_Initialize, METH_NOARGS, "Initialize the SpectroLib library."},
-    {"GetLastErrorMsg",  SpectroLib_GetLastErrorMsg, METH_NOARGS, "Get the last error message reported by the SpectroLib."},
-    {"ReadSerialNumber",  SpectroLib_ReadSerialNumber, METH_NOARGS, "Get the serial number of the connected Spectrometer."},
-    {"SetExposureMS",  SpectroLib_SetExposureMS, METH_VARARGS, "Set the exposure time in milliseconds."},
-    {"CaptureSingleSpectrum",  SpectroLib_CaptureSingleSpectrum, METH_NOARGS, "Capture a single spectrum."},
-    {"CaptureContinuousSpectrum",  SpectroLib_CaptureContinuousSpectrum, METH_VARARGS, "Captures spectrums continuously for the given duration with the given delay between captures."},
-    {"IsCaptureContinuousSpectrumDone",  SpectroLib_IsCaptureContinuousSpectrumDone, METH_NOARGS, "Check if a continuous capture is complete."},
-    {"ExitCaptureContinuousSpectrum",  SpectroLib_ExitCaptureContinuousSpectrum, METH_NOARGS, "Abort an in-progress continuous capture."},
+    {"Initialize", (PyCFunction)SpectroLib_Initialize, METH_NOARGS, "Initialize the SpectroLib library."},
+    {"GetLastErrorMsg", (PyCFunction)SpectroLib_GetLastErrorMsg, METH_NOARGS, "Get the last error message reported by the SpectroLib."},
+    {"ReadSerialNumber", (PyCFunction)SpectroLib_ReadSerialNumber, METH_NOARGS, "Get the serial number of the connected Spectrometer."},
+    {"SetExposureMS", (PyCFunction)SpectroLib_SetExposureMS, METH_VARARGS, "Set the exposure time in milliseconds."},
+    {"CaptureSingleSpectrum", (PyCFunction)SpectroLib_CaptureSingleSpectrum, METH_NOARGS, "Capture a single spectrum."},
+    {"CaptureContinuousSpectrum", (PyCFunction)SpectroLib_CaptureContinuousSpectrum, METH_VARARGS, "Captures spectrums continuously for the given duration with the given delay between captures."},
+    {"IsCaptureContinuousSpectrumDone", (PyCFunction)SpectroLib_IsCaptureContinuousSpectrumDone, METH_NOARGS, "Check if a continuous capture is complete."},
+    {"ExitCaptureContinuousSpectrum", (PyCFunction)SpectroLib_ExitCaptureContinuousSpectrum, METH_NOARGS, "Abort an in-progress continuous capture."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
