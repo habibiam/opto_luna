@@ -15,6 +15,7 @@ import select
 import signal
 import os
 import json
+import time
 
 
 scanner = None
@@ -380,14 +381,21 @@ def processGETLPWR(receivedDeviceName, recievedArgs):
         sendFAILResponse("LPWR", receivedDeviceName)
         return
 
-    sendData = "SOUR:POW:LEV?\r\n"
-    aDevice.Write(sendData)
-    data = aDevice.GetLastResponse()
+    tries = 0
+    max_tries = 6
 
-    if "ERR" in data:
-        # retry once
+    while tries < max_tries:
+        sendData = "SOUR:POW:LEV?\r\n"
         aDevice.Write(sendData)
+        time.sleep(0.02)
         data = aDevice.GetLastResponse()
+        data = data.strip()
+
+        if "ERR" in data or "SYNTAX" in data or "FAIL" in data or len(data) == 0:
+            tries = tries + 1
+            time.sleep(0.1)
+        else:
+            break
 
     args = ""
     if "ERR" in data:
@@ -396,8 +404,7 @@ def processGETLPWR(receivedDeviceName, recievedArgs):
         # Parse the returned data.
         # Expected X.XXXXX\r\nOK
         parts = data.split()
-        if (len(parts) == 2):
-            args = parts[0]
+        args = parts[0]
     else:
         args = "SYNTAX"
 
@@ -442,23 +449,27 @@ def processSETLSTATE(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmdName, receivedDeviceName)
         return
 
+    tries = 0
+    max_tries = 6
 
-    sendData = "SOUR:AM:STAT " + recievedArgs + "\r\n"
-    aDevice.Write(sendData)
-    data = aDevice.GetLastResponse()
-
-    if "ERR" in data:
-        # retry once
+    while tries < max_tries:
+        sendData = "SOUR:AM:STAT " + recievedArgs + "\r\n"
         aDevice.Write(sendData)
+        time.sleep(0.02)
         data = aDevice.GetLastResponse()
+        data = data.strip()
+
+        if "ERR" in data or "SYNTAX" in data or "FAIL" in data or len(data) == 0:
+            tries = tries + 1
+            time.sleep(0.1)
+        else:
+            break
 
     args = ""
     if "ERR" in data:
         args = "FAIL"
     elif "OK" in data:
-        # Parse the returned data.
-        # Expected OK
-        args = data
+        args = "OK"
     else:
         args = "SYNTAX"
 
@@ -499,14 +510,26 @@ def processSETLPWR(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmdName, receivedDeviceName)
         return
 
-    sendData = "SOUR:POW:LEV:IMM:AMPL " + recievedArgs + "\r\n"
-    aDevice.Write(sendData)
-    data = aDevice.GetLastResponse()
+    if len(recievedArgs) == 0:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
 
-    if "SYNTAX" in data:
-        # retry once
+    tries = 0
+    max_tries = 6
+
+    while tries < max_tries:
+        sendData = "SOUR:POW:LEV:IMM:AMPL " + recievedArgs + "\r\n"
         aDevice.Write(sendData)
+        time.sleep(0.02)
         data = aDevice.GetLastResponse()
+        data = data.strip()
+
+        if "ERR" in data or "SYNTAX" in data or "FAIL" in data or len(data) == 0:
+            tries = tries + 1
+            time.sleep(0.1)
+        else:
+            break
+
 
     args = ""
     if "SYNTAX" in data:
@@ -514,14 +537,14 @@ def processSETLPWR(receivedDeviceName, recievedArgs):
     elif "FAIL" in data:
         args = "FAIL"
     elif "OK" in data:
-        args = data[16:]
+        args = "OK"
     else:
         args = "SYNTAX"
 
     # Send results back to caller
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "SETV", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "SETLPWR", "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
