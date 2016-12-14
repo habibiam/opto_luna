@@ -43,8 +43,7 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 
 	
 	<USBDevices>
-		<!-- <USB Name="Spectrometer" Pid="2222" Vid="BBBB" Uid="abcdef" /> -->
-
+		<USB Name="Spectrometer" Pid="2010" Vid="a257" Uid="" />
 		<USB Name="FluidValve" Pid="ea60" Vid="10c4" Uid="010D050C" />
 
 	</USBDevices>

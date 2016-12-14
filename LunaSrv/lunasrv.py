@@ -696,6 +696,174 @@ def processFVALVEPOS(receivedDeviceName, recievedArgs):
 
 
 
+def processSPCSETEXP(receivedDeviceName, recievedArgs):
+    """
+    Process the SPeCtrometer SET EXPosure command.  Will set exposure for the spectrometer
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Exposure time, in milliseconds
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmdName = "SPCSETEXP"
+
+
+    logger.info("Handle SPCSETEXP command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+
+    aDevice.Write("EXP:" + recievedArgs)
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(recievedArgs)
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmdName, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processSPCSTARTC(receivedDeviceName, recievedArgs):
+    """
+    Process the SPeCtrometer START Continuous capture command.
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Filename, time between scans, duration time
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmdName = "SPCSTARTC"
+
+
+    logger.info("Handle SPCSTARTC command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+
+    aDevice.Write("STARTC:" + recievedArgs)
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(recievedArgs)
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmdName, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processSPCISCRUN(receivedDeviceName, recievedArgs):
+
+    """
+    Process the SPeCtrometer IS Continuous RUNning
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmdName = "SPCISCRUN"
+
+
+    logger.info("Handle SPCISCRUN command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmdName, receivedDeviceName)
+        return
+
+
+    aDevice.Write("ISC:")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(recievedArgs)
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "TRUE" in data or "FALSE" in data:
+        args = data
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmdName, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+
 def get_device_by_name(receivedDeviceName):
     """
     Get a device by its name from the scanners found devices/
@@ -807,8 +975,11 @@ if __name__ == '__main__':
                "GETLPWR": processGETLPWR,
                "MOVELEFT": processMOVELEFT,
                "MOVERIGHT": processMOVERIGHT,
-               "FVALVEPOS": processFVALVEPOS
-                }
+               "FVALVEPOS": processFVALVEPOS,
+               "SPCSETEXP": processSPCSETEXP,
+               "SPCSTARTC": processSPCSTARTC,
+               "SPCISCRUN": processSPCISCRUN,
+               }
 
     # Get path to this file...
     path = os.path.dirname(os.path.abspath(__file__))
@@ -825,6 +996,7 @@ if __name__ == '__main__':
     logger.info('--------------Start--------------')
 
     #processINVTHW("", "")
+    #do_exit()
 
     # loop forever
     waitForCommands()

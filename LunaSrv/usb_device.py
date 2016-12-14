@@ -7,6 +7,8 @@ Description:  Contains the USBDevice class
 
 import device
 import ValveControlLib_module
+import SpectroLib_module
+import os
 
 
 class USBDevice(device.Device):
@@ -26,7 +28,7 @@ class USBDevice(device.Device):
         """
         super(USBDevice, self).InitDevice()
 
-        # Try to open the serial port if we're not the TECController
+        # Try to initialize the device via its API
         if self.name == "FluidValve":
             self.logger.debug("Start Fluid Valve...")
 
@@ -49,6 +51,24 @@ class USBDevice(device.Device):
             self.lastMsg = "OK"
             self.initialized = True
             return True
+
+        if self.name == "Spectrometer":
+            self.logger.debug("Start Spectrometer...")
+
+            try:
+                ret = SpectroLib_module.Initialize()
+                if ret == 0:
+                    self.logger.error("Spectrometer Error: " + SpectroLib_module.GetLastErrorMsg())
+                    return False
+
+            except Exception, e:
+                self.logger.error("Fail Spectrometer Init. "  + " Exception: " + str(e))
+                return False
+
+            self.lastMsg = "OK"
+            self.initialized = True
+            return True
+
 
         return False
 
@@ -81,6 +101,65 @@ class USBDevice(device.Device):
                 self.logger.error("Fluid Valve Error: " + ValveControlLib_module.GetLastErrorMsg())
                 self.lastMsg = "FAIL"
                 return
+
+
+        if self.name == "Spectrometer":
+            self.logger.debug("Spectrometer process data: <" + data + ">")
+
+            if data.startswith("EXP:"):
+                parts = data.split(":")
+                exp = 0;
+                try:
+                    exp = int(parts[1])
+                except Exception, e:
+                    self.logger.error("Spectrometer data conversion error: " + str(e))
+                    self.lastMsg = "FAIL"
+                    return
+
+                ret = SpectroLib_module.SetExposureMS(exp)
+                if ret == 0:
+                    self.logger.error("Spectrometer Error: " + SpectroLib_module.GetLastErrorMsg())
+                    self.lastMsg = "FAIL"
+                    return
+
+            if data.startswith("ISC:"):
+                ret = SpectroLib_module.IsCaptureContinuousSpectrumDone()
+                if ret == 0:
+                    self.lastMsg = "TRUE"
+                else:
+                    self.lastMsg = "FALSE"
+                    return
+
+            if data.startswith("STARTC:"):
+                parts = data.split(":")
+                args = parts[1]
+                argParts = args.split()
+                filename = argParts[0];
+                delayMS = 0;
+                durationMS = 0;
+                try:
+                    delayMS = int(argParts[1])
+                    durationMS = int(argParts[2])
+                except Exception, e:
+                    self.logger.error("Spectrometer data conversion error: " + str(e))
+                    self.lastMsg = "FAIL"
+                    return
+
+                path = os.path.dirname(os.path.abspath(__file__))
+                # ...and set our current directory to that same location so
+                # that we know where we are and where to look for other files.
+                path = os.getcwd()
+                path += "/../data/"
+                destFilename = path + filename
+
+                self.logger.debug("Spectrometer start continuous: <" + destFilename + "> <" + str(delayMS) + "> <" + str(durationMS) + ">")
+
+                ret = SpectroLib_module.CaptureContinuousSpectrum(destFilename, delayMS, durationMS)
+                if ret == 0:
+                    self.logger.error("Spectrometer Error: " + SpectroLib_module.GetLastErrorMsg())
+                    self.lastMsg = "FAIL"
+                    return
+
 
 
 

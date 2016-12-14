@@ -20,6 +20,9 @@ def printmenu():
     print " 9\tTurn OBIS Laser OFF"
     print " 10\tSet OBIS Laser Power"
     print " 11\tSet Fluid VALVE Position"
+    print " 12\tSet Spectrometer Exposure time"
+    print " 13\tStart Spectrometer Continuous Capture"
+    print " 14\tCheck if Continuous Capture is running"
     print " 0\tQuit"
     
     sys.stdout.write("Select Command: ")
@@ -49,6 +52,13 @@ def getUserFloat():
         if len(line) > 0:
             c = float(line)
             return c
+
+def getUserString():
+    while True:
+        line = sys.stdin.readline()
+        line = line.strip()
+        if len(line) > 0:
+            return line
 
 
 def doInventory(cnum):
@@ -163,6 +173,48 @@ def doFVALVEPOS(cnum):
     proc.stdin.flush()
 
 
+def doSPCSETEXP(cnum):
+    sys.stdout.write("  Exposure Time: ")
+    sys.stdout.flush()
+    exp = getUserInt()
+
+    size = 94 + len(str(exp)) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "Spectrometer", "cmd": "SPCSETEXP", "args": exp}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+
+def doSPCSTARTC(cnum):
+    sys.stdout.write("  Filename: ")
+    sys.stdout.flush()
+    filename = getUserString()
+
+    sys.stdout.write("  Time Between Captures (ms): ")
+    sys.stdout.flush()
+    delayMS = getUserInt()
+
+    sys.stdout.write("  Capture Duration (ms): ")
+    sys.stdout.flush()
+    durationMS = getUserInt()
+
+    args = filename + " " + str(delayMS) + " " + str(durationMS)
+
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "Spectrometer", "cmd": "SPCSTARTC", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+def doSPCISCRUN(cnum):
+    size = 94 + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": "Spectrometer", "cmd": "SPCISCRUN", "args": ""}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+
+
+
 if __name__ == '__main__':
     cnum = 1
 
@@ -225,4 +277,16 @@ if __name__ == '__main__':
 
         if choice == 11:
             doFVALVEPOS(cnum)
+            cnum += 1
+
+        if choice == 12:
+            doSPCSETEXP(cnum)
+            cnum += 1
+
+        if choice == 13:
+            doSPCSTARTC(cnum)
+            cnum += 1
+
+        if choice == 14:
+            doSPCISCRUN(cnum)
             cnum += 1
