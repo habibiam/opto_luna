@@ -12,10 +12,6 @@ me = singleton.SingleInstance()
 
 cnum = 1
 
-# current_volts = None
-# current_amps = None
-# list_box = None
-
 """
 Luna Server Process
 """
