@@ -1,11 +1,19 @@
 {
-  "HV init gel": 10, // kv
-  "run time": 60, // min
-  "init gel time": 3, // min
-  "HV injection": 15, // kv
-  "injection time" : 10, // seconds
-  "laser power": 10, // mW
-  "exposure time": 250, // ms
-  "capillary temperature" : 50, // celcius
-  "log time": 250 // ms
+  "High Voltage Supply": {
+    "init gel voltage": 10, // kv
+    "injection voltage": 15, // kv
+    "init gel time": 3, // min
+    "injection time": 10 // seconds
+  },
+  "OBIS Laser": {
+    "laser power": 10 // mW
+  },
+  "Capillary Heater": {
+    "temperature" : 50 // celcius
+  },
+  "Spectrometer": {
+    "exposure time": 250, // ms
+    "duration": 3600000, //ms
+    "time between reads": 250 // ms
+  }
 }

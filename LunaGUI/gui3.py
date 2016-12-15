@@ -6,6 +6,10 @@ from serial import *
 from threading import Thread
 import subprocess
 
+# This line of code will only make it so that only one instance of the gui is running.
+from tendo import singleton
+me = singleton.SingleInstance()
+
 cnum = 1
 
 # current_volts = None
