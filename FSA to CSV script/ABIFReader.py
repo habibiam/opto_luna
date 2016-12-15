@@ -40,8 +40,8 @@
 import struct
 import datetime
 
-ABIF_TYPES = {1: 'byte', 2: 'char', 3: 'word', 4: 'short', 5: 'long', 7: 'float', 8: 'double',\
-        10: 'date', 11: 'time', 12: 'thumb', 13: 'bool', 18: 'pString', 19: 'cString'}
+ABIF_TYPES = {1: 'byte', 2: 'char', 3: 'word', 4: 'short', 5: 'long', 7: 'float', 8: 'double', 10: 'date', 11: 'time', 12: 'thumb', 13: 'bool', 18: 'pString', 19: 'cString'}
+
 
 class ABIFReader:
     def __init__(self, fn):
@@ -57,7 +57,7 @@ class ABIFReader:
         self.seek(dir.dataoffset)
         self.entries = [DirEntry(self) for i in range(dir.numelements)]
 
-    def getData(self, name, num = 1):
+    def getData(self, name, num=1):
         entry = self.getEntry(name, num)
         if not entry:
             raise SystemExit("error: Entry '%s (%i)' not found in '%s'" % (name, num, self.filename))
@@ -67,7 +67,6 @@ class ABIFReader:
             return data[0]
         else:
             return data
-			
 
     def showEntries(self):
         for e in self.entries:
@@ -155,16 +154,16 @@ class ABIFReader:
     def readNextString(self, size):
         chars = [self.readNextChar() for i in range(size)]
         return ''.join(chars)
-    
+
     def readNextThumb(self):
         return (self.readNextLong(), self.readNextLong(), self.readNextByte(), self.readNextByte())
 
     def readNextTime(self):
-        return datetime.time(self.readNextByte(), self.readNextByte(), self.readNextByte(), self.readNextByte()*10000)
+        return datetime.time(self.readNextByte(), self.readNextByte(), self.readNextByte(), self.readNextByte() * 10000)
 
     def readNextUnsignedInt(self):
         return self.primUnpack('>I', 4)
-    
+
     def readNextUserData(self, type, num):
         # to be overwritten in user's code
         return NotImplemented
@@ -172,7 +171,7 @@ class ABIFReader:
     def primUnpack(self, format, nb):
         x = struct.unpack(format, self.file.read(nb))
         return x[0]
-    
+
     def close(self):
         self.file.close()
 
@@ -181,6 +180,7 @@ class ABIFReader:
 
     def tell(self):
         return self.file.tell()
+
 
 class DirEntry:
     def __init__(self, reader):
