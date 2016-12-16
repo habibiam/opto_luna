@@ -101,18 +101,18 @@ def processINVTHW(receivedDeviceName, recievedArgs):
             args = "NOT READY"
         else:
             args = "NOT FOUND"
-           
 
-        size += (len(args) + 1)            
+
+        size += (len(args) + 1)
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
             {"cnum": cnum, "size": size, "deviceName": name, "cmd": "INVTHW", "args": args }
-            
+
         logger.debug("Sending command: <"+cmd+">")
-            
+
         sys.stdout.write(cmd)
         sys.stdout.flush()
-        
-        
+
+
 def processGETVI(receivedDeviceName, recievedArgs):
     """
     Process the GET Voltage and Current(I) command.
@@ -124,9 +124,9 @@ def processGETVI(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
-    
+
     logger.info("Handle GETVI command")
-    
+
     if scanner is None:
         sendFAILResponse("GETVI", receivedDeviceName)
         return
@@ -140,13 +140,13 @@ def processGETVI(receivedDeviceName, recievedArgs):
 
     aDevice.Write("GETVI\n")
     data = aDevice.GetLastResponse()
-    
+
     if "SYNTAX" in data:
         #retry once
         aDevice.Write("GETVI\n")
         data = aDevice.GetLastResponse()
 
-    args = ""        
+    args = ""
     if "SYNTAX" in data:
         args = "SYNTAX"
     elif "FAIL" in data:

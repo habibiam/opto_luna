@@ -35,19 +35,19 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 			<!--</SubProcess>-->
 		<!--</USBSerial>-->
 
-		<USBSerial Name="LaserMotor" Pid="6001" Vid="0403" Uid="FTFMI0CS" >
+		<USBSerial Name="LaserMotor" Pid="6001" Vid="0403" Uid="FT948EVB" >
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
-	
+
 	</USBSerialDevices>
 
-	
+
 	<USBDevices>
 		<USB Name="Spectrometer" Pid="2010" Vid="a257" Uid="" />
 		<USB Name="FluidValve" Pid="ea60" Vid="10c4" Uid="010D050C" />
 
 	</USBDevices>
-	
+
 	<EthernetDevices>
 		<!-- <Ethernet Name="MotorControl" Host="Pi1" Port="5000"/> -->
 	</EthernetDevices>
