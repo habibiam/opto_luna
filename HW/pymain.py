@@ -9,6 +9,14 @@ I2C60 = 1
 I2C61 = 0
 I2C62 = 2
 I2C63 = 3
+FASTSTEP = 1     # This is Full Stepping mode, use to home motors at fastest speed
+FULLSTEP = 1     # This is Full Stepping mode, use to home motors at fastest speed
+MICROSTEP = 4    # This is 16 micro step per full step mode, use to precise position or for pumping slowly
+LOWCUR = 1       # lowest current setting is 1, max is 16 
+MIDCUR = 2       # medium current setting is 2, max is 16 
+HIGHCUR = 3      # high current setting is 3, max is 16 
+NEGDIR = -1      # Negative move direction
+POSDIR = 1       # Positive move direction
 
 GPIO.setmode(GPIO.BCM)
 
@@ -38,7 +46,7 @@ class xyz_motor(object):
 						actual_move_steps = move_steps*board_sku
 						if actual_move_steps is postive it moves forward (away from the motor)
 						if actual_move_steps is negative it moves backward (near to the motor)
-    """
+   """ 
 
 	def __init__(self, axies, steps_per_rev, rpm):
 
@@ -156,7 +164,7 @@ class Motor:
                 ReagentWPos = 0
                 print "Waiting for DAC addr7 input 3 ReagentW Home switch to become Active "
                 while ((DAC.getDINbit(7,4) != 1) and (ReagentWPos < HomeMax) and (Move_ReagentW_Home == 1)):   #if home switch not active, move 1 step
-	              target_motor.move(-1, 1, 1, 2) # Retract laser stage one step at a time until home switch active
+	              target_motor.move(NEGDIR, 1, FASTSTEP, MIDCUR) # Retract one step at a time until home switch active
                       ReagentWPos = ReagentWPos + 1
                 if ((DAC.getDINbit(7,4) == 1) ):   #if home switch is active, reset ReagentWPos
                       print "Input DAC(7,4) ReagentW Home sensor is active" 
@@ -172,7 +180,7 @@ class Motor:
                 ReagentMPos = 0
                 print "Waiting for DAC addr7 input 3 ReagentW Home switch to become Active "
                 while ((DAC.getDINbit(7,4) != 1) and (ReagentMPos < HomeMax) and (Move_ReagentM_Home == 1)):   #if home switch not active, move 1 step
-	              target_motor.move(-1, 1, 1, 1) # Retract laser stage one step at a time until home switch active
+	              target_motor.move(NEGDIR, 1, FASTSTEP, MIDCUR) # Retract one step at a time until home switch active
                       ReagentMPos = ReagentMPos + 1
                 if ((DAC.getDINbit(7,4) == 1) ):   #if home switch is active, reset ReagentWPos
                       print "Input DAC(7,4) ReagentW Home sensor is active" 
@@ -188,7 +196,7 @@ class Motor:
                 ReagentBPos = 0
                 print "Waiting for DAC addr7 input 3 ReagentB Home switch to become Active "
                 while ((DAC.getDINbit(7,5) != 1) and (ReagentBPos < HomeMax) and (Move_ReagentB_Home == 1)):   #if home switch not active, move 1 step
-	              target_motor.move(-1, 1, 1, 1) # Retract laser stage one step at a time until home switch active
+	              target_motor.move(NEGDIR, 1, FASTSTEP, MIDCUR) # Retract one step at a time until home switch active
                       ReagentBPos = ReagentBPos + 1
                 if ((DAC.getDINbit(7,5) == 1) ):   #if home switch is active, reset ReagentBPos
                       print "Input DAC(7,5) ReagentB Home sensor is active" 
@@ -204,7 +212,7 @@ class Motor:
                 ReagentPPos = 0
                 print "Waiting for DAC addr7 input 3 ReagentP Home switch to become Active "
                 while ((DAC.getDINbit(7,6) != 1) and (ReagentPPos < HomeMax) and (Move_ReagentP_Home == 1)):   #if home switch not active, move 1 step
-	              target_motor.move(-1, 1, 1, 1) # Retract laser stage one step at a time until home switch active
+	              target_motor.move(NEGDIR, 1, FASTSTEP, MIDCUR) # Retract one step at a time until home switch active
                       ReagentPPos = ReagentPPos + 1
                 if ((DAC.getDINbit(7,6) == 1) ):   #if home switch is active, reset ReagentPPos
                       print "Input DAC(7,6) ReagentP Home sensor is active" 
@@ -212,33 +220,63 @@ class Motor:
                       ReagentPPos = 0
                 Move_ReagentP_Home = 0
 
+           """
 
            if Move_l_Laser_Enable:
+                print  "Moving Laser3 stage to the left "  
+	        target_motor = xyz_motor(1, 200, 100)
+	        atexit.register(target_motor.turn_off)
+	        target_motor.move(NEGDIR, 2000, MICROSTEP, HIGHCUR) # Retract one step at a time until home switch active
+                Move_l_Laser_Enable = 0
+
+           if Move_r_Laser_Enable:
+                print  "Moving Laser stage to the right "  
+	        target_motor = xyz_motor(1, 200, 100)
+	        atexit.register(target_motor.turn_off)
+	        target_motor.move(POSDIR, 2000, MICROSTEP, HIGHCUR) # Retract one step at a time until home switch active
+                Move_r_Laser_Enable = 0
+
+           if Move_left_Laser_Enable:
                 print  "Moving Laser stage to the left "  
+	        target_motor = xyz_motor(1, 200, 100)
+	        atexit.register(target_motor.turn_off)
+	        target_motor.move(NEGDIR, 1000, FULLSTEP, LOWCUR) # Retract one step at a time until home switch active
+                Move_left_Laser_Enable = 0
+
+           if Move_right_Laser_Enable:
+                print  "Moving Laser stage to the right "  
+	        target_motor = xyz_motor(1, 200, 100)
+	        atexit.register(target_motor.turn_off)
+	        target_motor.move(POSDIR, 1000, FULLSTEP, LOWCUR) # Retract one step at a time until home switch active
+                Move_right_Laser_Enable = 0
+
+           """
+           if Move_l_Laser_Enable:
+                print  "Moving Laser3 stage to the left "  
 	        target_motor = xyz_motor(3, 200, 100)
 	        atexit.register(target_motor.turn_off)
-	        target_motor.move(-1, 4, 4, 3) # move left 10 steps
+	        target_motor.move(NEGDIR, 20, MICROSTEP, HIGHCUR) # Retract one step at a time until home switch active
                 Move_l_Laser_Enable = 0
 
            if Move_r_Laser_Enable:
                 print  "Moving Laser stage to the right "  
 	        target_motor = xyz_motor(3, 200, 100)
 	        atexit.register(target_motor.turn_off)
-	        target_motor.move(1, 4, 4, 3) # move right 20 steps
+	        target_motor.move(POSDIR, 20, MICROSTEP, HIGHCUR) # Retract one step at a time until home switch active
                 Move_r_Laser_Enable = 0
 
            if Move_left_Laser_Enable:
                 print  "Moving Laser stage to the left "  
 	        target_motor = xyz_motor(3, 200, 100)
 	        atexit.register(target_motor.turn_off)
-	        target_motor.move(-1, 2, 4, 3) # move left 10 steps
+	        target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR) # Retract one step at a time until home switch active
                 Move_left_Laser_Enable = 0
 
            if Move_right_Laser_Enable:
                 print  "Moving Laser stage to the right "  
 	        target_motor = xyz_motor(3, 200, 100)
 	        atexit.register(target_motor.turn_off)
-	        target_motor.move(1, 2, 4, 3) # move right 20 steps
+	        target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR) # Retract one step at a time until home switch active
                 Move_right_Laser_Enable = 0
 
            if Move_GelPump_Home:
@@ -253,8 +291,7 @@ class Motor:
                      time.sleep(.01)
                 if (temp >= 1 ):   #if home switch is active, print complete message
                       print "Input DAC(7,0) Home sensor is already active high, moving down 110 first" 
-	              #target_motor.move(-1, 110, 4, 3) # Moving down, away from the top
-	              target_motor.move(-1, 1, 1, 1)   # Go down
+	              target_motor.move(NEGDIR, 60, MICROSTEP, LOWCUR) # Retract one step at a time until home switch active
                 temp = 0
                 for cycle in range (1,2):
                      temp = temp + DAC.getDINbit(7,0)
@@ -265,8 +302,7 @@ class Motor:
                       for cycle in range (1,2):
                            temp = temp + DAC.getDINbit(7,0)
                            time.sleep(.01)
-	              #target_motor.move(1, 5, 4, 3)  #
-	              target_motor.move(1, 1, 1, 1) # Go forward, up to top of gel pump to allow gel replacement
+	              target_motor.move(POSDIR, 1, FASTSTEP, LOWCUR) # Go forward, up to top of gel pump to allow gel replacement
                       GelPos = GelPos + 1
                 print "Completed Gel Pump move to Home switch"
                 print  GelPos
@@ -279,7 +315,7 @@ class Motor:
            if Move_GelPump_Start :
 	        target_motor = xyz_motor(1, 200, 100)
 	        atexit.register(target_motor.turn_off)
-                HomeMax = 23800
+                HomeMax = 123800
                 GelPos = 0
                 temp = 0
                 print "Waiting for DAC addr7 input 2 Gel Start switch to become Active "
@@ -289,15 +325,14 @@ class Motor:
                      time.sleep(.01)
                      if (temp == 0 ):   #if home switch is active, print complete message
                         print "Input DAC(7,2) Gel Start sensor is already active low, moving up to get off top" 
-	                target_motor.move(1, 30, 1, 1) # bring motor up 
+	                target_motor.move(POSDIR, 30, FASTSTEP, LOWCUR)  # bring motor up 
 
                 while ((temp != 0) and ( GelPos < HomeMax) and (Move_GelPump_Start == 1)):   #if gel start switch not active, move 1 step
                      temp = 0
                      for cycle in range (1,3):
                        temp = temp + DAC.getDINbit(7,2)
                        time.sleep(.01)
-             
-	             target_motor.move(-1, 3, 1, 1) # bring motor down one step at a time 
+                     target_motor.move(NEGDIR, 9, MICROSTEP, LOWCUR)  # bring motor down one step at a time 
                      GelPos = GelPos + 1
 
                 print "Completed Gel Pump move to top of syring"
@@ -320,7 +355,7 @@ class Motor:
                      time.sleep(.01)
                 if (temp >= 1 ):   #if home switch is active, print complete message
                       print "Input DAC(7,1) Home sensor is already active high, moving left 110 first" 
-	              target_motor.move(-1, 110, 4, 3) # Moving left, away from the capillary
+                      target_motor.move(NEGDIR, 110, MICROSTEP, HIGHCUR) # Moving left, away from the capillary
                 temp = 0
                 for cycle in range (1,3):
                      temp = temp + DAC.getDINbit(7,1)
@@ -331,7 +366,7 @@ class Motor:
                       for cycle in range (1,2):
                            temp = temp + DAC.getDINbit(7,1)
                            time.sleep(.01)
-	              target_motor.move(1, 5, 4, 3) # Moving towards the capillary
+                      target_motor.move(POSDIR, 5, MICROSTEP, HIGHCUR) # Moving towards the capillary
                       LaserPos = LaserPos + 1
                 print "Completed Laser move to Home switch"
                 if ((DAC.getDINbit(7,1) == 1) ):   #if home switch is active, reset LaserPos
@@ -345,8 +380,13 @@ class Motor:
                 print "Moving Gel Pump down 10uL  \r\n"
 	        target_motor = xyz_motor(1, 200, 100)
 	        atexit.register(target_motor.turn_off)
-	        target_motor.move(-1, 200, 1, 1) # Go downward, gel pump down to pump gel 
+                target_motor.move(NEGDIR, 300, MICROSTEP, HIGHCUR)   # Go downward, gel pump down to pump gel 
                 GelPos = GelPos + 10
+                for cycle in range (1,10):                          # Every 20 seconds pump one step
+                    print "Moving Gel Pump down at 3uL per hour  \r\n"
+                    time.sleep(20)
+                    target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR) # Go downward, gel pump down to pump gel 
+
                 Move_GelPump_Move = 0
 
 
@@ -362,6 +402,7 @@ class CapHeat:
         while self._running:
           while Cap_Heater_Enable == 0:
                 DAC.clrDOUTbit(7,0)       #De-activate 24V to capillary heater pins NOpen and COMM
+                                          #Analog input is on DACQ plate address 7 pin 0
                 #print  "Heating OFF, Capillary temperature voltage is "  
                 time.sleep(2)
 
@@ -369,11 +410,21 @@ class CapHeat:
               temp =  DAC.getADC(7,0)
               time.sleep(.02)
               for cycle in range (1,10):
-                  temp =  DAC.getADC(7,0)
-                  time.sleep(.04)
+                  temp =  DAC.getADC(7,0) #
+                  time.sleep(.02)
                   temp =  (9 * temp + DAC.getADC(7,0)) / 10
                   time.sleep(.02)
-                  #print "9 times ave "
+              for cycle in range (1,10):
+                  temp3 =  DAC.getADC(7,0)
+                  if (( temp3 > (temp + .6) or ( temp3 < (temp - .6)))) :
+                      temp3 = temp   # if new reading is way larger or smaller than average, ignore it
+                  time.sleep(.02)
+                  temp2 =  DAC.getADC(7,0)
+                  if (( temp2 > (temp + .6) or ( temp2 < (temp - .6)))) :
+                      temp2 = temp   # if new reading is way larger or smaller than average, ignore it
+                  time.sleep(.02)
+                  temp =  ( temp + temp2 + temp3) / 3
+                  time.sleep(.02)
               print  temp
               if ( temp >= 2.00 ):  # If higher than 2.097V, then cooler than 60 celcius
                 DAC.setDOUTbit(7,0)       #Activate 24V to capillary heater pins NOpen and COMM
@@ -424,47 +475,51 @@ if __name__ == "__main__":
             if ( rcv == "L" ):
                Move_l_Laser_Enable = 1
 
-            if ( rcv == "REAGW" ):
+            if ( rcv == "RWHOME" ):
                Move_ReagentW_Home = 1
-               print "Move_ReagentW_Home Moving Home\r\n"
+               print "Move_Reagent W Home Moving Home\r\n"
 
-            if ( rcv == "REAGM" ):
+            if ( rcv == "RMHOME" ):
                Move_ReagentM_Home = 1
-               print "Move_ReagentM_Home Moving Home\r\n"
+               print "Move_Reagent M Home Moving Home\r\n"
 
-            if ( rcv == "REAGP" ):
+            if ( rcv == "RPHOME" ):
                Move_ReagentP_Home = 1
-               print "Move_ReagentP_Home Moving Home\r\n"
+               print "Move_Reagent P Home Moving Home\r\n"
 
-            if ( rcv == "REAGB" ):
+            if ( rcv == "RBHOME" ):
                Move_ReagentB_Home = 1
-               print "Move_ReagentB_Home Moving Home\r\n"
+               print "Move_Reagent B Home Moving Home\r\n"
+
+            if ( rcv == "CAPSETT" ):
+               print "Capillary Heater Set temp\r\n"
+
+            if ( rcv == "CAPGETT" ):
+               print "Capillary Heater Get temp\r\n"
 
             if ( rcv == "CAPHEAT" ):
                Cap_Heater_Enable = 1
                print "Capillary Heater ON\r\n"
 
-            if ( rcv == "LEFT" ):
+            if ( rcv == "LASLEFT" ):
                Move_left_Laser_Enable = 1
-               print "Moving Laser left \r\n"
 
-            if ( rcv == "RIGHT" ):
+            if ( rcv == "LASRIGHT" ):
                Move_right_Laser_Enable = 1
-               print "Moving Laser left \r\n"
 
-            if ( rcv == "RETRACT"  or rcv == "LASRET"  ):
+            if ( rcv == "RET"  or rcv == "LASRET"  ):
                Move_Laser_Home = 1
                print "Moving Laser to home switch \r\n"
 
-            if ( rcv == "GELRET" ):
+            if ( rcv == "GPHOME" ):
                Move_GelPump_Home = 1
                print "Moving Gel Pump to Home switch \r\n"
 
-            if ( rcv == "GELSTRT" ):
+            if ( rcv == "GPSTART" ):
                Move_GelPump_Start = 1
                print "Moving Gel Pump to Start switch \r\n"
 
-            if ( rcv == "GELMV" ):
+            if ( rcv == "GPRATE" ):
                Move_GelPump_Move = 10
                print "Moving Gel Pump to position \r\n"
 
@@ -495,8 +550,8 @@ if __name__ == "__main__":
                print "Stopping all motors and heater\r\n"
 
             if ( rcv == "?" ):
-               print "CAPHEAT LEFT RIGHT LASRET GELRET GELSTRT GELMV Q QUIT L R\r\n"
-               port.write("CAPHEAT LEFT RIGHT LASRET GELRET GELSTRT GELMV Q QUIT\r\n")
+               print "CAPHEAT LASLEFT LASRIGHT L  R  LASHOME GPHOME GPSTART GPRATE Q QUIT L R\r\n"
+               port.write("CAPHEAT LASLEFT LASRIGHT L  R  LASHOME GPHOME GPSTART GPRATE Q QUIT L R\r\n")
 
 
         st1.termintate()
