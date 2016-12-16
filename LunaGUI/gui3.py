@@ -7,8 +7,49 @@ from threading import Thread
 import subprocess
 
 # This line of code will only make it so that only one instance of the gui is running.
-from tendo import singleton
-me = singleton.SingleInstance()
+# from tendo import singleton
+# me = singleton.SingleInstance()
+
+dict_of_commands \
+      = {"RUNSAMPLE",
+          "INVTHW",
+          "GETVI",
+          "SETV",
+          "SHUTDOWN",
+          "STARTSEQ",
+          "STOPSEQ",
+          "READSEQD",
+          "SETLSTATE",
+          "SETLPWR",
+          "GETLPWR",
+          "MOVELEFT",
+          "MOVERIGHT",
+          "FVALVEPOS",
+          "SPCSETEXP",
+          "SPCSTARTC",
+          "SPCISCRUN",
+         }
+
+
+dict_of_devices_and_commands \
+    = {'HighVoltageSupply': ["GETVI", "SETV"],
+       'TECController': ["STARTSEQ", "STOPSEQ", "READSEQD"],
+       'OBISLaser': ["GETLPWR", "SETLPWR", "SETLSTATE"],
+       'Spectrometer': ["SPCSETEXP", "SPCSTARTC", "SPCISCRUN"],
+       'FluidValve': ['FVALVEPOS'],
+       # Dave's Instruments
+       'CapillaryHeater': ['CAPHEATON'],
+       'Pi': ['CAPHEATON', 'CAPHEATOFF', 'CAPGETT', 'CAPSETT',
+              'MOVELEFT', 'MOVERIGHT', 'LMHOME', 'CAPREADY',
+              'GPHOME', 'GPRATE', 'GPSTART',
+              'RWHOME', 'RWRATE',
+              'RPHOME', 'RPRATE',
+              'RBHOME', 'RBRATE',
+              'RMHOME', 'RMRATE',
+              'CHIPZHOME', 'CHIPZUP',
+              'CHIPYHOME', 'CHIPYOUT']
+             + ['v' + str(i) for i in range(1, 21)]
+       }
 
 cnum = 1
 
@@ -57,84 +98,82 @@ def the_reader_thread():
         length = out[10:19].strip()
         device_name = out[20:83].strip()
         cmd = out[84:93].strip()
-        args = out[94:].strip()
+        args = out[94:]
         # print (id, length, device_name, cmd, args)
 
         if cmd=="INVTHW":
             list_box.insert(END, device_name+" is "+args)
         elif cmd=="SHUTDOWN":
             luna.quit()
-
-        # High Voltage Supply
-        elif cmd=="GETVI":
-            if args == "SYNTAX" or args == "":
-                # Error Checking, sometimes hardware issues. Not connected properly.
-                # on_getvi_button_click()
+        elif (dict_of_devices_and_commands[device_name]):
+            if cmd=="GETVI":
+                if args == "SYNTAX" or args == "":
+                    # Error Checking, sometimes hardware issues. Not connected properly.
+                    # on_getvi_button_click()
+                    pass
+                elif args !="FAIL":
+                    args_list = args.split()
+                    volt = args_list[0]
+                    current = args_list[1]
+                    current_volts.set(volt)
+                    current_amps.set(current)
+                    list_box.insert(END, "Received current voltage and current.")
+            elif cmd=="SETV":
+                list_box.insert(END, "Set voltage")
+            # TEC Controller
+            elif cmd == "STARTSEQ":
                 pass
-            elif args !="FAIL":
-                args = out[94:]
-                args_list = args.split()
-                volt = args_list[0]
-                current = args_list[1]
-                current_volts.set(volt)
-                current_amps.set(current)
-                list_box.insert(END, "Received current voltage and current.")
-        elif cmd=="SETV":
-            list_box.insert(END, "Set voltage")
-        # TEC Controller
-        elif cmd == "STARTSEQ":
-            pass
-        elif cmd=="STOPSEQ":
-            pass
-        elif cmd=="READSEQD":
-            message_status = args.split()
-            if message_status[0] == "OK":
-                block_temp = message_status[1]
-                sample_temp = message_status[2]
-                cycle = message_status[3]
-                step = message_status[4]
-                current_block_temp.set(block_temp)
-                current_sample_temp.set(sample_temp)
-                current_cycle.set(cycle)
-                current_number_of_steps.set(step)
+            elif cmd=="STOPSEQ":
+                pass
+            elif cmd=="READSEQD":
+                message_status = args.split()
+                if message_status[0] == "OK":
+                    block_temp = message_status[1]
+                    sample_temp = message_status[2]
+                    cycle = message_status[3]
+                    step = message_status[4]
+                    current_block_temp.set(block_temp)
+                    current_sample_temp.set(sample_temp)
+                    current_cycle.set(cycle)
+                    current_number_of_steps.set(step)
 
 
 
-        # OBIS Laser
-        elif cmd == "GETLPWR":
-            list_box.insert(END, out)
-        elif cmd == "SETLPWR":
-            list_box.insert(END, out)
-        elif cmd == "SETLSTATE":
-            list_box.insert(END, out)
+            # OBIS Laser
+            elif cmd == "GETLPWR":
+                list_box.insert(END, out)
+            elif cmd == "SETLPWR":
+                list_box.insert(END, out)
+            elif cmd == "SETLSTATE":
+                list_box.insert(END, out)
 
 
 
-        # Laser's Motor
-        elif cmd == "MOVLEFT":
-            list_box.insert(END, out)
-        elif cmd == "MOVERIGHT":
-            list_box.insert(END, out)
-        elif cmd == "RETRACT":
-            list_box.insert(END, out)
-        elif cmd == "CAPREADY":
-            list_box.insert(END, out)
-        # Cap Heater
-        elif cmd == "CAPHEATON":
-            list_box.insert(END, out)
-        elif cmd == "CAPHEATOFF":
-            list_box.insert(END, out)
-        elif cmd == "CAPGETT":
-            list_box.insert(END, out)
-        elif cmd == "CAPSETT":
-            list_box.insert(END, out)
-        # Gel Pump
-        elif cmd == "GELMV":
-            list_box.insert(END, out)
-        elif cmd == "GELRET":
-            list_box.insert(END, out)
-        elif cmd == "GELSTART":
-            list_box.insert(END, out)
+            # Laser's Motor
+            elif cmd == "MOVLEFT":
+                list_box.insert(END, out)
+            elif cmd == "MOVERIGHT":
+                list_box.insert(END, out)
+            elif cmd == "RETRACT":
+                list_box.insert(END, out)
+            elif cmd == "CAPREADY":
+                list_box.insert(END, out)
+            # Cap Heater
+            elif cmd == "CAPHEATON":
+                list_box.insert(END, out)
+            elif cmd == "CAPHEATOFF":
+                list_box.insert(END, out)
+            elif cmd == "CAPGETT":
+                list_box.insert(END, out)
+            elif cmd == "CAPSETT":
+                list_box.insert(END, out)
+            # Gel Pump
+            elif cmd == "GELMV":
+                list_box.insert(END, out)
+            elif cmd == "GELRET":
+                list_box.insert(END, out)
+            elif cmd == "GELSTART":
+                list_box.insert(END, out)
 
 
 

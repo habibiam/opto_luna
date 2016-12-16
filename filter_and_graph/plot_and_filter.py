@@ -8,11 +8,11 @@ Designed to use with the new ibsen output file
 import itertools
 from datetime import datetime
 from os.path import join
-
+from SG1_Writer import SG1_Writer
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from SG1_writer import SG1_Writer
+# from file_con
 from k_baseline import *
 from matricies import *
 
@@ -751,7 +751,7 @@ def main_conversion_sg1(file_dir):
     """
     data = load_file(file_dir)
     five_dyes = get_five_dyes(data)
-    SG1_Writer("../csv_files/output.sg1", five_dyes)
+    SG1_Writer("../data/sg1_files/output.sg1", five_dyes)
     # df = pd.DataFrame(five_dyes)
     # df_transpose = df.transpose()
     # df_transpose.to_csv("../csv_files/310_converted_"+file_name)
@@ -766,7 +766,7 @@ if __name__ == "__main__":
     folder = '../data/csv_files'
     # file name variables
     AL2 = '10_26_9mW_AL_(actual).csv'
-    file_name = 'k4_filtered_8X4_10_13_AL_new_ibsen_modified.csv'
+    file_name = '10_13_AL_new_ibsen.csv'
     # file_name2 = '10_13_AL_new_ibsen_modified.csv'
     file_name2 = '10_14_matrix.csv'
     file_name3 = 'k4_filtered_8X10_10_13_AL_new_ibsen_modified.csv'
@@ -775,15 +775,15 @@ if __name__ == "__main__":
     Kevins_conv = '10_13__AL_RAW.csv'
 
     file_dir = join(folder, file_name)
-    file_dir2 = join(folder, file_name2)
-    file_dir3 = join(folder, file_name3)
+    # file_dir2 = join(folder, file_name2)
+    # file_dir3 = join(folder, file_name3)
 
     # main1(file_dir3, file_dir2)
     # main_get_five_dyes_and_plot(Kevins_conversion)
     # main_get_five_dyes_and_plot(Three_10)
     # main_conversion_310(file_dir2, file_name2)
-    main_conversion_sg1(file_dir2)
-    main_get_five_dyes_and_plot(file_dir2)
+    main_conversion_sg1(file_dir)
+    main_get_five_dyes_and_plot(file_dir)
 
     plt.show()
     # main(file_dir2)
