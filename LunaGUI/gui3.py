@@ -6,6 +6,11 @@ from serial import *
 from threading import Thread
 import subprocess
 
+import logging
+
+FORMAT = '%(levelname)s:%(funcName)s:%(message)s'
+logging.basicConfig(format=FORMAT, level=logging.INFO)
+
 # This line of code will only make it so that only one instance of the gui is running.
 # from tendo import singleton
 # me = singleton.SingleInstance()
@@ -100,18 +105,21 @@ def the_reader_thread():
         cmd = out[84:93].strip()
         args = out[94:]
         # print (id, length, device_name, cmd, args)
+        try:
+            pass
+        except IOError:
+            logging.info('CMD now part of the dictionary')
+
 
         if cmd=="INVTHW":
             list_box.insert(END, device_name+" is "+args)
         elif cmd=="SHUTDOWN":
+            list_box.insert(END, "Luna is Shutting down")
+            time.sleep(1.0)
             luna.quit()
         elif (dict_of_devices_and_commands[device_name]):
             if cmd=="GETVI":
-                if args == "SYNTAX" or args == "":
-                    # Error Checking, sometimes hardware issues. Not connected properly.
-                    # on_getvi_button_click()
-                    pass
-                elif args !="FAIL":
+                if args !="FAIL":
                     args_list = args.split()
                     volt = args_list[0]
                     current = args_list[1]
@@ -174,6 +182,7 @@ def the_reader_thread():
                 list_box.insert(END, out)
             elif cmd == "GELSTART":
                 list_box.insert(END, out)
+
 
 
 
@@ -661,4 +670,3 @@ if __name__ == '__main__':
     """
     luna.mainloop()
     proc.terminate()
-# luna.mainloop()
