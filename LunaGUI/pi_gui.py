@@ -46,6 +46,57 @@ def shutdown_button_click():
     proc.stdin.flush()
     luna.quit()
     cnum+=1
+"""
+Capillary Heater
+"""
+def turn_on_cap_heater_button_click():
+    """
+    Button click to turn on capillary heater
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATON", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
+def turn_off_cap_heater_button_click():
+    """
+    Button click to turn on capillary heater
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATOFF", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
+def gett_cap_heater_button_click():
+    """
+    Button click to turn on capillary heater
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPGETT", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
 
 """
 Gel Pump
@@ -105,7 +156,6 @@ dict_of_devices_and_commands \
        'Spectrometer': ["SPCSETEXP", "SPCSTARTC", "SPCISCRUN"],
        'FluidValve': ['FVALVEPOS'],
        # Dave's Instruments
-       'CapillaryHeater': ['CAPHEATON'],
        'Pi': ['CAPHEATON', 'CAPHEATOFF', 'CAPGETT', 'CAPSETT',
               'MOVELEFT', 'MOVERIGHT', 'LMHOME', 'CAPREADY',
               'GPHOME', 'GPRATE', 'GPSTART',
@@ -308,9 +358,9 @@ if __name__ == '__main__':
     capillary_heater_label = Label(luna, text="1) Capillary Heater: ")
     capillary_heater_label.grid(row=4, column=0, columnspan=4)
 
-    turn_on_cap_heater_button = Button(luna, text="Turn On Heater", command=None)
+    turn_on_cap_heater_button = Button(luna, text="Turn On Heater", command=turn_on_cap_heater_button_click)
     turn_on_cap_heater_button.grid(row=5, column=0, columnspan=2)
-    turn_off_cap_heater_button = Button(luna, text="Turn Off Heater", command=None)
+    turn_off_cap_heater_button = Button(luna, text="Turn Off Heater", command=turn_off_cap_heater_button_click)
     turn_off_cap_heater_button.grid(row=5, column=2, columnspan=2)
 
     cap_heater_current_temp_label = Label(luna, text="Current Temp (C):")
@@ -318,7 +368,7 @@ if __name__ == '__main__':
     cap_heater_current_temp = StringVar()
     cap_heater_current_temp_dynamic_label = Label(luna, textvariable=cap_heater_current_temp, width=10)
     cap_heater_current_temp_dynamic_label.grid(row=6, column=1, columnspan=2)
-    gett_cap_heater_button = Button(luna, text="GETT", command=None)
+    gett_cap_heater_button = Button(luna, text="CAPGETT", command=gett_cap_heater_button_click)
     gett_cap_heater_button.grid(row=7, column=3)
 
     cap_heater_set_temp_label = Label(luna, text="Set Temp (C):")
@@ -326,8 +376,8 @@ if __name__ == '__main__':
     cap_heater_set_temp_entry = Entry(luna)
     cap_heater_set_temp_entry.grid(row=6, column=1, columnspan=2)
 
-    sett_cap_heater_button = Button(luna, text="SETT", command=None)
-    sett_cap_heater_button.grid(row=6, column=3, command=None)
+    sett_cap_heater_button = Button(luna, text="CAPSETT", command=None)
+    sett_cap_heater_button.grid(row=6, column=3)
 
     """##### Laser Motor #####"""
     laser_motor_label = Label(luna, text="2) Laser Motor")

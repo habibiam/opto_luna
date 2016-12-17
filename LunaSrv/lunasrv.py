@@ -988,9 +988,148 @@ def processGPSTART(receivedDeviceName, recievedArgs):
     sys.stdout.flush()
 
 def processGPRATE(receivedDeviceName, recievedArgs):
-    pass
+    return
 
+"""
+Capillary Heater
+"""
+def processCAPHEATON(receivedDeviceName, recievedArgs):
+    global scanner
+    global cnum
 
+    logger.info("Handle CAPHEATON command")
+
+    if scanner is None:
+        sendFAILResponse("CAPHEATON", receivedDeviceName)
+    return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CAPHEATON", receivedDeviceName)
+        return
+
+    aDevice.Write("CAPHEATON\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CAPHEATON\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPHEATON", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processCAPHEATOFF(receivedDeviceName, recievedArgs):
+    global scanner
+    global cnum
+
+    logger.info("Handle CAPHEATOFF command")
+
+    if scanner is None:
+        sendFAILResponse("CAPHEATOFF", receivedDeviceName)
+    return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CAPHEATOFF", receivedDeviceName)
+        return
+
+    aDevice.Write("CAPHEATOFF\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CAPHEATOFF\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPHEATOFF", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processCAPGETT(receivedDeviceName, recievedArgs):
+    global scanner
+    global cnum
+
+    logger.info("Handle CAPGETT command")
+
+    if scanner is None:
+        sendFAILResponse("CAPGETT", receivedDeviceName)
+    return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CAPGETT", receivedDeviceName)
+        return
+
+    aDevice.Write("CAPGETT\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CAPGETT\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPGETT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processCAPSETT(receivedDeviceName, recievedArgs):
+    return
 
 def get_device_by_name(receivedDeviceName):
     """
@@ -1047,7 +1186,7 @@ def waitForCommands():
                 # Parse out individual fields
                 cnum = int (line[0:10].strip())
                 cmdLen =int (line[10:20].strip())
-                cmd = line[84:93].strip()
+                cmd = line[84:94].strip()
                 devName=line[20:83].strip()
                 args = line[94:cmdLen].strip()
                 logger.debug("Command Number: " + str(cnum) + " Device Name" + devName + "  Parsed command: <"+cmd+">  Args: <" + args + ">" )
@@ -1109,7 +1248,10 @@ if __name__ == '__main__':
                "SPCISCRUN": processSPCISCRUN,
                "GPHOME": processGPHOME,
                "GPRATE": processGPRATE,
-               "GPSTART": processGPSTART
+               "GPSTART": processGPSTART,
+               "CAPHEATON": processCAPHEATON,
+               "CAPHEATOFF": processCAPHEATOFF,
+               "CAPGETT": processCAPGETT
             }
 
     # Get path to this file...
