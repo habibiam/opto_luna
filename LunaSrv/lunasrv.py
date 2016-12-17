@@ -885,6 +885,111 @@ def processSPCISCRUN(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+def processGPHOME(receivedDeviceName, recievedArgs):
+    """
+        Process the SPeCtrometer IS Continuous RUNning
+        :param receivedDeviceName: The name of the device.
+        :param recievedArgs: None
+        :return: None
+        """
+    global scanner
+    global cnum
+
+    logger.info("Handle GPHOME command")
+
+    if scanner is None:
+        sendFAILResponse("GPHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("GPHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("GPHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("GPHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "GPHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processGPSTART(receivedDeviceName, recievedArgs):
+    """
+        Process the SPeCtrometer IS Continuous RUNning
+        :param receivedDeviceName: The name of the device.
+        :param recievedArgs: None
+        :return: None
+        """
+    global scanner
+    global cnum
+
+    logger.info("Handle GPSTART command")
+
+    if scanner is None:
+        sendFAILResponse("GPSTART", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("GPSTART", receivedDeviceName)
+        return
+
+    aDevice.Write("GPSTART\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("GPSTART\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "GPSTART", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processGPRATE(receivedDeviceName, recievedArgs):
+    pass
+
 
 
 def get_device_by_name(receivedDeviceName):
@@ -1002,7 +1107,10 @@ if __name__ == '__main__':
                "SPCSETEXP": processSPCSETEXP,
                "SPCSTARTC": processSPCSTARTC,
                "SPCISCRUN": processSPCISCRUN,
-               }
+               "GPHOME": processGPHOME,
+               "GPRATE": processGPRATE,
+               "GPSTART": processGPSTART
+            }
 
     # Get path to this file...
     path = os.path.dirname(os.path.abspath(__file__))

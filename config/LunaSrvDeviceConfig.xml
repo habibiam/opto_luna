@@ -35,7 +35,7 @@ NOTE: Names are important and are used in code! Don't change without knowing whe
 			<!--</SubProcess>-->
 		<!--</USBSerial>-->
 
-		<USBSerial Name="LaserMotor" Pid="6001" Vid="0403" Uid="FT948EVB" >
+		<USBSerial Name="Pi" Pid="6001" Vid="0403" Uid="FT948EVB" >
 			<PortSettings Baud="115200" DataBits="8" Parity="N" StopBits="1"/>
 		</USBSerial>
 
