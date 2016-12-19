@@ -1249,6 +1249,437 @@ def processCAPGETT(receivedDeviceName, recievedArgs):
 def processCAPSETT(receivedDeviceName, recievedArgs):
     return
 
+"""
+Reagents W, P, B, and M
+"""
+def processRWHOME(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent W HOME command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RWHOME command")
+
+    if scanner is None:
+        sendFAILResponse("RWHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RWHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("RWHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RWHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RWHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processRWRATE(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent W RATE command.
+    Sends a set rate [microL/sec] command to the named device [pi]
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Voltage to set.
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RWRATE command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse("RWRATE", receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RWRATE", receivedDeviceName)
+        return
+
+    aDevice.Write("RWRATE " + str(recievedArgs) + "\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RWRATE " + str(recievedArgs) + "\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RWRATE", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processRPHOME(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent P HOME command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RPHOME command")
+
+    if scanner is None:
+        sendFAILResponse("RPHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RPHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("RPHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RPHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RPHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processRPRATE(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent P RATE command.
+    Sends a set rate [microL/sec] command to the named device [pi]
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Voltage to set.
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RPRATE command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse("RPRATE", receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RPRATE", receivedDeviceName)
+        return
+
+    aDevice.Write("RPRATE " + str(recievedArgs) + "\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RPRATE " + str(recievedArgs) + "\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RPRATE", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processRBHOME(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent B HOME command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RBHOME command")
+
+    if scanner is None:
+        sendFAILResponse("RBHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RBHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("RBHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RBHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RBHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processRBRATE(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent B RATE command.
+    Sends a set rate [microL/sec] command to the named device [pi]
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Voltage to set.
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RBRATE command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse("RBRATE", receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RBRATE", receivedDeviceName)
+        return
+
+    aDevice.Write("RBRATE " + str(recievedArgs) + "\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RBRATE " + str(recievedArgs) + "\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RBRATE", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processRMHOME(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent M HOME command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RMHOME command")
+
+    if scanner is None:
+        sendFAILResponse("RMHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RMHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("RMHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RMHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RMHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processRMRATE(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent M RATE command.
+    Sends a set rate [microL/sec] command to the named device [pi]
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: Voltage to set.
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RMRATE command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse("RMRATE", receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("RMRATE", receivedDeviceName)
+        return
+
+    aDevice.Write("RMRATE " + str(recievedArgs) + "\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("RMRATE " + str(recievedArgs) + "\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RMRATE", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
 
 def get_device_by_name(receivedDeviceName):
     """
@@ -1374,14 +1805,14 @@ if __name__ == '__main__':
                "GPHOME": processGPHOME,
                "GPRATE": processGPRATE,
                "GPSTART": processGPSTART,
-               "RWHOME": None,
-               "RWRATE": None,
-               "RPHOME": None,
-               "RPRATE": None,
-               "RBHOME": None,
-               "RBRATE": None,
-               "RMHOME": None,
-               "RMRATE": None,
+               "RWHOME": processRWHOME,
+               "RWRATE": processRWRATE,
+               "RPHOME": processRPHOME,
+               "RPRATE": processRPRATE,
+               "RBHOME": processRBHOME,
+               "RBRATE": processRBRATE,
+               "RMHOME": processRMHOME,
+               "RMRATE": processRMRATE,
                "CHIPZHOME": None,
                "CHIPZUP": None,
                "CHIPYHOME": None,
