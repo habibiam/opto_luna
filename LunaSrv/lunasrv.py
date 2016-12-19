@@ -112,7 +112,9 @@ def processINVTHW(receivedDeviceName, recievedArgs):
         sys.stdout.write(cmd)
         sys.stdout.flush()
 
-
+"""
+High voltage Supply
+"""
 def processGETVI(receivedDeviceName, recievedArgs):
     """
     Process the GET Voltage and Current(I) command.
@@ -167,9 +169,6 @@ def processGETVI(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-
-
-
 def processSETV(receivedDeviceName, recievedArgs):
     """
     Process the SET Voltage command.  Sends a set voltage command to the named device
@@ -223,7 +222,9 @@ def processSETV(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-
+"""
+Shutdown
+"""
 def processSHUTDOWN(receivedDeviceName, recievedArgs):
     """
     Process SHUTDOWN command.  Will shutdown all devices and exit.
@@ -235,7 +236,9 @@ def processSHUTDOWN(receivedDeviceName, recievedArgs):
     logger.info("Handle SHUTDOWN command")
     do_exit()
 
-
+"""
+TEC CONTROLLER
+"""
 def processSTARTSEQ(receivedDeviceName, recievedArgs):
     """
     Process the START SEQuence command.  The sequence is a thermocycler sequence.
@@ -355,7 +358,9 @@ def processREADSEQD(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-
+"""
+OBIS Laser
+"""
 def processGETLPWR(receivedDeviceName, recievedArgs):
     """
     Process the GET Laser PoWeR command.
@@ -660,8 +665,9 @@ def processMOVERIGHT(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-
-
+"""
+Fluid Valve (LabSmith Valve)
+"""
 def processFVALVEPOS(receivedDeviceName, recievedArgs):
     """
     Process the Fluid VALVE POSition command.  Send a command to position the fluidic valve
@@ -718,7 +724,9 @@ def processFVALVEPOS(receivedDeviceName, recievedArgs):
     sys.stdout.flush()
 
 
-
+"""
+Spectrometer
+"""
 def processSPCSETEXP(receivedDeviceName, recievedArgs):
     """
     Process the SPeCtrometer SET EXPosure command.  Will set exposure for the spectrometer
@@ -885,6 +893,9 @@ def processSPCISCRUN(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+"""
+Gel pump
+"""
 def processGPHOME(receivedDeviceName, recievedArgs):
     """
         Process the SPeCtrometer IS Continuous RUNning
@@ -938,11 +949,11 @@ def processGPHOME(receivedDeviceName, recievedArgs):
 
 def processGPSTART(receivedDeviceName, recievedArgs):
     """
-        Process the SPeCtrometer IS Continuous RUNning
-        :param receivedDeviceName: The name of the device.
-        :param recievedArgs: None
-        :return: None
-        """
+    Process the SPeCtrometer IS Continuous RUNning
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
     global scanner
     global cnum
 
@@ -1131,6 +1142,7 @@ def processCAPGETT(receivedDeviceName, recievedArgs):
 def processCAPSETT(receivedDeviceName, recievedArgs):
     return
 
+
 def get_device_by_name(receivedDeviceName):
     """
     Get a device by its name from the scanners found devices/
@@ -1186,8 +1198,8 @@ def waitForCommands():
                 # Parse out individual fields
                 cnum = int (line[0:10].strip())
                 cmdLen =int (line[10:20].strip())
+                devName = line[20:84].strip()
                 cmd = line[84:94].strip()
-                devName=line[20:83].strip()
                 args = line[94:cmdLen].strip()
                 logger.debug("Command Number: " + str(cnum) + " Device Name" + devName + "  Parsed command: <"+cmd+">  Args: <" + args + ">" )
                 # Call the appropriate handler function.
@@ -1240,18 +1252,34 @@ if __name__ == '__main__':
                "SETLSTATE": processSETLSTATE,
                "SETLPWR": processSETLPWR,
                "GETLPWR": processGETLPWR,
-               "MOVELEFT": processMOVELEFT,
-               "MOVERIGHT": processMOVERIGHT,
                "FVALVEPOS": processFVALVEPOS,
                "SPCSETEXP": processSPCSETEXP,
                "SPCSTARTC": processSPCSTARTC,
                "SPCISCRUN": processSPCISCRUN,
+               # Dave's pi process functions
+               "CAPHEATON": processCAPHEATON,
+               "CAPHEATOFF": processCAPHEATOFF,
+               "CAPGETT": processCAPGETT,
+               "MOVELEFT": processMOVELEFT,
+               "MOVERIGHT": processMOVERIGHT,
+               "LMHOME": None,
+               "CAPREADY": None,
                "GPHOME": processGPHOME,
                "GPRATE": processGPRATE,
                "GPSTART": processGPSTART,
-               "CAPHEATON": processCAPHEATON,
-               "CAPHEATOFF": processCAPHEATOFF,
-               "CAPGETT": processCAPGETT
+               "RWHOME": None,
+               "RWRATE": None,
+               "RPHOME": None,
+               "RPRATE": None,
+               "RBHOME": None,
+               "RBRATE": None,
+               "RMHOME": None,
+               "RMRATE": None,
+               "CHIPZHOME": None,
+               "CHIPZUP": None,
+               "CHIPYHOME": None,
+               "CHIPYUP": None
+               # Need to add valve controls... v1-v20
             }
 
     # Get path to this file...

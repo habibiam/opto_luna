@@ -7,13 +7,14 @@ from threading import Thread
 import subprocess
 
 import logging
+from tendo import singleton
 
 FORMAT = '%(levelname)s:%(funcName)s:%(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 # This line of code will only make it so that only one instance of the gui is running.
 # from tendo import singleton
-# me = singleton.SingleInstance()
+me = singleton.SingleInstance()
 
 def on_send_button_click():
     """
@@ -101,7 +102,6 @@ def gett_cap_heater_button_click():
 """
 Gel Pump
 """
-
 def gp_home_button_click():
     """
     GPHOME
@@ -148,6 +148,10 @@ def gp_rate_button_click(entry):
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPRATE", "args": args}
     proc.stdin.write(cmd)
     cnum+=1
+"""
+Laser Motor
+"""
+
 
 dict_of_devices_and_commands \
     = {'HighVoltageSupply': ["GETVI", "SETV"],
@@ -212,9 +216,9 @@ def the_reader_thread():
         out = proc.stdout.readline()
         print(out)
         id = out[:10].strip()
-        length = out[10:19].strip()
-        device_name = out[20:83].strip()
-        cmd = out[84:93].strip()
+        length = out[10:20].strip()
+        device_name = out[20:84].strip()
+        cmd = out[84:94].strip()
         args = out[94:]
         # print (id, length, device_name, cmd, args)
         # try:
@@ -369,50 +373,50 @@ if __name__ == '__main__':
     cap_heater_current_temp_dynamic_label = Label(luna, textvariable=cap_heater_current_temp, width=10)
     cap_heater_current_temp_dynamic_label.grid(row=6, column=1, columnspan=2)
     gett_cap_heater_button = Button(luna, text="CAPGETT", command=gett_cap_heater_button_click)
-    gett_cap_heater_button.grid(row=7, column=3)
+    gett_cap_heater_button.grid(row=6, column=3)
 
     cap_heater_set_temp_label = Label(luna, text="Set Temp (C):")
-    cap_heater_set_temp_label.grid(row=6, column=0)
+    cap_heater_set_temp_label.grid(row=7, column=0)
     cap_heater_set_temp_entry = Entry(luna)
-    cap_heater_set_temp_entry.grid(row=6, column=1, columnspan=2)
+    cap_heater_set_temp_entry.grid(row=7, column=1, columnspan=2)
 
     sett_cap_heater_button = Button(luna, text="CAPSETT", command=None)
-    sett_cap_heater_button.grid(row=6, column=3)
+    sett_cap_heater_button.grid(row=7, column=3)
 
     """##### Laser Motor #####"""
     laser_motor_label = Label(luna, text="2) Laser Motor")
-    laser_motor_label.grid(row=7, column=0, columnspan=4)
+    laser_motor_label.grid(row=8, column=0, columnspan=4)
 
     lm_moveleft_button = Button(luna, text="MOVELEFT", command=None)
-    lm_moveleft_button.grid(row=8, column=1)
+    lm_moveleft_button.grid(row=9, column=1)
     lm_moveright_button = Button(luna, text="MOVERIGHT", command=None)
-    lm_moveright_button.grid(row=8, column=2)
+    lm_moveright_button.grid(row=9, column=2)
 
     lm_lmhome_button = Button(luna, text="LMHOME", command=None)
-    lm_lmhome_button.grid(row=9, column=1)
+    lm_lmhome_button.grid(row=10, column=1)
     lm_capready_button = Button(luna, text="CAPREADY", command=None)
-    lm_capready_button.grid(row=9, column=2)
+    lm_capready_button.grid(row=10, column=2)
 
     """##### Gel Pump #####"""
     gel_pump_label = Label(luna, text="3) gel_pump")
-    gel_pump_label.grid(row=10, column=0, columnspan=4)
+    gel_pump_label.grid(row=11, column=0, columnspan=4)
 
     gp_home_button = Button(luna, text="GPHOME", command=gp_home_button_click)
-    gp_home_button.grid(row=11, column=1)
+    gp_home_button.grid(row=12, column=1)
 
     gp_start_button = Button(luna, text="GPSTART", command=gp_start_button_click)
-    gp_start_button.grid(row=11, column=2)
+    gp_start_button.grid(row=12, column=2)
 
     set_gprate_label = Label(luna, text="set rate [microL/sec]:")
-    set_gprate_label.grid(row=12, column=0)
+    set_gprate_label.grid(row=13, column=0)
     set_gprate_entry = Entry(luna)
-    set_gprate_entry.grid(row=12, column=1, columnspan=2)
+    set_gprate_entry.grid(row=13, column=1, columnspan=2)
     gp_rate_button = Button(luna, text="GPRATE", command=lambda:gp_rate_button_click(set_gprate_entry))
-    gp_rate_button.grid(row=12, column=3)
+    gp_rate_button.grid(row=13, column=3)
 
     """##### Reagent W, P, B, M #####"""
     reagent_pump_label = Label(luna, text="4) Reagent Pumps (W, P, B, M): ")
-    reagent_pump_label.grid(row=13, column=0, columnspan=4)
+    reagent_pump_label.grid(row=14, column=0, columnspan=4)
 
     valve_options = [
         ("A", 0),
@@ -420,7 +424,7 @@ if __name__ == '__main__':
         ("RATE", 2)
     ]
 
-    row_counter = 14
+    row_counter = 15
     for reagent in ['W', 'P', 'B', 'K']:
         reagent_label = Label(luna, text=reagent)
         reagent_label.grid(row=row_counter, column=0, columnspan=4)
@@ -438,20 +442,20 @@ if __name__ == '__main__':
 
     """##### Chip Station Z Y #####"""
     chip_station_label = Label(luna, text="5) Chip Station (Z and Y): ")
-    chip_station_label.grid(row=22, column=0, columnspan=4)
+    chip_station_label.grid(row=23, column=0, columnspan=4)
     chip_Z_home_button = Button(luna, text="CHIPZHOME", command=None)
-    chip_Z_home_button.grid(row=23, column=0)
+    chip_Z_home_button.grid(row=24, column=0)
     chip_Z_up_button = Button(luna, text="CHIPZUP", command=None)
-    chip_Z_up_button.grid(row=23, column=1)
+    chip_Z_up_button.grid(row=24, column=1)
 
     chip_Y_home_button = Button(luna, text="CHIPYHOME", command=None)
-    chip_Y_home_button.grid(row=23, column=0)
+    chip_Y_home_button.grid(row=24, column=0)
     chip_Y_up_button = Button(luna, text="CHIPZUP", command=None)
-    chip_Y_up_button.grid(row=23, column=1)
+    chip_Y_up_button.grid(row=24, column=1)
     """ Valve v1-v20"""
     valve_nums = []
     num = 1
-    for row in range(24,29):
+    for row in range(25,30):
         for col in range(4):
             valve_text = 'v' + str(num)
             num += 1
@@ -463,10 +467,10 @@ if __name__ == '__main__':
             valve_nums.append(valve_num)
 
     valve_open_button = Button(luna, text="OPEN valves", command=None)
-    valve_open_button.grid(row=30, column=1)
+    valve_open_button.grid(row=31, column=1)
 
     valve_close_button = Button(luna, text="CLOSED valves", command=None)
-    valve_close_button.grid(row=30, column=2)
+    valve_close_button.grid(row=31, column=2)
 
     """
     Turn off gui, then terminate the subproccess

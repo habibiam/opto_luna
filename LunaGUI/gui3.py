@@ -15,26 +15,6 @@ logging.basicConfig(format=FORMAT, level=logging.INFO)
 # from tendo import singleton
 # me = singleton.SingleInstance()
 
-dict_of_commands \
-      = {"RUNSAMPLE",
-          "INVTHW",
-          "GETVI",
-          "SETV",
-          "SHUTDOWN",
-          "STARTSEQ",
-          "STOPSEQ",
-          "READSEQD",
-          "SETLSTATE",
-          "SETLPWR",
-          "GETLPWR",
-          "MOVELEFT",
-          "MOVERIGHT",
-          "FVALVEPOS",
-          "SPCSETEXP",
-          "SPCSTARTC",
-          "SPCISCRUN",
-         }
-
 
 dict_of_devices_and_commands \
     = {'HighVoltageSupply': ["GETVI", "SETV"],
