@@ -1897,6 +1897,61 @@ def processCHIPYOUT(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+# """
+# Valve V1-V20
+# """
+# def processValve(receivedDeviceName, recievedArgs):
+#     """
+#
+#     :param receivedDeviceName: The name of the device.
+#         In this case, it should 'Pi'
+#     :param recievedArgs: OPEN | CLOSED.
+#     :return: None
+#     """
+#     global scanner
+#     global cnum
+#
+#     logger.info("Handle RMRATE command")
+#
+#     # Fail if inventory has not been done yet.
+#     if scanner is None:
+#         sendFAILResponse("RMRATE", receivedDeviceName)
+#         return
+#
+#     # Find device by name, send the command to it, and read response.
+#     aDevice = get_device_by_name(receivedDeviceName)
+#
+#     if aDevice is None:
+#         sendFAILResponse("RMRATE", receivedDeviceName)
+#         return
+#
+#     aDevice.Write("RMRATE " + str(recievedArgs) + "\n")
+#     data = aDevice.GetLastResponse()
+#
+#     if "SYNTAX" in data:
+#         # retry once
+#         aDevice.Write("RMRATE " + str(recievedArgs) + "\n")
+#         data = aDevice.GetLastResponse()
+#
+#     args = ""
+#     if "SYNTAX" in data:
+#         args = "SYNTAX"
+#     elif "FAIL" in data:
+#         args = "FAIL"
+#     elif "OK" in data:
+#         args = data[16:]
+#     else:
+#         args = "SYNTAX"
+#
+#     # Send results back to caller
+#     size = 94 + len(args) + 1
+#     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+#           {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "RMRATE", "args": args}
+#
+#     logger.debug("Sending command: <" + cmd + ">")
+#
+#     sys.stdout.write(cmd)
+#     sys.stdout.flush()
 
 def get_device_by_name(receivedDeviceName):
     """
