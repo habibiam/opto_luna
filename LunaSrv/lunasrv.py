@@ -1681,6 +1681,223 @@ def processRMRATE(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+"""
+Chip Station Z
+"""
+def processCHIPZHOME(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent M HOME command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle CHIPZHOME command")
+
+    if scanner is None:
+        sendFAILResponse("CHIPZHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CHIPZHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("CHIPZHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CHIPZHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPZHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processCHIPZUP(receivedDeviceName, recievedArgs):
+    """
+    Process the CHIP Z UP command.
+    Move Chip Station Z up
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle CHIPZUP command")
+
+    if scanner is None:
+        sendFAILResponse("CHIPZUP", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CHIPZUP", receivedDeviceName)
+        return
+
+    aDevice.Write("CHIPZUP\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CHIPZUP\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPZUP", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+"""
+Chip Station Y
+"""
+def processCHIPYHOME(receivedDeviceName, recievedArgs):
+    """
+    Process the Reagent M HOME command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle CHIPYHOME command")
+
+    if scanner is None:
+        sendFAILResponse("CHIPYHOME", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CHIPYHOME", receivedDeviceName)
+        return
+
+    aDevice.Write("CHIPYHOME\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CHIPYHOME\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPYHOME", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processCHIPYOUT(receivedDeviceName, recievedArgs):
+    """
+    Process the CHIP Y OUT command.
+
+    :param receivedDeviceName: The name of the device
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle CHIPYOUT command")
+
+    if scanner is None:
+        sendFAILResponse("CHIPYOUT", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CHIPYOUT", receivedDeviceName)
+        return
+
+    aDevice.Write("CHIPYOUT\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("CHIPYOUT\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPYOUT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
 def get_device_by_name(receivedDeviceName):
     """
     Get a device by its name from the scanners found devices/
@@ -1813,10 +2030,10 @@ if __name__ == '__main__':
                "RBRATE": processRBRATE,
                "RMHOME": processRMHOME,
                "RMRATE": processRMRATE,
-               "CHIPZHOME": None,
-               "CHIPZUP": None,
-               "CHIPYHOME": None,
-               "CHIPYUP": None
+               "CHIPZHOME": processCHIPZHOME,
+               "CHIPZUP": processCHIPZUP,
+               "CHIPYHOME": processCHIPYHOME,
+               "CHIPYOUT": processCHIPYOUT
                # Need to add valve controls... v1-v20
             }
 
