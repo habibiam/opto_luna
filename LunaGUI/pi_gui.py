@@ -129,7 +129,7 @@ def move_left_button_click():
     name = 'Pi'
     args = ''
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "MOVELEFT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "LASLEFT", "args": args}
     proc.stdin.write(cmd)
     proc.stdin.flush()
     cnum+=1
@@ -145,7 +145,7 @@ def move_right_button_click():
     name = 'Pi'
     args = ''
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "MOVERIGHT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "LASRIGHT", "args": args}
     proc.stdin.write(cmd)
     proc.stdin.flush()
     cnum+=1
@@ -593,9 +593,9 @@ if __name__ == '__main__':
     laser_motor_label = Label(luna, text="2) Laser Motor")
     laser_motor_label.grid(row=8, column=0, columnspan=4)
 
-    lm_moveleft_button = Button(luna, text="MOVELEFT", command=move_left_button_click)
+    lm_moveleft_button = Button(luna, text="LASLEFT", command=move_left_button_click)
     lm_moveleft_button.grid(row=9, column=1)
-    lm_moveright_button = Button(luna, text="MOVERIGHT", command=move_right_button_click)
+    lm_moveright_button = Button(luna, text="LASRIGHT", command=move_right_button_click)
     lm_moveright_button.grid(row=9, column=2)
 
     lm_lmhome_button = Button(luna, text="LMHOME", command=LMHOME_button_click)

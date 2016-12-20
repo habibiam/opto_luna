@@ -788,11 +788,9 @@ def processSPCISCRUN(receivedDeviceName, recievedArgs):
 """
 Laser Motor
 """
-def processMOVELEFT(receivedDeviceName, recievedArgs):
+def processLASLEFT(receivedDeviceName, recievedArgs):
     """
-    Process the GET Voltage and Current(I) command.
-    Queries the High Voltage Power Supply device for Voltage and Current.
-    Sends back data to caller.
+
     :param receivedDeviceName: The name of the device
     :param recievedArgs: None
     :return: None
@@ -800,25 +798,25 @@ def processMOVELEFT(receivedDeviceName, recievedArgs):
     global scanner
     global cnum
 
-    logger.info("Handle MOVELEFT command")
+    logger.info("Handle LASLEFT command")
 
     if scanner is None:
-        sendFAILResponse("MOVELEFT", receivedDeviceName)
+        sendFAILResponse("LASLEFT", receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("MOVELEFT", receivedDeviceName)
+        sendFAILResponse("LASLEFT", receivedDeviceName)
         return
 
-    aDevice.Write("MOVELEFT\n")
+    aDevice.Write("LASLEFT\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("MOVELEFT\n")
+        aDevice.Write("LASLEFT\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -834,18 +832,16 @@ def processMOVELEFT(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "MOVELEFT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "LASLEFT", "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-def processMOVERIGHT(receivedDeviceName, recievedArgs):
+def processLASRIGHT(receivedDeviceName, recievedArgs):
     """
-    Process the GET Voltage and Current(I) command.
-    Queries the High Voltage Power Supply device for Voltage and Current.
-    Sends back data to caller.
+
     :param receivedDeviceName: The name of the device
     :param recievedArgs: None
     :return: None
@@ -853,25 +849,25 @@ def processMOVERIGHT(receivedDeviceName, recievedArgs):
     global scanner
     global cnum
 
-    logger.info("Handle MOVERIGHT command")
+    logger.info("Handle LASRIGHT command")
 
     if scanner is None:
-        sendFAILResponse("MOVERIGHT", receivedDeviceName)
+        sendFAILResponse("LASRIGHT", receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("MOVERIGHT", receivedDeviceName)
+        sendFAILResponse("LASRIGHT", receivedDeviceName)
         return
 
-    aDevice.Write("MOVERIGHT\n")
+    aDevice.Write("LASRIGHT\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("MOVERIGHT\n")
+        aDevice.Write("LASRIGHT\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -887,7 +883,7 @@ def processMOVERIGHT(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "MOVERIGHT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "LASRIGHT", "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2120,8 +2116,8 @@ if __name__ == '__main__':
                "CAPHEATOFF": processCAPHEATOFF,
                "CAPGETT": processCAPGETT,
                "CAPSETT": processCAPSETT,
-               "MOVELEFT": processMOVELEFT,
-               "MOVERIGHT": processMOVERIGHT,
+               "LASLEFT": processLASLEFT,
+               "LASRIGHT": processLASRIGHT,
                "LMHOME": processLMHOME,
                "CAPREADY": processCAPREADY,
                "GPHOME": processGPHOME,
