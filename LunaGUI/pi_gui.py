@@ -554,9 +554,7 @@ if __name__ == '__main__':
     list_box = Listbox(luna, width=40)
     list_box.grid(row=2, column=0, columnspan=4)
 
-    #### START ####
-
-    #### START ####
+    #### START/SHUTDOWN ####
 
     start_shutdown_label = Label(luna, text="0) Start/Shutdown")
     start_shutdown_label.grid(row=3, column=0, columnspan=2)
@@ -567,7 +565,6 @@ if __name__ == '__main__':
     shutdown_button.grid(row=3, column=3)
 
     """##### Capillary Heater #####"""
-
     capillary_heater_label = Label(luna, text="1) Capillary Heater: ")
     capillary_heater_label.grid(row=4, column=0, columnspan=4)
 
@@ -648,24 +645,11 @@ if __name__ == '__main__':
         reagent_rate_entry = Entry(luna)
         reagent_rate_entry.grid(row=row_counter, column=1, columnspan=2)
         rate_button_text = "R" + str(letter) + "RATE"
-        reagent_rate_button = Button(luna, text=rate_button_text, command=lambda: rate_command(reagent_rate_entry))
+        reagent_rate_button = Button(luna,
+                                     text=rate_button_text,
+                                     command=lambda reagent_rate_entry=reagent_rate_entry, rate_command=rate_command: rate_command(reagent_rate_entry))
         reagent_rate_button.grid(row=row_counter, column=3)
         row_counter+=1
-
-    # for letter in ['W', 'P', 'B', 'K']:
-    #     reagent_label = Label(luna, text=letter)
-    #     reagent_label.grid(row=row_counter, column=0, columnspan=4)
-    #     row_counter+=1
-    #
-    #     home_button_text = "R" + str(letter) + "HOME"
-    #     reagent_home_button = Button(luna, text=home_button_text, command=None)
-    #     reagent_home_button.grid(row=row_counter, column=0)
-    #     reagent_rate_entry = Entry(luna)
-    #     reagent_rate_entry.grid(row=row_counter, column=1, columnspan=2)
-    #     rate_button_text = "R" + str(letter) + "RATE"
-    #     reagent_rate_button = Button(luna, text=rate_button_text, command=lambda: None)
-    #     reagent_rate_button.grid(row=row_counter, column=3)
-    #     row_counter+=1
 
     """##### Chip Station Z Y #####"""
     chip_station_label = Label(luna, text="5) Chip Station (Z and Y): ")
