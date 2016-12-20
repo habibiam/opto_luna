@@ -5,6 +5,7 @@ from serial import *
 
 from threading import Thread
 import subprocess
+import itertools
 
 import logging
 from tendo import singleton
@@ -47,6 +48,10 @@ def shutdown_button_click():
     proc.stdin.flush()
     luna.quit()
     cnum+=1
+
+
+
+################################ Dave's Machines ########################
 """
 Capillary Heater
 """
@@ -98,6 +103,84 @@ def gett_cap_heater_button_click():
     proc.stdin.flush()
     cnum+=1
 
+def sett_cap_heater_button_click(entry):
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94 + len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPSETT", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+"""
+Laser Motor
+"""
+def move_left_button_click():
+    """
+    Button click to move the Laser Motor counter-clockwise by one increment
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "MOVELEFT", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
+def move_right_button_click():
+    """
+    Button click to move the Laser Motor counter-clockwise by one increment
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "MOVERIGHT", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
+def LMHOME_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "LMHOME", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
+def CAPREADY_button_click():
+    """
+    Sends a "CAPREADY" command to LunaSrv
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPREADY", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
 
 """
 Gel Pump
@@ -149,9 +232,135 @@ def gp_rate_button_click(entry):
     proc.stdin.write(cmd)
     cnum+=1
 """
-Laser Motor
-"""
+Reagents W, P, B, and M
 
+Home
+RATE
+"""
+def RWHOME_button_click():
+    """
+    GPSTART
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RWHOME", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def RPHOME_button_click():
+    """
+    GPSTART
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RPHOME", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def RBHOME_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RBHOME", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def RMHOME_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RMHOME", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+
+def RWRATE_button_click(entry):
+    """
+    Set the Reagent W pump rate in [microL/sec]
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94+len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RWRATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def RPRATE_button_click(entry):
+    """
+    Set the Reagent P pump rate in [microL/sec]
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94+len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RPRATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def RBRATE_button_click(entry):
+    """
+    Set the Reagent B pump rate in [microL/sec]
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94+len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RBRATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
+
+def RMRATE_button_click(entry):
+    """
+    Set the Reagent M pump rate in [microL/sec]
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94+len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "RMRATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum+=1
 
 dict_of_devices_and_commands \
     = {'HighVoltageSupply': ["GETVI", "SETV"],
@@ -380,21 +589,21 @@ if __name__ == '__main__':
     cap_heater_set_temp_entry = Entry(luna)
     cap_heater_set_temp_entry.grid(row=7, column=1, columnspan=2)
 
-    sett_cap_heater_button = Button(luna, text="CAPSETT", command=None)
+    sett_cap_heater_button = Button(luna, text="CAPSETT", command=lambda: sett_cap_heater_button_click(cap_heater_set_temp_entry))
     sett_cap_heater_button.grid(row=7, column=3)
 
     """##### Laser Motor #####"""
     laser_motor_label = Label(luna, text="2) Laser Motor")
     laser_motor_label.grid(row=8, column=0, columnspan=4)
 
-    lm_moveleft_button = Button(luna, text="MOVELEFT", command=None)
+    lm_moveleft_button = Button(luna, text="MOVELEFT", command=move_left_button_click)
     lm_moveleft_button.grid(row=9, column=1)
-    lm_moveright_button = Button(luna, text="MOVERIGHT", command=None)
+    lm_moveright_button = Button(luna, text="MOVERIGHT", command=move_right_button_click)
     lm_moveright_button.grid(row=9, column=2)
 
-    lm_lmhome_button = Button(luna, text="LMHOME", command=None)
+    lm_lmhome_button = Button(luna, text="LMHOME", command=LMHOME_button_click)
     lm_lmhome_button.grid(row=10, column=1)
-    lm_capready_button = Button(luna, text="CAPREADY", command=None)
+    lm_capready_button = Button(luna, text="CAPREADY", command=CAPREADY_button_click)
     lm_capready_button.grid(row=10, column=2)
 
     """##### Gel Pump #####"""
@@ -425,20 +634,38 @@ if __name__ == '__main__':
     ]
 
     row_counter = 15
-    for reagent in ['W', 'P', 'B', 'K']:
-        reagent_label = Label(luna, text=reagent)
+    letters = ['W', 'P', 'B', 'M']
+    home_commands = [RWHOME_button_click, RPHOME_button_click, RBHOME_button_click, RMHOME_button_click]
+    rate_commands = [RWRATE_button_click, RPRATE_button_click, RBRATE_button_click, RMRATE_button_click]
+    for letter, home_command, rate_command in itertools.izip(letters, home_commands, rate_commands):
+        reagent_label = Label(luna, text=letter)
         reagent_label.grid(row=row_counter, column=0, columnspan=4)
         row_counter+=1
 
-        home_button_text = "R" + str(reagent) + "HOME"
-        reagent_home_button = Button(luna, text=home_button_text, command=lambda: None)
+        home_button_text = "R" + str(letter) + "HOME"
+        reagent_home_button = Button(luna, text=home_button_text, command=home_command)
         reagent_home_button.grid(row=row_counter, column=0)
         reagent_rate_entry = Entry(luna)
         reagent_rate_entry.grid(row=row_counter, column=1, columnspan=2)
-        rate_button_text = "R" + str(reagent) + "RATE"
-        reagent_home_button = Button(luna, text=rate_button_text, command=None)
-        reagent_home_button.grid(row=row_counter, column=3)
+        rate_button_text = "R" + str(letter) + "RATE"
+        reagent_rate_button = Button(luna, text=rate_button_text, command=lambda: rate_command(reagent_rate_entry))
+        reagent_rate_button.grid(row=row_counter, column=3)
         row_counter+=1
+
+    # for letter in ['W', 'P', 'B', 'K']:
+    #     reagent_label = Label(luna, text=letter)
+    #     reagent_label.grid(row=row_counter, column=0, columnspan=4)
+    #     row_counter+=1
+    #
+    #     home_button_text = "R" + str(letter) + "HOME"
+    #     reagent_home_button = Button(luna, text=home_button_text, command=None)
+    #     reagent_home_button.grid(row=row_counter, column=0)
+    #     reagent_rate_entry = Entry(luna)
+    #     reagent_rate_entry.grid(row=row_counter, column=1, columnspan=2)
+    #     rate_button_text = "R" + str(letter) + "RATE"
+    #     reagent_rate_button = Button(luna, text=rate_button_text, command=lambda: None)
+    #     reagent_rate_button.grid(row=row_counter, column=3)
+    #     row_counter+=1
 
     """##### Chip Station Z Y #####"""
     chip_station_label = Label(luna, text="5) Chip Station (Z and Y): ")

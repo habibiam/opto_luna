@@ -1247,7 +1247,56 @@ def processCAPGETT(receivedDeviceName, recievedArgs):
     sys.stdout.flush()
 
 def processCAPSETT(receivedDeviceName, recievedArgs):
-    return
+    """
+
+    :param receivedDeviceName:
+    :param recievedArgs:
+    :return:
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle CAPSETT command")
+
+    # Fail if inventory has not been done yet.
+    if scanner is None:
+        sendFAILResponse("CAPSETT", receivedDeviceName)
+        return
+
+    # Find device by name, send the command to it, and read response.
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("CAPSETT", receivedDeviceName)
+        return
+
+    aDevice.Write("CAPSETT " + str(recievedArgs) + "\n")
+    data = aDevice.GetLastResponse()
+
+    if "CAPSETT" in data:
+        # retry once
+        aDevice.Write("CAPSETT " + str(recievedArgs) + "\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send results back to caller
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPSETT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
 
 """
 Reagents W, P, B, and M
@@ -2070,6 +2119,7 @@ if __name__ == '__main__':
                "CAPHEATON": processCAPHEATON,
                "CAPHEATOFF": processCAPHEATOFF,
                "CAPGETT": processCAPGETT,
+               "CAPSETT": processCAPSETT,
                "MOVELEFT": processMOVELEFT,
                "MOVERIGHT": processMOVERIGHT,
                "LMHOME": processLMHOME,
