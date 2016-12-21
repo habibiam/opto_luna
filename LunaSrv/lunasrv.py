@@ -1889,7 +1889,6 @@ def processCHIPYHOME(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-
 def processCHIPYOUT(receivedDeviceName, recievedArgs):
     """
     Process the CHIP Y OUT command.
@@ -1997,6 +1996,217 @@ def processCHIPYOUT(receivedDeviceName, recievedArgs):
 #
 #     sys.stdout.write(cmd)
 #     sys.stdout.flush()
+
+"""
+Stage X
+"""
+def processSTAGEXLEFT(receivedDeviceName, recievedArgs):
+    """
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle STAGEXLEFT command")
+
+    if scanner is None:
+        sendFAILResponse("STAGEXLEFT", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("STAGEXLEFT", receivedDeviceName)
+        return
+
+    aDevice.Write("STAGEXLEFT\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("STAGEXLEFT\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEXLEFT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processSTAGEXRIGHT(receivedDeviceName, recievedArgs):
+    """
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle STAGEXRIGHT command")
+
+    if scanner is None:
+        sendFAILResponse("STAGEXRIGHT", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("STAGEXRIGHT", receivedDeviceName)
+        return
+
+    aDevice.Write("STAGEXRIGHT\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("STAGEXRIGHT\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEXRIGHT", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+"""
+Stage Z
+"""
+def processSTAGEZUP(receivedDeviceName, recievedArgs):
+    """
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle STAGEZUP command")
+
+    if scanner is None:
+        sendFAILResponse("STAGEZUP", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("STAGEZUP", receivedDeviceName)
+        return
+
+    aDevice.Write("STAGEZUP\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("STAGEZUP\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEZUP", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processSTAGEZDN(receivedDeviceName, recievedArgs):
+    """
+
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle STAGEZDN command")
+
+    if scanner is None:
+        sendFAILResponse("STAGEZDN", receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("STAGEZDN", receivedDeviceName)
+        return
+
+    aDevice.Write("STAGEZDN\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("STAGEZDN\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEZDN", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
 
 def get_device_by_name(receivedDeviceName):
     """
