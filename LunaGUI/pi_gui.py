@@ -689,6 +689,9 @@ if __name__ == '__main__':
     # valve_close_button = Button(luna, text="CLOSED valves", command=None)
     # valve_close_button.grid(row=31, column=2)
 
+    """ Stage X and Z"""
+
+
     """
     Turn off gui, then terminate the subproccess
     """
