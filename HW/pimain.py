@@ -151,6 +151,23 @@ class Motor:
         self._running = True
         with open('stage_x_z_absolute_position.json') as f:
             self.stage_x_and_z_pos = json.load(f)
+        if (self.stage_x_and_z_pos["x_pos"] != 0):
+            print "Moving Stage X HOME"
+            target_motor = xyz_motor(6, 200, 100)
+            atexit.register(target_motor.turn_off)
+            target_motor.move(NEGDIR, self.stage_x_and_z_pos["x_pos"], MICROSTEP,
+                              HIGHCUR)  # To move from big to big vial, increment is 4500
+            self.stage_x_and_z_pos["x_pos"] -= self.stage_x_and_z_pos["x_pos"]
+            with open('stage_x_z_absolute_position.json', 'w') as wf:
+                json.dump(self.stage_x_and_z_pos, wf)
+        if (self.stage_x_and_z_pos["z_pos"] !=0):
+            print "Moving Stage Z Home"
+            target_motor = xyz_motor(2, 200, 100)
+            atexit.register(target_motor.turn_off)
+            target_motor.move(POSDIR, self.stage_x_and_z_pos["z_pos"], MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+            self.stage_x_and_z_pos["z_pos"] -= self.stage_x_and_z_pos["z_pos"]
+            with open('stage_x_z_absolute_position.json', 'w') as wf:
+                json.dump(self.stage_x_and_z_pos, wf)
 
     def terminate(self):
         self._running = False
@@ -167,7 +184,7 @@ class Motor:
 
         z_stage_move_step = 10000
         x_stage_move_step_big = 4500
-        x_stage_move_step_small = 4500
+        x_stage_move_step_small = 4000
 
         while self._running:
 
@@ -530,6 +547,7 @@ if __name__ == "__main__":
     move_stageX_left_small = move_stageX_left_big = move_stageX_right_small = move_stageX_right_big = move_stageZ_up = move_stageZ_down = 0.0
 
     # using a config file to know the absolute position of stage x and z
+
 
     ######################################################################333333
     Move_left_Laser_Enable = Move_right_Laser_Enable = Move_ReagentW_Home = Move_l_Laser_Enable = Move_r_Laser_Enable = 0.0
