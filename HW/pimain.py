@@ -158,7 +158,8 @@ class Motor:
         global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
         global Move_l_Laser_Enable, Move_r_Laser_Enable
         # STAGE X Z edit
-        global move_stageX_left_small, move_stageX_right_small, move_stageZ_up, move_stageZ_down
+        # STAGE X Z edit
+        global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
 
         while self._running:
 
