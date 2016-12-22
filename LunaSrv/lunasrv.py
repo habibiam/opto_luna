@@ -115,6 +115,98 @@ def processINVTHW(receivedDeviceName, recievedArgs):
 """
 High voltage Supply
 """
+def processHVSON(receivedDeviceName, recievedArgs):
+    global scanner
+    global cnum
+
+    logger.info("Handle HVSON command")
+
+    if scanner is None:
+        sendFAILResponse("HVSON", receivedDeviceName)
+    return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("HVSON", receivedDeviceName)
+        return
+
+    aDevice.Write("HVSON\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("HVSON\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "HVSON", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processHVSOFF(receivedDeviceName, recievedArgs):
+    global scanner
+    global cnum
+
+    logger.info("Handle HVSOFF command")
+
+    if scanner is None:
+        sendFAILResponse("HVSOFF", receivedDeviceName)
+    return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse("HVSOFF", receivedDeviceName)
+        return
+
+    aDevice.Write("HVSOFF\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write("HVSOFF\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "HVSOFF", "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
 def processGETVI(receivedDeviceName, recievedArgs):
     """
     Process the GET Voltage and Current(I) command.
@@ -2098,6 +2190,8 @@ if __name__ == '__main__':
     # Setup all function calling vector for each supported command.
     cmdmap = { "RUNSAMPLE": processRUNSAMPLE,
                "INVTHW": processINVTHW,
+               "HVSON": None, #Haven't implemented on the instrument side
+               "HVSOFF": None, # Have to talk with kevin dong about this.
                "GETVI": processGETVI,
                "SETV": processSETV,
                "SHUTDOWN": processSHUTDOWN,
@@ -2134,8 +2228,12 @@ if __name__ == '__main__':
                "CHIPZHOME": processCHIPZHOME,
                "CHIPZUP": processCHIPZUP,
                "CHIPYHOME": processCHIPYHOME,
-               "CHIPYOUT": processCHIPYOUT
+               "CHIPYOUT": processCHIPYOUT,
                # Need to add valve controls... v1-v20
+               "STAGEXRIGHT": None,
+               "STAGEXLEFT": None,
+               "STAGEZUP": None,
+               "STAGEZDN": None
             }
 
     # Get path to this file...
