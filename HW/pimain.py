@@ -451,13 +451,21 @@ class Motor:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go up
+                z_move_step_up = 1000
+                target_motor.move(NEGDIR, z_move_step_up, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go up
+                self.stage_x_and_z_pos["z_pos"] += z_move_step_up
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_up = 0
             if move_stageZ_down:
                 print "Moving Stage Z DOWN"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                z_move_step_dn = 1000
+                target_motor.move(POSDIR, z_move_step_dn, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                self.stage_x_and_z_pos["z_pos"] -= z_move_step_dn
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_down = 0
 
 class CapHeat:
