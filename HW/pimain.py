@@ -418,13 +418,13 @@ class Motor:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
+                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go down
                 move_stageZ_up = 0
             if move_stageZ_down:
                 print "Moving Stage Z DOWN"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
+                target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
                 move_stageZ_down = 0
 
 class CapHeat:
