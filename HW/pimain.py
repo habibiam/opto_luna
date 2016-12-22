@@ -418,7 +418,7 @@ class Motor:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go down
+                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go up
                 move_stageZ_up = 0
             if move_stageZ_down:
                 print "Moving Stage Z DOWN"
@@ -610,6 +610,7 @@ if __name__ == "__main__":
 
         if (rcv == "?"):
             print "CAPHEATON CAPHEATOFF LASLEFT LASRIGHT L  R  LASHOME GPHOME GPSTART GPRATE Q QUIT L R\r\n"
+            print "STAGEXRIGHT STAGEXLEFT STAGEZUP STAGEZDN\r\n"
             port.write("CAPHEATON CAPHEATOFF LASLEFT LASRIGHT L  R  LASHOME GPHOME GPSTART GPRATE Q QUIT L R\r\n")
 
     st1.termintate()

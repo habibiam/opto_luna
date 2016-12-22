@@ -73,7 +73,7 @@ def turn_on_cap_heater_button_click():
 
 def turn_off_cap_heater_button_click():
     """
-    Button click to turn on capillary heater
+    Button click to turn off capillary heater
     :return:
     """
     global proc
@@ -104,6 +104,11 @@ def gett_cap_heater_button_click():
     cnum+=1
 
 def sett_cap_heater_button_click(entry):
+    """
+    Button click to set the capillary heater temperature [degrees C]
+    :param entry: Tkinter entry
+    :return:
+    """
     input = entry.get()
     global proc
     global cnum
@@ -663,25 +668,26 @@ if __name__ == '__main__':
     chip_Y_home_button.grid(row=24, column=0)
     chip_Y_up_button = Button(luna, text="CHIPZUP", command=None)
     chip_Y_up_button.grid(row=24, column=1)
+
     """ Valve v1-v20"""
-    valve_nums = []
-    num = 1
-    for row in range(25,30):
-        for col in range(4):
-            valve_text = 'v' + str(num)
-            num += 1
-            # valve_label = Label(luna, text=valve_text)
-            valve_num = IntVar()
-            chk = Checkbutton(luna, text=valve_text, variable=valve_num)
-            chk.grid(row=row, column=col)
-
-            valve_nums.append(valve_num)
-
-    valve_open_button = Button(luna, text="OPEN valves", command=None)
-    valve_open_button.grid(row=31, column=1)
-
-    valve_close_button = Button(luna, text="CLOSED valves", command=None)
-    valve_close_button.grid(row=31, column=2)
+    # valve_nums = []
+    # num = 1
+    # for row in range(25,30):
+    #     for col in range(4):
+    #         valve_text = 'v' + str(num)
+    #         num += 1
+    #         # valve_label = Label(luna, text=valve_text)
+    #         valve_num = IntVar()
+    #         chk = Checkbutton(luna, text=valve_text, variable=valve_num)
+    #         chk.grid(row=row, column=col)
+    #
+    #         valve_nums.append(valve_num)
+    #
+    # valve_open_button = Button(luna, text="OPEN valves", command=None)
+    # valve_open_button.grid(row=31, column=1)
+    #
+    # valve_close_button = Button(luna, text="CLOSED valves", command=None)
+    # valve_close_button.grid(row=31, column=2)
 
     """
     Turn off gui, then terminate the subproccess
