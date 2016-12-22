@@ -266,7 +266,7 @@ def x_moveleft_button_click():
     name = 'Pi'
     args = ''
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEXLEFT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
     proc.stdin.write(cmd)
     cnum += 1
 
@@ -281,10 +281,39 @@ def x_moveright_button_click():
     name = 'Pi'
     args = ''
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEXRIGHT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
     proc.stdin.write(cmd)
     cnum += 1
 
+def small_x_moveleft_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def small_x_moveright_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
 
 def z_moveup_button_click():
     """
@@ -582,10 +611,15 @@ if __name__ == '__main__':
     stage_x_and_z_label = Label(luna, text="4) Solution Stage X and Z")
     stage_x_and_z_label.grid(row=14, column=0, columnspan=4)
 
-    x_moveleft_button = Button(luna, text="XLEFT", command=x_moveleft_button_click)
+    x_moveleft_button = Button(luna, text="SXLFTBIG", command=x_moveleft_button_click)
     x_moveleft_button.grid(row=16, column=1)
-    x_moveright_button = Button(luna, text="XRIGHT", command=x_moveright_button_click)
+    x_moveright_button = Button(luna, text="SXRGHTBIG", command=x_moveright_button_click)
     x_moveright_button.grid(row=16, column=3)
+
+    small_x_moveleft_button = Button(luna, text="SXLFTSM", command=small_x_moveleft_button_click)
+    small_x_moveleft_button.grid(row=17, column=1)
+    small_x_moveright_button = Button(luna, text="SXRGHTSM", command=small_x_moveright_button_click)
+    small_x_moveright_button.grid(row=17, column=3)
 
     z_moveup_button = Button(luna, text="ZUP", command=z_moveup_button_click)
     z_moveup_button.grid(row=15, column=2)
