@@ -419,13 +419,13 @@ class Motor:
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
                 target_motor.move(NEGDIR, 4500, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-                move_stageX_left_small = 0
+                move_stageX_left_big = 0
             if move_stageX_right_big:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
                 target_motor.move(POSDIR, 4500, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-                move_stageX_right_small = 0
+                move_stageX_right_big = 0
             if move_stageZ_up:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
