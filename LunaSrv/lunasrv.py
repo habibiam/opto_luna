@@ -2092,35 +2092,36 @@ def processCHIPYOUT(receivedDeviceName, recievedArgs):
 """
 Stage X
 """
-def processSTAGEXLEFT(receivedDeviceName, recievedArgs):
+def processSXLFTSM(receivedDeviceName, recievedArgs):
     """
-
+    Stage X LeFT SMall
     :param receivedDeviceName: The name of the device.
     :param recievedArgs: None
     :return: None
     """
     global scanner
     global cnum
+    cmd_string = "SXLFTSM"
 
-    logger.info("Handle STAGEXLEFT command")
+    logger.info("Handle "+cmd_string+" command")
 
     if scanner is None:
-        sendFAILResponse("STAGEXLEFT", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("STAGEXLEFT", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
-    aDevice.Write("STAGEXLEFT\n")
+    aDevice.Write(cmd_string+"\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("STAGEXLEFT\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -2136,42 +2137,43 @@ def processSTAGEXLEFT(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEXLEFT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-def processSTAGEXRIGHT(receivedDeviceName, recievedArgs):
+def processSXRGHTBIG(receivedDeviceName, recievedArgs):
     """
-
+    Stage X RiGHT BIG
     :param receivedDeviceName: The name of the device.
     :param recievedArgs: None
     :return: None
     """
     global scanner
     global cnum
+    cmd_string = "SXRGHTBIG"
 
-    logger.info("Handle STAGEXRIGHT command")
+    logger.info("Handle "+cmd_string+" command")
 
     if scanner is None:
-        sendFAILResponse("STAGEXRIGHT", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("STAGEXRIGHT", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
-    aDevice.Write("STAGEXRIGHT\n")
+    aDevice.Write(cmd_string+"\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("STAGEXRIGHT\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -2187,7 +2189,112 @@ def processSTAGEXRIGHT(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEXRIGHT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def processSXRGHTSM(receivedDeviceName, recievedArgs):
+    """
+    Stage X RiGHT SMall
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXRGHTSM"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processSXLFTBIG(receivedDeviceName, recievedArgs):
+    """
+    Stage X LeFT BIG
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXLFTBIG"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2440,8 +2547,10 @@ if __name__ == '__main__':
                "CHIPYHOME": processCHIPYHOME,
                "CHIPYOUT": processCHIPYOUT,
                # Need to add valve controls... v1-v20
-               "STAGEXRIGHT": processSTAGEXRIGHT,
-               "STAGEXLEFT": processSTAGEXLEFT,
+               "SXRGHTSM": processSXRGHTSM,
+               "SXLFTSM": processSXLFTSM,
+               "SXRGHTBIG": processSXRGHTBIG,
+               "SXLFTBIG": processSXLFTBIG,
                "STAGEZUP": processSTAGEZUP,
                "STAGEZDN": processSTAGEZDN
             }

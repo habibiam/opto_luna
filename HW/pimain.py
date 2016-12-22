@@ -14,7 +14,7 @@ FULLSTEP = 1  # This is Full Stepping mode, use to home motors at fastest speed
 MICROSTEP = 4  # This is 16 micro step per full step mode, use to precise position or for pumping slowly
 LOWCUR = 1  # lowest current setting is 1, max is 16
 MIDCUR = 2  # medium current setting is 2, max is 16
-HIGHCUR = 3  # high current setting is 3, max is 16
+HIGHCUR = 4  # high current setting is 3, max is 16
 NEGDIR = -1  # Negative move direction
 POSDIR = 1  # Positive move direction
 
@@ -158,7 +158,7 @@ class Motor:
         global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
         global Move_l_Laser_Enable, Move_r_Laser_Enable
         # STAGE X Z edit
-        global move_stageX_left, move_stageX_right, move_stageZ_up, move_stageZ_down
+        global move_stageX_left_small, move_stageX_right_small, move_stageZ_up, move_stageZ_down
 
         while self._running:
 
@@ -402,18 +402,30 @@ class Motor:
                     time.sleep(20)
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
-            if move_stageX_left:
+            if move_stageX_left_small:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
-                move_stageX_left = 0
-            if move_stageX_right:
+                target_motor.move(NEGDIR, 4000, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                move_stageX_left_small = 0
+            if move_stageX_right_small:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
-                move_stageX_right = 0
+                target_motor.move(POSDIR, 4000, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                move_stageX_right_small = 0
+            if move_stageX_left_big:
+                print "Moving Stage X LEFT"
+                target_motor = xyz_motor(6, 200, 100)
+                atexit.register(target_motor.turn_off)
+                target_motor.move(NEGDIR, 4500, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                move_stageX_left_small = 0
+            if move_stageX_right_big:
+                print "Moving Stage X RIGHT"
+                target_motor = xyz_motor(6, 200, 100)
+                atexit.register(target_motor.turn_off)
+                target_motor.move(POSDIR, 4500, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                move_stageX_right_small = 0
             if move_stageZ_up:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
@@ -487,8 +499,8 @@ if __name__ == "__main__":
     global Move_l_Laser_Enable, Move_r_Laser_Enable
 
     # STAGE X Z edit
-    global move_stageX_left, move_stageX_right, move_stageZ_up, move_stageZ_down
-    move_stageX_left = move_stageX_right = move_stageZ_up = move_stageZ_down = 0.0
+    global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
+    move_stageX_left_small = move_stageX_left_big = move_stageX_right_small = move_stageX_right_big = move_stageZ_up = move_stageZ_down = 0.0
 
     Move_left_Laser_Enable = Move_right_Laser_Enable = Move_ReagentW_Home = Move_l_Laser_Enable = Move_r_Laser_Enable = 0.0
     Cap_Heater_Enable = Move_Laser_Home = Move_GelPump_Home = Move_GelPump_Start = Move_GelPump_Move = 0.0
@@ -569,12 +581,18 @@ if __name__ == "__main__":
             Move_GelPump_Move = 10
             print "Moving Gel Pump to position \r\n"
         # STAGE X Z edit
-        if (rcv == "STAGEXLEFT"):
-            move_stageX_left = 1
-            print "Moving Stage X to the Left by an increment \r\n"
-        if (rcv == "STAGEXRIGHT"):
-            move_stageX_right = 1
-            print "Moving Stage X to the Right by an increment \r\n"
+        if (rcv == "SXLFTSM"):
+            move_stageX_left_small = 1
+            print "Moving Stage X to the left towards the small vial \r\n"
+        if (rcv == "SXRGHTSM"):
+            move_stageX_right_small = 1
+            print "Moving Stage X to the right towards the small vial \r\n"
+        if (rcv == "SXLFTBIG"):
+            move_stageX_left_big = 1
+            print "Moving Stage X to the left towards a big vial \r\n"
+        if (rcv == "SXRGHTBIG"):
+            move_stageX_right_big = 1
+            print "Moving Stage X to the right towards a big vial \r\n"
         if (rcv == "STAGEZUP"):
             move_stageZ_up = 1
             print "Moving Stage Z up by an increment\r\n"
