@@ -2440,10 +2440,10 @@ if __name__ == '__main__':
                "CHIPYHOME": processCHIPYHOME,
                "CHIPYOUT": processCHIPYOUT,
                # Need to add valve controls... v1-v20
-               "STAGEXRIGHT": None,
-               "STAGEXLEFT": None,
-               "STAGEZUP": None,
-               "STAGEZDN": None
+               "STAGEXRIGHT": processSTAGEXRIGHT,
+               "STAGEXLEFT": processSTAGEXLEFT,
+               "STAGEZUP": processSTAGEZUP,
+               "STAGEZDN": processSTAGEZDN
             }
 
     # Get path to this file...

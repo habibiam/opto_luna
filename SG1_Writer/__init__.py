@@ -13,7 +13,6 @@ import logging
 import struct
 from datetime import datetime
 
-# TODO datetime
 # TODO Recommended Ratio
 
 """ Loggers """
