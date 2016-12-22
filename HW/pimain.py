@@ -151,6 +151,16 @@ class Motor:
         self._running = True
         with open('stage_x_z_absolute_position.json') as f:
             self.stage_x_and_z_pos = json.load(f)
+
+        # Need to check z first, then x
+        if (self.stage_x_and_z_pos["z_pos"] !=0):
+            print "Moving Stage Z Home"
+            target_motor = xyz_motor(2, 200, 100)
+            atexit.register(target_motor.turn_off)
+            target_motor.move(POSDIR, self.stage_x_and_z_pos["z_pos"], MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+            self.stage_x_and_z_pos["z_pos"] -= self.stage_x_and_z_pos["z_pos"]
+            with open('stage_x_z_absolute_position.json', 'w') as wf:
+                json.dump(self.stage_x_and_z_pos, wf)
         if (self.stage_x_and_z_pos["x_pos"] != 0):
             print "Moving Stage X HOME"
             target_motor = xyz_motor(6, 200, 100)
@@ -158,14 +168,6 @@ class Motor:
             target_motor.move(NEGDIR, self.stage_x_and_z_pos["x_pos"], MICROSTEP,
                               HIGHCUR)  # To move from big to big vial, increment is 4500
             self.stage_x_and_z_pos["x_pos"] -= self.stage_x_and_z_pos["x_pos"]
-            with open('stage_x_z_absolute_position.json', 'w') as wf:
-                json.dump(self.stage_x_and_z_pos, wf)
-        if (self.stage_x_and_z_pos["z_pos"] !=0):
-            print "Moving Stage Z Home"
-            target_motor = xyz_motor(2, 200, 100)
-            atexit.register(target_motor.turn_off)
-            target_motor.move(POSDIR, self.stage_x_and_z_pos["z_pos"], MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
-            self.stage_x_and_z_pos["z_pos"] -= self.stage_x_and_z_pos["z_pos"]
             with open('stage_x_z_absolute_position.json', 'w') as wf:
                 json.dump(self.stage_x_and_z_pos, wf)
 
