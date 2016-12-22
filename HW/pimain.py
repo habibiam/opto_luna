@@ -165,6 +165,10 @@ class Motor:
         # STAGE X Z edit
         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
 
+        z_stage_move_step = 10000
+        x_stage_move_step_big = 4500
+        x_stage_move_step_small = 4500
+
         while self._running:
 
             if Move_ReagentW_Home:
@@ -411,9 +415,8 @@ class Motor:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                x_move_step = 4000
-                target_motor.move(NEGDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
-                self.stage_x_and_z_pos["x_pos"] -= x_move_step
+                target_motor.move(NEGDIR, x_stage_move_step_small, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_small
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
@@ -421,9 +424,8 @@ class Motor:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                x_move_step = 4000
-                target_motor.move(POSDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
-                self.stage_x_and_z_pos["x_pos"] += x_move_step
+                target_motor.move(POSDIR, x_stage_move_step_small, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_small
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
@@ -431,9 +433,8 @@ class Motor:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                x_move_step = 4500
-                target_motor.move(NEGDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-                self.stage_x_and_z_pos["x_pos"] -= x_move_step
+                target_motor.move(NEGDIR, x_stage_move_step_big, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_big
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_big = 0
@@ -441,9 +442,8 @@ class Motor:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                x_move_step = 4500
-                target_motor.move(POSDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-                self.stage_x_and_z_pos["x_pos"] += x_move_step
+                target_motor.move(POSDIR, x_stage_move_step_big, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_big
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_big = 0
@@ -451,9 +451,8 @@ class Motor:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                z_move_step_up = 1000
-                target_motor.move(NEGDIR, z_move_step_up, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go up
-                self.stage_x_and_z_pos["z_pos"] += z_move_step_up
+                target_motor.move(NEGDIR, z_stage_move_step, MICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go up
+                self.stage_x_and_z_pos["z_pos"] += z_stage_move_step
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_up = 0
@@ -461,9 +460,8 @@ class Motor:
                 print "Moving Stage Z DOWN"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                z_move_step_dn = 1000
-                target_motor.move(POSDIR, z_move_step_dn, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
-                self.stage_x_and_z_pos["z_pos"] -= z_move_step_dn
+                target_motor.move(POSDIR, z_stage_move_step, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_down = 0
