@@ -5,6 +5,8 @@ import atexit
 import sys
 import RPi.GPIO as GPIO, os
 
+import json
+
 I2C60 = 1
 I2C61 = 0
 I2C62 = 2
@@ -147,6 +149,8 @@ port = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=60.0)
 class Motor:
     def __init__(self):
         self._running = True
+        with open('stage_x_z_absolute_position.json') as f:
+            self.stage_x_and_z_pos = json.load(f)
 
     def terminate(self):
         self._running = False
@@ -407,25 +411,41 @@ class Motor:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 4000, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                x_move_step = 4000
+                target_motor.move(NEGDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                self.stage_x_and_z_pos["x_pos"] -= x_move_step
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
             if move_stageX_right_small:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 4000, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                x_move_step = 4000
+                target_motor.move(POSDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                self.stage_x_and_z_pos["x_pos"] += x_move_step
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
             if move_stageX_left_big:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 4500, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                x_move_step = 4500
+                target_motor.move(NEGDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                self.stage_x_and_z_pos["x_pos"] -= x_move_step
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_big = 0
             if move_stageX_right_big:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 4500, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                x_move_step = 4500
+                target_motor.move(POSDIR, x_move_step, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                self.stage_x_and_z_pos["x_pos"] += x_move_step
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_big = 0
             if move_stageZ_up:
                 print "Moving Stage Z UP"
@@ -499,10 +519,13 @@ if __name__ == "__main__":
     global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
     global Move_l_Laser_Enable, Move_r_Laser_Enable
 
-    # STAGE X Z edit
+    #################### STAGE X Z edit ####################
     global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
     move_stageX_left_small = move_stageX_left_big = move_stageX_right_small = move_stageX_right_big = move_stageZ_up = move_stageZ_down = 0.0
 
+    # using a config file to know the absolute position of stage x and z
+
+    ######################################################################333333
     Move_left_Laser_Enable = Move_right_Laser_Enable = Move_ReagentW_Home = Move_l_Laser_Enable = Move_r_Laser_Enable = 0.0
     Cap_Heater_Enable = Move_Laser_Home = Move_GelPump_Home = Move_GelPump_Start = Move_GelPump_Move = 0.0
     Move_ReagentP_Home = Move_ReagentB_Home = Move_ReagentM_Home = 0
