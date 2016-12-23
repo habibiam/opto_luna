@@ -2301,6 +2301,214 @@ def processSXLFTBIG(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+def processSXSAMPLE(receivedDeviceName, recievedArgs):
+    """
+    Stage X Sample
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXSAMPLE"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processSXBUFFER(receivedDeviceName, recievedArgs):
+    """
+    Stage X Buffer
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXBUFFER"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processSXWATER(receivedDeviceName, recievedArgs):
+    """
+    Stage X Water
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXWATER"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def processSXWASTE(receivedDeviceName, recievedArgs):
+    """
+    Stage X Waste
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXWASTE"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
 """
 Stage Z
 """
@@ -2551,6 +2759,10 @@ if __name__ == '__main__':
                "SXLFTSM": processSXLFTSM,
                "SXRGHTBIG": processSXRGHTBIG,
                "SXLFTBIG": processSXLFTBIG,
+               "SXSAMPLE": processSXSAMPLE,
+               "SXBUFFER": processSXBUFFER,
+               "SXWATER": processSXWATER,
+               "SXWASTE": processSXWASTE,
                "STAGEZUP": processSTAGEZUP,
                "STAGEZDN": processSTAGEZDN
             }
