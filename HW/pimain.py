@@ -183,10 +183,12 @@ class Motor:
         # STAGE X Z edit
         # STAGE X Z edit
         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
+        global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
-        z_stage_move_step = 10000
+        z_stage_move_step = 9000
         x_stage_move_step_big = 4500
         x_stage_move_step_small = 4000
+        x_stage_move_sample_to_bufer = 3500
 
         while self._running:
 
@@ -485,6 +487,109 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_down = 0
 
+            # Absolute positions for stage x
+            if move_to_sample:
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
+                target_motor = xyz_motor(6, 200, 100)
+                atexit.register(target_motor.turn_off)
+                sample_abs_pos = 3500
+                current_x_pos = self.stage_x_and_z_pos["x_pos"]
+                if current_x_pos < sample_abs_pos: # if current_x_pos == 0
+                    relative_steps = sample_abs_pos - current_x_pos
+                    target_motor.move(POSDIR, relative_steps, MICROSTEP, HIGHCUR)
+                elif current_x_pos > sample_abs_pos: # if current_x_pos == 7500, 12000, 16500
+                    relative_steps = current_x_pos - sample_abs_pos
+                    target_motor.move(NEGDIR, relative_steps, MICROSTEP, HIGHCUR)
+                self.stage_x_and_z_pos["x_pos"] = sample_abs_pos
+                # update the json file
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
+                move_to_sample = 0
+
+            if move_to_buffer:
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
+                target_motor = xyz_motor(6, 200, 100)
+                atexit.register(target_motor.turn_off)
+                buffer_abs_pos = 7500
+                current_x_pos = self.stage_x_and_z_pos["x_pos"]
+                if current_x_pos < buffer_abs_pos: # if current_x_pos == 0, 3500
+                    relative_steps = buffer_abs_pos - current_x_pos
+                    target_motor.move(POSDIR, relative_steps, MICROSTEP, HIGHCUR)
+                elif current_x_pos > buffer_abs_pos: # if current_x_pos == 12000, 16500
+                    relative_steps = current_x_pos - buffer_abs_pos
+                    target_motor.move(NEGDIR, relative_steps, MICROSTEP, HIGHCUR)
+                # update the json file
+                self.stage_x_and_z_pos["x_pos"] = buffer_abs_pos
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
+                move_to_buffer = 0
+
+            if move_to_water:
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
+                target_motor = xyz_motor(6, 200, 100)
+                atexit.register(target_motor.turn_off)
+                water_abs_pos = 12000
+                current_x_pos = self.stage_x_and_z_pos["x_pos"]
+                if current_x_pos < water_abs_pos:  # if current_x_pos == 0, 3500, 7500
+                    relative_steps = water_abs_pos - current_x_pos
+                    target_motor.move(POSDIR, relative_steps, MICROSTEP, HIGHCUR)
+                elif current_x_pos > water_abs_pos:  # if current_x_pos == 16500
+                    relative_steps = current_x_pos - water_abs_pos
+                    target_motor.move(NEGDIR, relative_steps, MICROSTEP, HIGHCUR)
+                # update the json file
+                self.stage_x_and_z_pos["x_pos"] = water_abs_pos
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
+                move_to_water = 0
+
+            if move_to_waste:
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, MICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
+                target_motor = xyz_motor(6, 200, 100)
+                atexit.register(target_motor.turn_off)
+                waste_abs_pos = 16500
+                current_x_pos = self.stage_x_and_z_pos["x_pos"]
+                if current_x_pos < waste_abs_pos:  # if current_x_pos == 0, 3500, 7500, 12000
+                    relative_steps = waste_abs_pos - current_x_pos
+                    target_motor.move(POSDIR, relative_steps, MICROSTEP, HIGHCUR)
+                elif current_x_pos > waste_abs_pos:  # Should never ever go into this block of code
+                    relative_steps = current_x_pos - waste_abs_pos
+                    target_motor.move(NEGDIR, relative_steps, MICROSTEP, HIGHCUR)
+                # update the json file
+                self.stage_x_and_z_pos["x_pos"] = waste_abs_pos
+                with open('stage_x_z_absolute_position.json', 'w') as wf:
+                    json.dump(self.stage_x_and_z_pos, wf)
+                move_to_waste = 0
+
 class CapHeat:
     def __init__(self):
         self._running = True
@@ -548,7 +653,9 @@ if __name__ == "__main__":
     global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
     move_stageX_left_small = move_stageX_left_big = move_stageX_right_small = move_stageX_right_big = move_stageZ_up = move_stageZ_down = 0.0
 
-    # using a config file to know the absolute position of stage x and z
+    # absolute positions
+    global move_to_sample, move_to_buffer, move_to_water, move_to_waste
+    move_to_sample = move_to_buffer = move_to_water = move_to_waste = 0.0
 
 
     ######################################################################333333
@@ -649,6 +756,23 @@ if __name__ == "__main__":
         if (rcv == "STAGEZDN"):
             move_stageZ_down = 1
             print "Moving Stage Z down by an increment\r\n"
+
+        if (rcv == "SXSAMPLE"):
+            move_to_sample = 1
+            print "Moving Stage X to sample! \r\n"
+
+        if (rcv == "SXBUFFER"):
+            move_to_buffer = 1
+            print "Moving Stage X to buffer! \r\n"
+
+        if (rcv == "SXWATER"):
+            move_to_water = 1
+            print "Moving Stage X to water! \r\n"
+
+        if (rcv == "SXWASTE"):
+            move_to_waste = 1
+            print "Moving Stage X to waste! \r\n"
+
 
         if (rcv == "K") or (rcv == "KILL") or (rcv == "QUIT") or (rcv == "Q"):
             Cap_Heater_Enable = 0
