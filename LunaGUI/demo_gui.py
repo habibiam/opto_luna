@@ -692,7 +692,7 @@ if __name__ == '__main__':
     x_buffer_button.grid(row=18, column=1)
     x_water_button = Button(luna, text="SXWATER", command=x_move_to_water_button_click)
     x_water_button.grid(row=18, column=2)
-    x_waste_button = Button(luna, text="SXLFTSM", command=x_move_to_waste_button_click)
+    x_waste_button = Button(luna, text="SXWASTE", command=x_move_to_waste_button_click)
     x_waste_button.grid(row=18, column=3)
     """
     Turn off gui, then terminate the subproccess
