@@ -330,6 +330,65 @@ def z_moveup_button_click():
     proc.stdin.write(cmd)
     cnum += 1
 
+def x_move_to_sample_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_buffer_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXBUFFER", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_water_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_waste_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
 
 def z_movedown_button_click():
     """
@@ -626,6 +685,15 @@ if __name__ == '__main__':
     z_movedown_button = Button(luna, text="ZDOWN", command=z_movedown_button_click)
     z_movedown_button.grid(row=16, column=2)
 
+
+    x_sample_button = Button(luna, text="SXSAMPLE", command=x_move_to_sample_button_click)
+    x_sample_button.grid(row=18, column=0)
+    x_buffer_button = Button(luna, text="SXBUFFER", command=x_move_to_buffer_button_click)
+    x_buffer_button.grid(row=18, column=1)
+    x_water_button = Button(luna, text="SXWATER", command=x_move_to_water_button_click)
+    x_water_button.grid(row=18, column=2)
+    x_waste_button = Button(luna, text="SXLFTSM", command=x_move_to_waste_button_click)
+    x_waste_button.grid(row=18, column=3)
     """
     Turn off gui, then terminate the subproccess
     """
