@@ -22,29 +22,6 @@ scanner = None
 cnum = 0
 
 
-def processRUNSAMPLE(receivedDeviceName, recievedArgs):
-    """
-    Started on processRUNSAMPLE in order to add the run_config.json
-    file in to the LunaSrv.
-    Need to built this once all the devices are hooked up and sample runs are ready to be automated
-    as of now, can load and have access to json config file.
-    """
-    global scanner
-    global cnum
-
-    logger.info("Handle RUNSAMPLE command")
-
-    # Get full path to our json run configuration file
-
-    path = os.path.dirname(os.path.abspath(__file__))
-    path += "/../config"
-    configFile = path + "/run_config.json"
-
-    with open(configFile, 'r') as f:
-        run_config = json.load(f)
-    print run_config
-
-
 def processINVTHW(receivedDeviceName, recievedArgs):
     """
     Process the INVenTory HardWare command.  Will initiate a scan of the system
@@ -2707,6 +2684,99 @@ def sigterm_handler(_signo, _stack_frame):
     do_exit()
 
 
+def processRUNSAMPLE(receivedDeviceName, recievedArgs):
+    """
+    Started on processRUNSAMPLE in order to add the run_config.json
+    file in to the LunaSrv.
+    Need to built this once all the devices are hooked up and sample runs are ready to be automated
+    as of now, can load and have access to json config file.
+    """
+    global scanner
+    global cnum
+
+    logger.info("Handle RUNSAMPLE command")
+
+    # Get full path to our json run configuration file
+
+    path = os.path.dirname(os.path.abspath(__file__))
+    path += "/../config"
+    configFile = path + "/run_config.json"
+
+    with open(configFile, 'r') as f:
+        run_config = json.load(f)
+    print run_config
+
+    # 1.0) Initialize Reagent State
+
+    # 2.0) Ready State
+
+    # 3.0) Run State
+
+
+    """
+    3.3.1) Time 0
+        Voltage: 10 kV
+        Current: n/a
+        Spectrum: dark
+        solution station: buffer
+    """
+
+    """
+    3.1) Initailze Gel
+        Time: 3 minutes
+        * Voltage: 10 kV
+        * Current: n/a
+        * Spectrum: OFF
+        * solution station: buffer
+        TRANSITION (Rinse in water)
+    """
+
+    """
+    3.2) Injection
+        Time: 10 sec
+        * Voltage: 5 kV
+        * Current: n/a
+        * Spectrum: OFF
+        * solution station: buffer
+        TRANSITION (Rinse in water)
+    """
+    """
+    3.3.0 Run State
+        look at ../config/run_config.json
+        Spectrum Parameters
+        Exposure time: 250 ms
+        Integration Time: 250 ms
+        Log time: 250 ms
+        Duration: 50 minutes
+        Filename: whatever
+
+    :return:
+    """
+    """
+    3.3.2) Time 1 minutes (turn on reference)
+        voltage: 10 kV
+        Current: n/a
+        Spectrum: reference
+        Solution Station: buffer
+
+
+    """
+
+    """
+    3.3.3) Time 1 minutes (turn on reference)
+        voltage: 0 kV
+        Current: 0
+        Spectrum: off
+        Solution Station: waste
+        Valve Position: CLOSED
+    """
+
+    """
+    3.3) Time 2 minutes (end)
+    """
+    return
+
+
 if __name__ == '__main__':
     # Set up a signal handler to handle most common reasons for stopping.
     signal.signal(signal.SIGTERM, sigterm_handler) # kill
@@ -2785,5 +2855,9 @@ if __name__ == '__main__':
     #do_exit()
 
     # loop forever
-    waitForCommands()
-    
+    # waitForCommands() ###### De Comment this part when running gui stuff
+
+    ###### AUTOMATION ######
+    processRUNSAMPLE()
+
+
