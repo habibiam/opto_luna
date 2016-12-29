@@ -1,7 +1,8 @@
 {
   "High Voltage Supply": {
     "init gel voltage": 10, // kv
-    "injection voltage": 15, // kv
+    "injection voltage": 5, // kv
+    "run voltage": 10, // kv
     "init gel time": 3, // min
     "injection time": 10 // seconds
   },
