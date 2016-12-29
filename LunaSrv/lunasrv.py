@@ -2690,7 +2690,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigterm_handler) # Ctrl-C
 
     # Setup all function calling vector for each supported command.
-    cmdmap = { "RUNSAMPLE": processRUNSAMPLE,
+    cmdmap = {
                "INVTHW": processINVTHW,
                "HVSON": None, #Haven't implemented on the instrument side
                "HVSOFF": None, # Have to talk with kevin dong about this.
