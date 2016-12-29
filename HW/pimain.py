@@ -441,6 +441,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
+                port.write("OK        \n")
+                print "sent OK to port"
             if move_stageX_right_small:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -450,6 +452,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
+                port.write("OK        \n")
+                print "sent OK to port"
             if move_stageX_left_big:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -459,6 +463,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_big = 0
+                port.write("OK        \n")
+                print "sent OK to port"
             if move_stageX_right_big:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -468,6 +474,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_big = 0
+                port.write("OK        \n")
+                print "sent OK to port"
             if move_stageZ_up:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
