@@ -185,7 +185,7 @@ class Motor:
         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
-        z_stage_move_step = 9000
+        z_stage_move_step = 6000
         x_stage_move_step_big = 4500
         x_stage_move_step_small = 4000
         x_stage_move_sample_to_bufer = 3500
@@ -432,6 +432,8 @@ class Motor:
                     time.sleep(20)
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
+
+            # Relative positioning for Solution Station X and Z
             if move_stageX_left_small:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -441,8 +443,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
-                port.write("OK        \n")
-                print "sent OK to port"
+                port.write("done")
+                print "sent done to port"
             if move_stageX_right_small:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -452,8 +454,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
-                port.write("OK        \n")
-                print "sent OK to port"
+                port.write("done")
+                print "sent done to port"
             if move_stageX_left_big:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -463,8 +465,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_big = 0
-                port.write("OK        \n")
-                print "sent OK to port"
+                port.write("done")
+                print "sent done to port"
             if move_stageX_right_big:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -474,8 +476,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_big = 0
-                port.write("OK        \n")
-                print "sent OK to port"
+                port.write("done")
+                print "sent done to port"
             if move_stageZ_up:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
@@ -485,6 +487,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_up = 0
+                port.write("done")
+                print "sent done to port"
             if move_stageZ_down:
                 print "Moving Stage Z DOWN"
                 target_motor = xyz_motor(2, 200, 100)
@@ -494,6 +498,8 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_down = 0
+                port.write("done")
+                print "sent done to port"
 
             # Absolute positions for stage x
             if move_to_sample:
@@ -521,6 +527,9 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_sample = 0
+                # Print to the LunaSrv
+                port.write("done")
+                print "sent done to port"
 
             if move_to_buffer:
                 # Check to see if z is position 0, if not then bring z to home
@@ -547,6 +556,9 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_buffer = 0
+                # Print to the LunaSrv
+                port.write("done")
+                print "sent done to port"
 
             if move_to_water:
                 if self.stage_x_and_z_pos["z_pos"] > 0:
@@ -572,6 +584,9 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_water = 0
+                # Print to the LunaSrv
+                port.write("done")
+                print "sent done to port"
 
             if move_to_waste:
                 if self.stage_x_and_z_pos["z_pos"] > 0:
@@ -597,6 +612,9 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_waste = 0
+                # Print to the LunaSrv
+                port.write("done")
+                print "sent done to port"
 
 class CapHeat:
     def __init__(self):
@@ -745,6 +763,7 @@ if __name__ == "__main__":
         if (rcv == "GPRATE"):
             Move_GelPump_Move = 10
             print "Moving Gel Pump to position \r\n"
+
         # STAGE X Z edit
         if (rcv == "SXLFTSM"):
             move_stageX_left_small = 1
