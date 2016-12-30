@@ -480,6 +480,7 @@ if __name__ == '__main__':
     #     run_config = json.load(fw)
     # print run_config
     counter = 0
+    MOVING_RIGHT = 1
     while (True):
         out = proc.stdout.readline()
         print(out)
@@ -488,20 +489,26 @@ if __name__ == '__main__':
         device_name = out[20:84].strip()
         cmd = out[84:94].strip()
         args = out[94:]
-        print (id, length, device_name, cmd, args)
+        # print (id, length, device_name, cmd, args)
         if cmd == "SHUTDOWN":
             time.sleep(1.0)
             luna.quit()
-        if cmd == "INVTHW":
-            print "a"
+        if cmd == "INVTHW" and counter!=5:
+            print "z"
             counter+=1
+            print counter
         if cmd=="INVTHW" and counter==5:
             print "b"
-            # x_move_to_water_button_click()
             x_moveright_button_click()
-        if cmd=="SXRGHTBIG":
+        elif cmd=="SXRGHTBIG":
+            # Find the correct device by name (as defined in the xml file).
+            # aDevice = get_device_by_name(receivedDeviceName)
+            # while MOVING_RIGHT:
+            #
+            # print "right"
             x_moveleft_button_click()
-        if cmd=="SXLFTBIG":
+        elif cmd=="SXLFTBIG":
+            print "left"
             shutdown_button_click()
         # if cmd == "SXWATER":
         #     z_moveup_button_click()
@@ -509,12 +516,15 @@ if __name__ == '__main__':
         #     shutdown_button_click()
         # if cmd == "":
         # if cmd == "":
-        elif (dict_of_devices_and_commands[device_name]):
-            pass
+        # elif (dict_of_devices_and_commands[device_name]):
+        #     pass
         else:
             print "a"
             print "Didn't find anything"
-            proc.terminate()
+            counter+=1
+            if counter > 15:
+                shutdown_button_click()
+            # proc.terminate()
     """
     3.1) Initailze Gel
         Time: 3 minutes / 10 seconds

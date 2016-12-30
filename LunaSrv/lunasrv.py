@@ -210,6 +210,7 @@ def processGETVI(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("GETVI\n")
+    time.sleep(10)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2094,6 +2095,9 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write(cmd_string+"\n")
+    print("sleeping now")
+    time.sleep(30)
+    print("waking up")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2115,6 +2119,112 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+
+def KprocessSXRGHTBIG(receivedDeviceName, recievedArgs):
+    """
+    Kevin's Stage X RiGHT BIG
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXRGHTBIG"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+    # send over a command
+    aDevice.Write(cmd_string+"\n")
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    if "OK" or "" in data:
+        moving_to_the_right = True
+        counter = 0
+        while (moving_to_the_right):
+            data = aDevice.GetLastResponse()
+            counter+=1
+            print counter
+            if data=="done":
+                moving_to_the_right = False
+
+    # Send back results
+    size = 94 + len(data) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+def KprocessSXLFTBIG(receivedDeviceName, recievedArgs):
+    """
+    Stage X LeFT BIG
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "SXLFTBIG"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    aDevice.Write(cmd_string+"\n")
+    time.sleep(28)
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    counter = 0
+    if "OK" in data:
+        moving_to_the_left = True
+        while (moving_to_the_left):
+            data = aDevice.GetLastResponse()
+            counter+=1
+            print counter
+            if data=="done":
+                moving_to_the_left = False
+
+    # Send back results
+    size = 94 + len(data) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2199,6 +2309,9 @@ def processSXRGHTSM(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write(cmd_string+"\n")
+    print("sleeping now")
+    time.sleep(27)
+    print("waking up")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2265,6 +2378,7 @@ def processSXLFTBIG(receivedDeviceName, recievedArgs):
         args = "FAIL"
     elif "OK" in data:
         args = data[16:]
+        print "a"
     else:
         args = "SYNTAX"
 
@@ -2653,6 +2767,14 @@ def waitForCommands():
                 logger.debug("Command Number: " + str(cnum) + " Device Name" + devName + "  Parsed command: <"+cmd+">  Args: <" + args + ">" )
                 # Call the appropriate handler function.
                 cmdmap[cmd](devName,args)
+
+def automation():
+    global cnum
+
+    while(1):
+        if select.select([sys.stdin,],[],[])[0]:
+            line = sys.stdin.readline()
+            line = line.strip()
                 
 
 def do_exit():
@@ -2734,8 +2856,8 @@ if __name__ == '__main__':
                # Need to add valve controls... v1-v20
                "SXRGHTSM": processSXRGHTSM,
                "SXLFTSM": processSXLFTSM,
-               "SXRGHTBIG": processSXRGHTBIG,
-               "SXLFTBIG": processSXLFTBIG,
+               "SXRGHTBIG": KprocessSXRGHTBIG,
+               "SXLFTBIG": KprocessSXLFTBIG,
                "SXSAMPLE": processSXSAMPLE,
                "SXBUFFER": processSXBUFFER,
                "SXWATER": processSXWATER,
