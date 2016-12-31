@@ -68,17 +68,371 @@ def shutdown_button_click():
     cnum += 1
 
 def start_thread_button_click():
-    right_thread.start()
-    right_thread.join()
+    right_thread1.start()
+    right_thread1.join()
     left_thread.start()
     left_thread.join()
+    # right_thread2.start()
+    # right_thread2.join()
     print "Finished start_thread_button_click"
     """
 
     :return:
     """
 
+###############################################################333
+################################ Dave's Machines ########################
+"""
+Capillary Heater
+"""
 
+
+def turn_on_cap_heater_button_click():
+    """
+    Button click to turn on capillary heater
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATON", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+def turn_off_cap_heater_button_click():
+    """
+    Button click to turn off capillary heater
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATOFF", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+def gett_cap_heater_button_click():
+    """
+    Button click to turn on capillary heater
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPGETT", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+def sett_cap_heater_button_click(entry):
+    """
+    Button click to set the capillary heater temperature [degrees C]
+    :param entry: Tkinter entry
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94 + len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPSETT", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
+"""
+Laser Motor
+"""
+
+
+def move_left_button_click():
+    """
+    Button click to move the Laser Motor counter-clockwise by one increment
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "LASLEFT", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+def move_right_button_click():
+    """
+    Button click to move the Laser Motor counter-clockwise by one increment
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "LASRIGHT", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+def LMHOME_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "LMHOME", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+def CAPREADY_button_click():
+    """
+    Sends a "CAPREADY" command to LunaSrv
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPREADY", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum += 1
+
+
+"""
+Gel Pump
+"""
+def gp_home_button_click():
+    """
+    GPHOME
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPHOME", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
+def gp_start_button_click():
+    """
+    GPSTART
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPSTART", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
+def gp_rate_button_click(entry):
+    """
+    GPRATE_10 [microL/sec]
+    :return:
+    """
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94 + len(input)
+    name = 'Pi'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPRATE", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
+"""
+Solution Stage X and Z
+"""
+def x_moveleft_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_moveright_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def small_x_moveleft_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def small_x_moveright_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def z_moveup_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_sample_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_buffer_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXBUFFER", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_water_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def x_move_to_waste_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+def z_movedown_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
 """
 1) INVTHW
 2) SXRGHTBIG
@@ -113,7 +467,7 @@ def thread_1():
     return
 
 
-def thread_2():
+def left_big_thread():
     """
     Move Left
     :return:
@@ -664,8 +1018,9 @@ if __name__ == '__main__':
     reader_thread = Thread(target=the_reader_thread)
     # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
 
-    right_thread = Thread(name="Go RIGHT", target=thread_1)
-    left_thread = Thread(name="Go LEFT",target=thread_2)
+    right_thread1 = Thread(name="Go RIGHT1", target=x_moveright_button_click)
+    left_thread = Thread(name="Go LEFT", target=x_moveleft_button_click)
+    right_thread2 = Thread(name="Go RIGHT2", target=x_moveright_button_click)
 
     reader_thread.daemon = True
     reader_thread.start()

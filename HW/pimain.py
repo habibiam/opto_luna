@@ -443,7 +443,7 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
-                port.write("done")
+                port.write("done  \n")
                 print "sent done to port"
             if move_stageX_right_small:
                 print "Moving Stage X RIGHT"
@@ -454,7 +454,7 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
             if move_stageX_left_big:
                 print "Moving Stage X LEFT"
@@ -465,7 +465,7 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_big = 0
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
             if move_stageX_right_big:
                 print "Moving Stage X RIGHT"
@@ -476,7 +476,7 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_big = 0
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
             if move_stageZ_up:
                 print "Moving Stage Z UP"
@@ -487,7 +487,7 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_up = 0
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
             if move_stageZ_down:
                 print "Moving Stage Z DOWN"
@@ -498,7 +498,7 @@ class Motor:
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageZ_down = 0
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
 
             # Absolute positions for stage x
@@ -528,7 +528,7 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_sample = 0
                 # Print to the LunaSrv
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
 
             if move_to_buffer:
@@ -557,7 +557,7 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_buffer = 0
                 # Print to the LunaSrv
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
 
             if move_to_water:
@@ -585,7 +585,7 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_water = 0
                 # Print to the LunaSrv
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
 
             if move_to_waste:
@@ -613,7 +613,7 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_to_waste = 0
                 # Print to the LunaSrv
-                port.write("done")
+                port.write("done   \n")
                 print "sent done to port"
 
 class CapHeat:
@@ -703,7 +703,8 @@ if __name__ == "__main__":
     while (rcv != "EXIT"):
         # port.write("\r\nEnter Pi Cmd:")
         rcv = readlineCR(port)
-        port.write("OK        \n")
+        if rcv != "":
+            port.write("OK        \n")
         print "recieved serial string:" + rcv
 
         if (rcv == "R"):

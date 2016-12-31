@@ -2151,6 +2151,7 @@ def KprocessSXRGHTBIG(receivedDeviceName, recievedArgs):
         return
     # send over a command
     aDevice.Write(cmd_string+"\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2158,13 +2159,11 @@ def KprocessSXRGHTBIG(receivedDeviceName, recievedArgs):
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
-    if "OK" or "" in data:
+    counter = 0
+    if "OK" in data:
         moving_to_the_right = True
-        counter = 0
         while (moving_to_the_right):
             data = aDevice.GetLastResponse()
-            counter+=1
-            print counter
             if data=="done":
                 moving_to_the_right = False
 
@@ -2203,7 +2202,7 @@ def KprocessSXLFTBIG(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write(cmd_string+"\n")
-    time.sleep(28)
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2216,8 +2215,6 @@ def KprocessSXLFTBIG(receivedDeviceName, recievedArgs):
         moving_to_the_left = True
         while (moving_to_the_left):
             data = aDevice.GetLastResponse()
-            counter+=1
-            print counter
             if data=="done":
                 moving_to_the_left = False
 
