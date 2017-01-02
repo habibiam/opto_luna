@@ -911,6 +911,22 @@ def start_thread_button_click():
     :return:
     """
     def transition():
+        """
+        1) Go up
+        2) Go to Water (Aboslute Position)
+        3) Go down
+        4) Go up
+        5) Go to (sample/buffer)
+        :return:
+        """
+        move_down_thread1.start()
+        move_down_thread1.join()
+        move_up_thread1.start()
+        # move_up_thread1.join()
+        # move_to_water_thread1.start()
+        # move_to_water_thread1.join()
+        #
+        # move_up_thread2.start()
         return
     """
     * In Buffer
@@ -922,7 +938,11 @@ def start_thread_button_click():
     time.sleep(60)
     logging.info("exiting sleep now")
     HV_10_kV_off_thread.start()
-    # print "OPEN LOG PLEASE!"
+    HV_10_kV_off_thread.join()
+    # transition()
+    move_down_thread1.start()
+    move_down_thread1.join()
+    move_up_thread1.start()
     logging.info("Successfully ran through the automation script")
 
 cnum = 1
@@ -972,7 +992,12 @@ if __name__ == '__main__':
     left_thread2 = Thread(name="Go LEFT2", target=x_moveleft_button_click)
 
     HV_10_kV_on_thread = Thread(name="init gel HV on 10kV", target=on_setv_automation)
-    move_down_thread1 = Thread(name="go down", target=z_movedown_button_click)
+    move_down_thread1 = Thread(name="go down1", target=z_movedown_button_click)
+    move_down_thread2 = Thread(name="go down2", target=z_movedown_button_click)
+    move_up_thread1 = Thread(name="go up1", target=z_moveup_button_click)
+    move_up_thread2 = Thread(name="go up2", target=z_moveup_button_click)
+
+    move_to_water_thread1 = Thread(name="Go to water", target=x_move_to_water_button_click)
     # HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=on_setv_automation(set_vol=0))
     HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=lambda: on_setv_automation(set_vol=0))
     # reader_thread = Thread(target=the_reader_thread)
