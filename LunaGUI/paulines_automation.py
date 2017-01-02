@@ -72,7 +72,7 @@ def start_thread_button_click():
     right_thread1.join()
     left_thread.start()
     left_thread.join()
-    # right_thread2.start()
+    right_thread2.start()
     # right_thread2.join()
     print "Finished start_thread_button_click"
     """

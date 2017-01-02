@@ -19,6 +19,7 @@ DOUBLECOILMICROSTEP = 2 # Wei
 LOWCUR = 1  # lowest current setting is 1, max is 16
 MIDCUR = 2  # medium current setting is 2, max is 16
 HIGHCUR = 4  # high current setting is 3, max is 16
+XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
 NEGDIR = -1  # Negative move direction
 POSDIR = 1  # Positive move direction
 
@@ -187,10 +188,10 @@ class Motor:
         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
-        z_stage_move_step = 6000
-        x_stage_move_step_big = 4500
-        x_stage_move_step_small = 4000
-        x_stage_move_sample_to_bufer = 3500
+        z_stage_move_step = 6000 # 6000
+        x_stage_move_step_big = 4500 # 4500
+        x_stage_move_step_small = 4000 # 4000
+        x_stage_move_sample_to_bufer = 3500 # 3500
 
         while self._running:
 
@@ -440,7 +441,7 @@ class Motor:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                target_motor.move(NEGDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
                 self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_small
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
@@ -451,7 +452,7 @@ class Motor:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, HIGHCUR)  # To move from big to small vial or vice versa, increment is 4000
+                target_motor.move(POSDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
                 self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_small
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
@@ -462,7 +463,7 @@ class Motor:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                target_motor.move(NEGDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
                 self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_big
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
@@ -473,7 +474,7 @@ class Motor:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                target_motor.move(POSDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
                 self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_big
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
@@ -484,7 +485,7 @@ class Motor:
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, z_stage_move_step, DOUBLECOILMICROSTEP, HIGHCUR)  # NEGDIR makes Stage Z go up
+                target_motor.move(NEGDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # NEGDIR makes Stage Z go up
                 self.stage_x_and_z_pos["z_pos"] += z_stage_move_step
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
@@ -495,7 +496,7 @@ class Motor:
                 print "Moving Stage Z DOWN"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                 self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
@@ -510,7 +511,7 @@ class Motor:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -520,10 +521,10 @@ class Motor:
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 if current_x_pos < sample_abs_pos: # if current_x_pos == 0
                     relative_steps = sample_abs_pos - current_x_pos
-                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > sample_abs_pos: # if current_x_pos == 7500, 12000, 16500
                     relative_steps = current_x_pos - sample_abs_pos
-                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 self.stage_x_and_z_pos["x_pos"] = sample_abs_pos
                 # update the json file
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -539,7 +540,7 @@ class Motor:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -549,10 +550,10 @@ class Motor:
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 if current_x_pos < buffer_abs_pos: # if current_x_pos == 0, 3500
                     relative_steps = buffer_abs_pos - current_x_pos
-                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > buffer_abs_pos: # if current_x_pos == 12000, 16500
                     relative_steps = current_x_pos - buffer_abs_pos
-                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = buffer_abs_pos
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -567,7 +568,7 @@ class Motor:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -577,10 +578,10 @@ class Motor:
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 if current_x_pos < water_abs_pos:  # if current_x_pos == 0, 3500, 7500
                     relative_steps = water_abs_pos - current_x_pos
-                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > water_abs_pos:  # if current_x_pos == 16500
                     relative_steps = current_x_pos - water_abs_pos
-                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = water_abs_pos
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -595,7 +596,7 @@ class Motor:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, HIGHCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -605,10 +606,10 @@ class Motor:
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 if current_x_pos < waste_abs_pos:  # if current_x_pos == 0, 3500, 7500, 12000
                     relative_steps = waste_abs_pos - current_x_pos
-                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > waste_abs_pos:  # Should never ever go into this block of code
                     relative_steps = current_x_pos - waste_abs_pos
-                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, HIGHCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = waste_abs_pos
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
