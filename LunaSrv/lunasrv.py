@@ -2620,6 +2620,7 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("STAGEZUP\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2671,6 +2672,7 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("STAGEZDN\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
