@@ -210,12 +210,13 @@ def processGETVI(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("GETVI\n")
-    time.sleep(10)
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         #retry once
         aDevice.Write("GETVI\n")
+        time.sleep(1)
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -264,11 +265,13 @@ def processSETV(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("SETV " + str(recievedArgs) + "\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
     
     if "SYNTAX" in data:
         #retry once
         aDevice.Write("SETV " + str(recievedArgs) + "\n")
+        time.sleep(1)
         data = aDevice.GetLastResponse()
 
     args = ""        
@@ -2103,6 +2106,13 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
+    if "OK" in data:
+        moving_to_the_left = True
+        while (moving_to_the_left):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_to_the_left = False
+
     args = ""
     if "SYNTAX" in data:
         args = "SYNTAX"
@@ -2124,7 +2134,7 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
     sys.stdout.flush()
 
 
-def KprocessSXRGHTBIG(receivedDeviceName, recievedArgs):
+def processSXRGHTBIG(receivedDeviceName, recievedArgs):
     """
     Kevin's Stage X RiGHT BIG
     :param receivedDeviceName: The name of the device.
@@ -2155,12 +2165,14 @@ def KprocessSXRGHTBIG(receivedDeviceName, recievedArgs):
     if "SYNTAX" in data:
         # retry once
         aDevice.Write(cmd_string+"\n")
+        time.sleep(1)
         data = aDevice.GetLastResponse()
 
-    counter = 0
     if "OK" in data:
+        # If cmd_string was successfully sent
         moving_to_the_right = True
         while (moving_to_the_right):
+            # Keep checking until the motor is done moving
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_the_right = False
@@ -2175,7 +2187,8 @@ def KprocessSXRGHTBIG(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-def KprocessSXLFTBIG(receivedDeviceName, recievedArgs):
+
+def processSXLFTBIG(receivedDeviceName, recievedArgs):
     """
     Stage X LeFT BIG
     :param receivedDeviceName: The name of the device.
@@ -2208,7 +2221,6 @@ def KprocessSXLFTBIG(receivedDeviceName, recievedArgs):
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
-    counter = 0
     if "OK" in data:
         moving_to_the_left = True
         while (moving_to_the_left):
@@ -2220,58 +2232,6 @@ def KprocessSXLFTBIG(receivedDeviceName, recievedArgs):
     size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
-
-    logger.debug("Sending command: <" + cmd + ">")
-
-    sys.stdout.write(cmd)
-    sys.stdout.flush()
-
-def processSXRGHTBIG(receivedDeviceName, recievedArgs):
-    """
-    Stage X RiGHT BIG
-    :param receivedDeviceName: The name of the device.
-    :param recievedArgs: None
-    :return: None
-    """
-    global scanner
-    global cnum
-    cmd_string = "SXRGHTBIG"
-
-    logger.info("Handle "+cmd_string+" command")
-
-    if scanner is None:
-        sendFAILResponse(cmd_string, receivedDeviceName)
-        return
-
-    # Find the correct device by name (as defined in the xml file).
-    aDevice = get_device_by_name(receivedDeviceName)
-
-    if aDevice is None:
-        sendFAILResponse(cmd_string, receivedDeviceName)
-        return
-
-    aDevice.Write(cmd_string+"\n")
-    data = aDevice.GetLastResponse()
-
-    if "SYNTAX" in data:
-        # retry once
-        aDevice.Write(cmd_string+"\n")
-        data = aDevice.GetLastResponse()
-
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
-    # Send back results
-    size = 94 + len(args) + 1
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2312,57 +2272,14 @@ def processSXRGHTSM(receivedDeviceName, recievedArgs):
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
-    # Send back results
-    size = 94 + len(args) + 1
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
-
-    logger.debug("Sending command: <" + cmd + ">")
-
-    sys.stdout.write(cmd)
-    sys.stdout.flush()
-
-def processSXLFTBIG(receivedDeviceName, recievedArgs):
-    """
-    Stage X LeFT BIG
-    :param receivedDeviceName: The name of the device.
-    :param recievedArgs: None
-    :return: None
-    """
-    global scanner
-    global cnum
-    cmd_string = "SXLFTBIG"
-
-    logger.info("Handle "+cmd_string+" command")
-
-    if scanner is None:
-        sendFAILResponse(cmd_string, receivedDeviceName)
-        return
-
-    # Find the correct device by name (as defined in the xml file).
-    aDevice = get_device_by_name(receivedDeviceName)
-
-    if aDevice is None:
-        sendFAILResponse(cmd_string, receivedDeviceName)
-        return
-
-    aDevice.Write(cmd_string+"\n")
-    data = aDevice.GetLastResponse()
-
-    if "SYNTAX" in data:
-        # retry once
-        aDevice.Write(cmd_string+"\n")
-        data = aDevice.GetLastResponse()
+    if "OK" in data:
+        # If cmd_string was successfully sent
+        moving_to_the_right = True
+        while (moving_to_the_right):
+            # Keep checking until the motor is done moving
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_to_the_right = False
 
     args = ""
     if "SYNTAX" in data:
@@ -2371,7 +2288,6 @@ def processSXLFTBIG(receivedDeviceName, recievedArgs):
         args = "FAIL"
     elif "OK" in data:
         args = data[16:]
-        print "a"
     else:
         args = "SYNTAX"
 
@@ -2416,6 +2332,13 @@ def processSXSAMPLE(receivedDeviceName, recievedArgs):
         # retry once
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
+
+    if "OK" in data:
+        moving_to_sample = True
+        while (moving_to_sample):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_to_sample = False
 
     args = ""
     if "SYNTAX" in data:
@@ -2469,6 +2392,13 @@ def processSXBUFFER(receivedDeviceName, recievedArgs):
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
+    if "OK" in data:
+        moving_to_buffer = True
+        while (moving_to_buffer):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_to_buffer = False
+
     args = ""
     if "SYNTAX" in data:
         args = "SYNTAX"
@@ -2521,6 +2451,13 @@ def processSXWATER(receivedDeviceName, recievedArgs):
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
+    if "OK" in data:
+        moving_to_water = True
+        while (moving_to_water):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_to_water = False
+
     args = ""
     if "SYNTAX" in data:
         args = "SYNTAX"
@@ -2572,6 +2509,13 @@ def processSXWASTE(receivedDeviceName, recievedArgs):
         # retry once
         aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
+
+    if "OK" in data:
+        moving_to_waste = True
+        while (moving_to_waste):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_to_waste = False
 
     args = ""
     if "SYNTAX" in data:
@@ -2628,6 +2572,13 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
         aDevice.Write("STAGEZUP\n")
         data = aDevice.GetLastResponse()
 
+    if "OK" in data:
+        moving_up = True
+        while (moving_up):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_up = False
+
     args = ""
     if "SYNTAX" in data:
         args = "SYNTAX"
@@ -2679,6 +2630,13 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
         # retry once
         aDevice.Write("STAGEZDN\n")
         data = aDevice.GetLastResponse()
+
+    if "OK" in data:
+        moving_down = True
+        while (moving_down):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_down = False
 
     args = ""
     if "SYNTAX" in data:
@@ -2763,13 +2721,13 @@ def waitForCommands():
                 # Call the appropriate handler function.
                 cmdmap[cmd](devName,args)
 
-def automation():
-    global cnum
-
-    while(1):
-        if select.select([sys.stdin,],[],[])[0]:
-            line = sys.stdin.readline()
-            line = line.strip()
+# def automation():
+#     global cnum
+#
+#     while(1):
+#         if select.select([sys.stdin,],[],[])[0]:
+#             line = sys.stdin.readline()
+#             line = line.strip()
                 
 
 def do_exit():
@@ -2809,8 +2767,6 @@ if __name__ == '__main__':
     # Setup all function calling vector for each supported command.
     cmdmap = {
                "INVTHW": processINVTHW,
-               "HVSON": None, #Haven't implemented on the instrument side
-               "HVSOFF": None, # Have to talk with kevin dong about this.
                "GETVI": processGETVI,
                "SETV": processSETV,
                "SHUTDOWN": processSHUTDOWN,
@@ -2851,8 +2807,8 @@ if __name__ == '__main__':
                # Need to add valve controls... v1-v20
                "SXRGHTSM": processSXRGHTSM,
                "SXLFTSM": processSXLFTSM,
-               "SXRGHTBIG": KprocessSXRGHTBIG,
-               "SXLFTBIG": KprocessSXLFTBIG,
+               "SXRGHTBIG": processSXRGHTBIG,
+               "SXLFTBIG": processSXLFTBIG,
                "SXSAMPLE": processSXSAMPLE,
                "SXBUFFER": processSXBUFFER,
                "SXWATER": processSXWATER,
