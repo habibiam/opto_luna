@@ -2095,9 +2095,7 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write(cmd_string+"\n")
-    print("sleeping now")
-    time.sleep(30)
-    print("waking up")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -2306,9 +2304,7 @@ def processSXRGHTSM(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write(cmd_string+"\n")
-    print("sleeping now")
-    time.sleep(27)
-    print("waking up")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
