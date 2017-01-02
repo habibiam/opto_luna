@@ -922,8 +922,7 @@ def start_thread_button_click():
     time.sleep(60)
     logging.info("exiting sleep now")
     HV_10_kV_off_thread.start()
-    HV_10_kV_off_thread
-    print "OPEN LOG PLEASE!"
+    # print "OPEN LOG PLEASE!"
     logging.info("Successfully ran through the automation script")
 
 cnum = 1

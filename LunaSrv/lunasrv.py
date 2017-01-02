@@ -92,98 +92,6 @@ def processINVTHW(receivedDeviceName, recievedArgs):
 """
 High voltage Supply
 """
-def processHVSON(receivedDeviceName, recievedArgs):
-    global scanner
-    global cnum
-
-    logger.info("Handle HVSON command")
-
-    if scanner is None:
-        sendFAILResponse("HVSON", receivedDeviceName)
-    return
-
-    # Find the correct device by name (as defined in the xml file).
-    aDevice = get_device_by_name(receivedDeviceName)
-
-    if aDevice is None:
-        sendFAILResponse("HVSON", receivedDeviceName)
-        return
-
-    aDevice.Write("HVSON\n")
-    data = aDevice.GetLastResponse()
-
-    if "SYNTAX" in data:
-        # retry once
-        aDevice.Write("HVSON\n")
-        data = aDevice.GetLastResponse()
-
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
-    # Send back results
-    size = 94 + len(args) + 1
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "HVSON", "args": args}
-
-    logger.debug("Sending command: <" + cmd + ">")
-
-    sys.stdout.write(cmd)
-    sys.stdout.flush()
-
-
-def processHVSOFF(receivedDeviceName, recievedArgs):
-    global scanner
-    global cnum
-
-    logger.info("Handle HVSOFF command")
-
-    if scanner is None:
-        sendFAILResponse("HVSOFF", receivedDeviceName)
-    return
-
-    # Find the correct device by name (as defined in the xml file).
-    aDevice = get_device_by_name(receivedDeviceName)
-
-    if aDevice is None:
-        sendFAILResponse("HVSOFF", receivedDeviceName)
-        return
-
-    aDevice.Write("HVSOFF\n")
-    data = aDevice.GetLastResponse()
-
-    if "SYNTAX" in data:
-        # retry once
-        aDevice.Write("HVSOFF\n")
-        data = aDevice.GetLastResponse()
-
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
-    # Send back results
-    size = 94 + len(args) + 1
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "HVSOFF", "args": args}
-
-    logger.debug("Sending command: <" + cmd + ">")
-
-    sys.stdout.write(cmd)
-    sys.stdout.flush()
-
-
 def processGETVI(receivedDeviceName, recievedArgs):
     """
     Process the GET Voltage and Current(I) command.
@@ -209,9 +117,11 @@ def processGETVI(receivedDeviceName, recievedArgs):
         sendFAILResponse("GETVI", receivedDeviceName)
         return
 
+    logger.debug("Sending GETVI to " + str(receivedDeviceName))
     aDevice.Write("GETVI\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         #retry once
@@ -240,11 +150,11 @@ def processGETVI(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
-def processSETV(receivedDeviceName, recievedArgs):
+def processSETV(receivedDeviceName, receivedArgs):
     """
     Process the SET Voltage command.  Sends a set voltage command to the named device
     :param receivedDeviceName: The name of the device.
-    :param recievedArgs: Voltage to set.
+    :param receivedArgs: Voltage to set.
     :return: None
     """
     global scanner
@@ -264,13 +174,15 @@ def processSETV(receivedDeviceName, recievedArgs):
         sendFAILResponse("SETV", receivedDeviceName)
         return
 
-    aDevice.Write("SETV " + str(recievedArgs) + "\n")
+    logger.debug("Sending SETV " + str(receivedArgs) + " to " + str(receivedDeviceName))
+    aDevice.Write("SETV " + str(receivedArgs) + "\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
-    
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
+
     if "SYNTAX" in data:
         #retry once
-        aDevice.Write("SETV " + str(recievedArgs) + "\n")
+        aDevice.Write("SETV " + str(receivedArgs) + "\n")
         time.sleep(1)
         data = aDevice.GetLastResponse()
 
@@ -288,8 +200,7 @@ def processSETV(receivedDeviceName, recievedArgs):
     size = 94 + len(args) + 1           
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
         {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "SETV", "args": args }
-    
-    
+
     logger.debug("Sending command: <"+cmd+">")
             
     sys.stdout.write(cmd)
