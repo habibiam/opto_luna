@@ -156,6 +156,7 @@ class Motor:
             self.stage_x_and_z_pos = json.load(f)
 
         # Need to check z first, then x
+        """
         if (self.stage_x_and_z_pos["z_pos"] !=0):
             print "Moving Stage Z Home"
             target_motor = xyz_motor(2, 200, 100)
@@ -173,7 +174,7 @@ class Motor:
             self.stage_x_and_z_pos["x_pos"] -= self.stage_x_and_z_pos["x_pos"]
             with open('stage_x_z_absolute_position.json', 'w') as wf:
                 json.dump(self.stage_x_and_z_pos, wf)
-
+        """
     def terminate(self):
         self._running = False
 
