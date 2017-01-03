@@ -749,9 +749,11 @@ if __name__ == "__main__":
 
         if (rcv == "LASLEFT"):
             Move_left_Laser_Enable = 1
+            print "Moved Laser Motor to the left\r\n"
 
         if (rcv == "LASRIGHT"):
             Move_right_Laser_Enable = 1
+            print "Moved Laser Motor to the right\r\n"
 
         if (rcv == "RET" or rcv == "LASRET"):
             Move_Laser_Home = 1
