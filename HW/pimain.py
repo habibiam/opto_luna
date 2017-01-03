@@ -189,7 +189,7 @@ class Motor:
         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
-        z_stage_move_step = 6000 # 6000
+        z_stage_move_step = 7000 # 6000
         x_stage_move_step_big = 4500 # 4500
         x_stage_move_step_small = 4000 # 4000
         x_stage_move_sample_to_bufer = 3500 # 3500
