@@ -796,6 +796,7 @@ def processLASLEFT(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("LASLEFT\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -847,6 +848,7 @@ def processLASRIGHT(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("LASRIGHT\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -899,6 +901,7 @@ def processLMHOME(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("LMHOME\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -938,26 +941,28 @@ def processCAPREADY(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "CAPREADY"
 
-    logger.info("Handle CAPREADY command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("CAPREADY", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CAPREADY", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
-
-    aDevice.Write("CAPREADY\n")
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string + "\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("LMHOME\n")
+        aDevice.Write(cmd_string + "\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -973,7 +978,7 @@ def processCAPREADY(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPREADY", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -989,7 +994,7 @@ def processGPHOME(receivedDeviceName, recievedArgs):
         :param receivedDeviceName: The name of the device.
         :param recievedArgs: None
         :return: None
-        """
+    """
     global scanner
     global cnum
 
@@ -1006,7 +1011,9 @@ def processGPHOME(receivedDeviceName, recievedArgs):
         sendFAILResponse("GPHOME", receivedDeviceName)
         return
 
+
     aDevice.Write("GPHOME\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -1058,6 +1065,7 @@ def processGPSTART(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("GPSTART\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -1154,6 +1162,7 @@ def processCAPHEATOFF(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("CAPHEATOFF\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
@@ -1251,6 +1260,7 @@ def processCAPSETT(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("CAPSETT " + str(recievedArgs) + "\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "CAPSETT" in data:
@@ -1306,11 +1316,13 @@ def processRWHOME(receivedDeviceName, recievedArgs):
         return
 
     aDevice.Write("RWHOME\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
         aDevice.Write("RWHOME\n")
+        time.sleep(1)
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -1723,26 +1735,28 @@ def processCHIPZHOME(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "CHIPZHOME"
 
-    logger.info("Handle CHIPZHOME command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("CHIPZHOME", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CHIPZHOME", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string + "\n")
 
-    aDevice.Write("CHIPZHOME\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("CHIPZHOME\n")
+        aDevice.Write(cmd_string + "\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -1758,7 +1772,7 @@ def processCHIPZHOME(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPZHOME", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -1776,26 +1790,28 @@ def processCHIPZUP(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "CHIPZUP"
 
-    logger.info("Handle CHIPZUP command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("CHIPZUP", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CHIPZUP", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string + "\n")
 
-    aDevice.Write("CHIPZUP\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("CHIPZUP\n")
+        aDevice.Write(cmd_string + "\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -1811,7 +1827,7 @@ def processCHIPZUP(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPZUP", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -1831,26 +1847,28 @@ def processCHIPYHOME(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "CHIPYHOME"
 
-    logger.info("Handle CHIPYHOME command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("CHIPYHOME", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CHIPYHOME", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string + "\n")
 
-    aDevice.Write("CHIPYHOME\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("CHIPYHOME\n")
+        aDevice.Write(cmd_string + "\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -1866,7 +1884,7 @@ def processCHIPYHOME(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPYHOME", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -1883,26 +1901,28 @@ def processCHIPYOUT(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "CHIPYOUT"
 
-    logger.info("Handle CHIPYOUT command")
+    logger.info("Handle "+cmd_string+" command")
 
     if scanner is None:
-        sendFAILResponse("CHIPYOUT", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CHIPYOUT", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
 
-    aDevice.Write("CHIPYOUT\n")
     data = aDevice.GetLastResponse()
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("CHIPYOUT\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
     args = ""
@@ -1918,7 +1938,7 @@ def processCHIPYOUT(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CHIPYOUT", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2007,10 +2027,11 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
     if aDevice is None:
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
-
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2023,6 +2044,7 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_the_left = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2069,9 +2091,11 @@ def processSXRGHTBIG(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
     # send over a command
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2087,6 +2111,7 @@ def processSXRGHTBIG(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_the_right = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     # Send back results
     size = 94 + len(data) + 1
@@ -2123,9 +2148,11 @@ def processSXLFTBIG(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2138,6 +2165,7 @@ def processSXLFTBIG(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_the_left = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     # Send back results
     size = 94 + len(data) + 1
@@ -2174,9 +2202,11 @@ def processSXRGHTSM(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2191,6 +2221,7 @@ def processSXRGHTSM(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_the_right = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2236,8 +2267,11 @@ def processSXSAMPLE(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2250,6 +2284,7 @@ def processSXSAMPLE(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_sample = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2295,8 +2330,11 @@ def processSXBUFFER(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2309,6 +2347,8 @@ def processSXBUFFER(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_buffer = False
+
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2354,8 +2394,11 @@ def processSXWATER(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2368,6 +2411,8 @@ def processSXWATER(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_water = False
+
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2413,8 +2458,11 @@ def processSXWASTE(receivedDeviceName, recievedArgs):
         sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
+    time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
@@ -2427,6 +2475,8 @@ def processSXWASTE(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_to_waste = False
+
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2460,27 +2510,30 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "STAGEZUP"
 
-    logger.info("Handle STAGEZUP command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("STAGEZUP", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("STAGEZUP", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
-    aDevice.Write("STAGEZUP\n")
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("STAGEZUP\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
     if "OK" in data:
@@ -2489,6 +2542,8 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_up = False
+
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2503,7 +2558,7 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEZUP", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2519,27 +2574,30 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
     """
     global scanner
     global cnum
+    cmd_string = "STAGEZDN"
 
-    logger.info("Handle STAGEZDN command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("STAGEZDN", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("STAGEZDN", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
-    aDevice.Write("STAGEZDN\n")
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
     time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("STAGEZDN\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
     if "OK" in data:
@@ -2548,6 +2606,8 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
             data = aDevice.GetLastResponse()
             if data=="done":
                 moving_down = False
+
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     args = ""
     if "SYNTAX" in data:
@@ -2562,7 +2622,7 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
     # Send back results
     size = 94 + len(args) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "STAGEZDN", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
 
     logger.debug("Sending command: <" + cmd + ">")
 
