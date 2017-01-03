@@ -1107,7 +1107,7 @@ def processCAPHEATON(receivedDeviceName, recievedArgs):
 
     if scanner is None:
         sendFAILResponse("CAPHEATON", receivedDeviceName)
-    return
+        return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
@@ -2097,7 +2097,7 @@ def processSXRGHTBIG(receivedDeviceName, recievedArgs):
     data = aDevice.GetLastResponse()
     logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
-    if "SYNTAX" in data:
+    if "" in data:
         # retry once
         aDevice.Write(cmd_string+"\n")
         time.sleep(1)
