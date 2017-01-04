@@ -839,6 +839,7 @@ if __name__ == "__main__":
         if (rcv == "GPUP"):
             move_gel_pump_up = 1
             print "Moving Gel Pump UP \r\n"
+
         if (rcv == "GPDOWN"):
             move_gel_pump_down = 1
             print "Moving Gel Pump DOWN \r\n"

@@ -436,6 +436,26 @@ def z_movedown_button_click():
     proc.stdin.write(cmd)
     cnum += 1
 
+
+""" Fluidic Valve Commands """
+def set_fluidic_valve_clicked():
+    input = valve_set.get()
+    global proc
+    global cnum
+    name = 'FluidValve'
+    if input==1:
+        args = 'A'
+    elif input==2:
+        args = 'B'
+    elif input==3:
+        args = 'CLOSED'
+    size = 94 + len(args)
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "FVALVEPOS", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
 dict_of_devices_and_commands \
     = {'HighVoltageSupply': ["GETVI", "SETV"],
        'TECController': ["STARTSEQ", "STOPSEQ", "READSEQD"],
@@ -690,10 +710,10 @@ if __name__ == '__main__':
     gp_start_button = Button(luna, text="GPSTART", command=gp_start_button_click)
     gp_start_button.grid(row=12, column=2)
 
-    gp_up_button = Button(luna, text="GPUP", command=None)
+    gp_up_button = Button(luna, text="GPUP", command=gp_up_button_click)
     gp_up_button.grid(row=14, column=1)
 
-    gp_down_button = Button(luna, text="GPDOWN", command=None)
+    gp_down_button = Button(luna, text="GPDOWN", command=gp_down_button_click)
     gp_down_button.grid(row=14, column=2)
 
     set_gprate_label = Label(luna, text="set rate [microL/sec]:")
@@ -731,6 +751,21 @@ if __name__ == '__main__':
     x_water_button.grid(row=20, column=2)
     x_waste_button = Button(luna, text="SXWASTE", command=x_move_to_waste_button_click)
     x_waste_button.grid(row=20, column=3)
+    """##### Fluidic Valve #####"""
+    fluidic_valve_label = Label(luna, text="LAB SMITH Fluid Valve: ")
+    fluidic_valve_label.grid(row=21, column=0, columnspan=4)
+
+    valve_set = IntVar()
+    valve_set.set(3)
+    valve_options = [
+        ("A", 1),
+        ("B", 2),
+        ("CLOSED", 3)
+    ]
+    for txt, val in valve_options:
+        radio_button = Radiobutton(luna, text=txt, variable=valve_set, command=set_fluidic_valve_clicked, value=val)
+        radio_button.grid(row=22, column=val)
+
     """
     Turn off gui, then terminate the subproccess
     """

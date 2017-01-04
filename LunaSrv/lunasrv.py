@@ -2866,6 +2866,8 @@ if __name__ == '__main__':
                "GPHOME": processGPHOME,
                "GPRATE": processGPRATE,
                "GPSTART": processGPSTART,
+               "GPUP": processGPUP,
+               "GPDOWN": processGPDOWN,
                "RWHOME": processRWHOME,
                "RWRATE": processRWRATE,
                "RPHOME": processRPHOME,
