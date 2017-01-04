@@ -182,7 +182,10 @@ class Motor:
         global Move_left_Laser_Enable, Move_right_Laser_Enable
         global Move_Laser_Home, LaserPos
         global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
-        global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move, move_gel_pump_down, move_gel_pump_up
+        global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
+
+        global move_gel_pump_down, move_gel_pump_up
+
         global Move_l_Laser_Enable, Move_r_Laser_Enable
         # STAGE X Z edit
         # STAGE X Z edit
