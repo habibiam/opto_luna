@@ -3,7 +3,7 @@ from Tkinter import *
 from time import sleep
 from serial import *
 
-from threading import Thread
+from threading import Thread, Lock
 import subprocess
 import itertools
 
@@ -69,23 +69,18 @@ def shutdown_button_click():
 
 def back_and_forth():
 
+    global automation_lock
+
     right_thread1.start()
-    right_thread1.join()
     left_thread1.start()
-    left_thread1.join()
     right_thread2.start()
-    right_thread2.join()
     left_thread2.start()
 
-    # rnge = 6
-    # for i in range(rnge):
-    #     if i%2==0:
-    #
-    #     else:
-    #         left_thread.start()
-    #         if i!=(rnge-1):
-    #
-    # right_thread2.join()
+    right_thread1.join()
+    left_thread1.join()
+    right_thread2.join()
+    left_thread2.join()
+
     print "Finished start_thread_button_click"
 
 def up_and_down():
@@ -298,57 +293,6 @@ def gp_rate_button_click(entry):
     proc.stdin.write(cmd)
     cnum += 1
 
-"""
-1) INVTHW
-2) SXRGHTBIG
-3) SXLFTBIG
-"""
-
-def thread_1():
-    """
-    Move right
-    :return:
-    """
-    global proc
-    global cnum
-
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
-    logging.debug("in thread 1 before write")
-    proc.stdin.write(cmd)
-    cnum += 1
-    # # Print if it got the message successfully
-    # out = proc.stdout.readline()
-    # print(out)
-    # id = out[:10].strip()
-    # length = out[10:20].strip()
-    # device_name = out[20:84].strip()
-    # cmd = out[84:94].strip()
-    # args = out[94:]
-    logging.debug("in thread 1")
-    return
-
-
-def left_big_thread():
-    """
-    Move Left
-    :return:
-    """
-    global proc
-    global cnum
-
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
-    logging.debug("in thread 1")
-    return
 ################################ Dave's Machines ########################
 
 
@@ -360,150 +304,202 @@ def x_moveleft_button_click():
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        logging.info("releasing lock from")
+        automation_lock.release()
 
 def x_moveright_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        logging.info("releasing lock from")
+        automation_lock.release()
 
 def small_x_moveleft_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def small_x_moveright_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def z_moveup_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def x_move_to_sample_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def x_move_to_buffer_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXBUFFER", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXBUFFER", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def x_move_to_water_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def x_move_to_waste_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def z_movedown_button_click():
     """
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 # dict_of_devices_and_commands \
 #     = {'HighVoltageSupply': ["GETVI", "SETV"],
@@ -532,15 +528,20 @@ def on_getvi_button_click():
 
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'HighVoltageSupply'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
-    proc.stdin.write(cmd)
-    cnum+=1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 def on_setv_button_click(entry):
     input = entry.get()
@@ -555,16 +556,27 @@ def on_setv_button_click(entry):
     cnum+=1
 
 def on_setv_automation(set_vol=10):
-    global proc
-    global cnum
-    set_vol = str(set_vol)
-    size = 94 + len(set_vol)
-    name = 'HighVoltageSupply'
-    args = set_vol
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
-    proc.stdin.write(cmd)
-    cnum+=1
+    """
+
+    :param set_vol:
+    :return:
+    """
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        set_vol = str(set_vol)
+        size = 94 + len(set_vol)
+        name = 'HighVoltageSupply'
+        args = set_vol
+        cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = "+out)
+    finally:
+        automation_lock.release()
+
 
 def start_thread_button_click():
     """
@@ -583,12 +595,11 @@ def start_thread_button_click():
     # HV_10_kV_off_thread.start()
     # HV_10_kV_off_thread.join()
     # transition()
-    while(True):
-        move_down_thread1.start()
-        move_down_thread1.join()
-        move_to_water_thread1.start()
-        move_to_water_thread1.join()
-        move_up_thread2.start()
+    move_down_thread1.start()
+    move_down_thread1.join()
+    move_to_water_thread1.start()
+    move_to_water_thread1.join()
+    move_up_thread2.start()
     # move_up_thread2.join()
     # move_down_thread2.start()
     # move_down_thread2.join()
@@ -657,6 +668,8 @@ if __name__ == '__main__':
     """
     1) Start reader_thread
     """
+    global automation_lock
+    automation_lock = Lock()
 
     right_thread1 = Thread(name="Go RIGHT1", target=x_moveright_button_click)
     left_thread1 = Thread(name="Go LEFT1", target=x_moveleft_button_click)
