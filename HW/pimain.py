@@ -746,6 +746,7 @@ if __name__ == "__main__":
     global Move_l_Laser_Enable, Move_r_Laser_Enable
 
     global move_gel_pump_up, move_gel_pump_down
+    move_gel_pump_down = move_gel_pump_up = 0.0
 
     #################### STAGE X Z edit ####################
     global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
