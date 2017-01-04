@@ -353,7 +353,7 @@ class Motor:
                     print "Moving Gel Pump down at 3uL per hour  \r\n"
                     time.sleep(0.2)
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                Move_GelPump_Move = 0
+                move_gel_pump_down= 0
 
             if move_gel_pump_up:
                 GelPos = 0
@@ -366,7 +366,7 @@ class Motor:
                     print "Moving Gel Pump up at 3uL per hour  \r\n"
                     time.sleep(0.2)
                     target_motor.move(POSDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                Move_GelPump_Move = 0
+                move_gel_pump_up = 0
 
             if Move_GelPump_Home:
                 print  "Moving Gel Pump to the upper home switch "
