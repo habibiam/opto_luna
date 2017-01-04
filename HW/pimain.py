@@ -527,7 +527,7 @@ class Motor:
                 port.write("done   \n")
                 # print "sent done to port"
             if move_stageX_left_big:
-                print "Moving Stage X LEFT"
+                # print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
                 target_motor.move(NEGDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
@@ -538,7 +538,7 @@ class Motor:
                 port.write("done   \n")
                 print "sent done to port"
             if move_stageX_right_big:
-                print "Moving Stage X RIGHT"
+                # print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
                 target_motor.move(POSDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
