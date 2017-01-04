@@ -514,7 +514,7 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
                 port.write("done  \n")
-                print "sent done to port"
+                # print "sent done to port"
             if move_stageX_right_small:
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
@@ -525,7 +525,7 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
                 port.write("done   \n")
-                print "sent done to port"
+                # print "sent done to port"
             if move_stageX_left_big:
                 print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
