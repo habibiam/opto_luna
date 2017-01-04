@@ -318,7 +318,7 @@ class Motor:
                 POSDIR = 1  # Positive move direction
 
                 """
-                target_motor.move(POSDIR, 1000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                target_motor.move(POSDIR, 2000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
                 move_gel_pump_up = 0
                 port.write("done   \n")
                 print "sent done to port"
@@ -336,7 +336,7 @@ class Motor:
                 POSDIR = 1  # Positive move direction
 
                 """
-                target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                target_motor.move(NEGDIR, 2000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
                 move_gel_pump_down = 0
                 port.write("done   \n")
                 print "sent done to port"
