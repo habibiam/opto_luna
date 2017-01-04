@@ -92,16 +92,16 @@ def back_and_forth():
 
     global automation_lock
 
-    right_thread1 = Thread(target=x_moveright_button_click)
+    right_thread1 = Thread(target=SXRGHTBIG_Thread)
     right_thread1.start()
 
-    left_thread1 = Thread(target=x_moveleft_button_click)
+    left_thread1 = Thread(target=SXLFTBIG_Thread)
     left_thread1.start()
 
-    right_thread2 = Thread(target=x_moveright_button_click)
+    right_thread2 = Thread(target=SXRGHTBIG_Thread)
     right_thread2.start()
 
-    left_thread2 = Thread(target=x_moveleft_button_click)
+    left_thread2 = Thread(target=SXLFTBIG_Thread)
     left_thread2.start()
 
     right_thread1.join()
@@ -113,16 +113,16 @@ def back_and_forth():
 def up_and_down():
 
 
-    down_thread1 = Thread(target=z_movedown_button_click)
+    down_thread1 = Thread(target=STAGEZDN_Thread)
     down_thread1.start()
 
-    up_thread2 = Thread(target=z_moveup_button_click)
+    up_thread2 = Thread(target=STAGEZUP_Thread)
     up_thread2.start()
 
-    down_thread2 = Thread(target=z_movedown_button_click)
+    down_thread2 = Thread(target=STAGEZDN_Thread)
     down_thread2.start()
 
-    up_thread1 = Thread(target=z_moveup_button_click)
+    up_thread1 = Thread(target=STAGEZUP_Thread)
     up_thread1.start()
 
     down_thread1.join()
@@ -348,7 +348,7 @@ def gp_rate_button_click(entry):
 """
 Solution Stage X and Z
 """
-def x_moveleft_button_click():
+def SXLFTBIG_Thread():
     """
 
     :return:
@@ -369,7 +369,7 @@ def x_moveleft_button_click():
         logging.debug("out = " + out)
         automation_lock.release()
 
-def x_moveright_button_click():
+def SXRGHTBIG_Thread():
     """
 
     :return:
@@ -390,7 +390,7 @@ def x_moveright_button_click():
         logging.debug("out = " + out)
         automation_lock.release()
 
-def small_x_moveleft_button_click():
+def SXLFTSM_Thread():
     """
 
     :return:
@@ -410,7 +410,7 @@ def small_x_moveleft_button_click():
         logging.debug("out = " + out)
         automation_lock.release()
 
-def small_x_moveright_button_click():
+def SXRGHTSM_Thread():
     """
 
     :return:
@@ -430,7 +430,7 @@ def small_x_moveright_button_click():
         logging.debug("out = " + out)
         automation_lock.release()
 
-def z_moveup_button_click():
+def STAGEZUP_Thread():
     """
 
     :return:
@@ -452,7 +452,7 @@ def z_moveup_button_click():
         automation_lock.release()
 
 
-def x_move_to_sample_button_click():
+def SXSAMPLE_Thread():
     """
 
     :return:
@@ -473,7 +473,7 @@ def x_move_to_sample_button_click():
         automation_lock.release()
 
 
-def x_move_to_buffer_button_click():
+def SXBUFFER_Thread():
     """
 
     :return:
@@ -493,7 +493,7 @@ def x_move_to_buffer_button_click():
         logging.debug("out = " + out)
         automation_lock.release()
 
-def x_move_to_water_button_click():
+def SXWATER_Thread():
     """
 
     :return:
@@ -513,7 +513,7 @@ def x_move_to_water_button_click():
         logging.debug("out = " + out)
         automation_lock.release()
 
-def x_move_to_waste_button_click():
+def SXWASTE_Thread():
     """
 
     :return:
@@ -534,7 +534,7 @@ def x_move_to_waste_button_click():
         automation_lock.release()
         return
 
-def z_movedown_button_click():
+def STAGEZDN_Thread():
     """
 
     :return:
@@ -727,20 +727,20 @@ if __name__ == '__main__':
     HV_10_kV_on_thread = Thread(name="init gel HV on 10kV", target=on_setv_automation)
     HV_5_kV_on_thread = Thread(name="init gel HV on 5kV", target=lambda: on_setv_automation(set_vol=5))
     # HV_5_kV_on_thread = Thread(name="init gel HV on 5kV", target=on_setv_automation, args=(5, ))
-    move_down_thread1 = Thread(name="go down1", target=z_movedown_button_click)
-    move_down_thread2 = Thread(name="go down2", target=z_movedown_button_click)
-    move_down_thread3 = Thread(name="go down3", target=z_movedown_button_click)
-    move_down_thread4 = Thread(name="go down4", target=z_movedown_button_click)
-    move_up_thread1 = Thread(name="go up1", target=z_moveup_button_click)
-    move_up_thread2 = Thread(name="go up2", target=z_moveup_button_click)
-    move_up_thread3 = Thread(name="go up3", target=z_moveup_button_click)
-    move_up_thread4 = Thread(name="go up4", target=z_moveup_button_click)
-    move_up_thread5 = Thread(name="go up5", target=z_moveup_button_click)
+    move_down_thread1 = Thread(name="go down1", target=STAGEZDN_Thread)
+    move_down_thread2 = Thread(name="go down2", target=STAGEZDN_Thread)
+    move_down_thread3 = Thread(name="go down3", target=STAGEZDN_Thread)
+    move_down_thread4 = Thread(name="go down4", target=STAGEZDN_Thread)
+    move_up_thread1 = Thread(name="go up1", target=STAGEZUP_Thread)
+    move_up_thread2 = Thread(name="go up2", target=STAGEZUP_Thread)
+    move_up_thread3 = Thread(name="go up3", target=STAGEZUP_Thread)
+    move_up_thread4 = Thread(name="go up4", target=STAGEZUP_Thread)
+    move_up_thread5 = Thread(name="go up5", target=STAGEZUP_Thread)
 
-    move_to_water_thread1 = Thread(name="Go to water1", target=x_move_to_water_button_click)
-    move_to_water_thread2 = Thread(name="Go to water2", target=x_move_to_water_button_click)
-    move_to_sample_thread1 = Thread(name="Go to sample1", target=x_move_to_sample_button_click)
-    move_to_buffer_thread1 = Thread(name="Go to buffer1", target=x_move_to_buffer_button_click)
+    move_to_water_thread1 = Thread(name="Go to water1", target=SXWATER_Thread)
+    move_to_water_thread2 = Thread(name="Go to water2", target=SXWATER_Thread)
+    move_to_sample_thread1 = Thread(name="Go to sample1", target=SXSAMPLE_Thread)
+    move_to_buffer_thread1 = Thread(name="Go to buffer1", target=SXBUFFER_Thread)
     # HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=on_setv_automation(set_vol=0))
     HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=lambda: on_setv_automation(set_vol=0))
     HV_5_kV_off_thread = Thread(name="init gel HV off 5kV", target=lambda: on_setv_automation(set_vol=0))
