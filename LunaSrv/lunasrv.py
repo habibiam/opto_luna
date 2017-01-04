@@ -2434,6 +2434,7 @@ def processSXBUFFER(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+
 def processSXWATER(receivedDeviceName, recievedArgs):
     """
     Stage X Water
@@ -2487,6 +2488,7 @@ def processSXWATER(receivedDeviceName, recievedArgs):
 
     sys.stdout.write(cmd)
     sys.stdout.flush()
+
 
 def processSXWASTE(receivedDeviceName, recievedArgs):
     """
@@ -2599,6 +2601,7 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
 
     sys.stdout.write(cmd)
     sys.stdout.flush()
+
 
 def processSTAGEZDN(receivedDeviceName, recievedArgs):
     """
