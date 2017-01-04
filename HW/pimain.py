@@ -347,7 +347,7 @@ class Motor:
                 GelPos = GelPos + 10
                 for cycle in range(1, 10):  # Every 20 seconds pump one step
                     print "Moving Gel Pump up at 3uL per hour  \r\n"
-                    time.sleep(20)
+                    time.sleep(0.2)
                     target_motor.move(POSDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
 
@@ -361,7 +361,7 @@ class Motor:
                 GelPos = GelPos + 10
                 for cycle in range(1, 10):  # Every 20 seconds pump one step
                     print "Moving Gel Pump down at 3uL per hour  \r\n"
-                    time.sleep(20)
+                    time.sleep(0.2)
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
 
@@ -496,7 +496,7 @@ class Motor:
                 GelPos = GelPos + 10
                 for cycle in range(1, 10):  # Every 20 seconds pump one step
                     print "Moving Gel Pump down at 3uL per hour  \r\n"
-                    time.sleep(20)
+                    time.sleep(0.2)
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
 
@@ -844,7 +844,7 @@ if __name__ == "__main__":
         #     print "Moving Gel Pump DOWN \r\n"
 
         if (rcv == "GPRATE"):
-            Move_GelPump_Move = 0
+            Move_GelPump_Move = 1
             print "Moving Gel Pump to position \r\n"
 
         # STAGE X Z edit

@@ -574,13 +574,13 @@ luna = LunaUI()
 
 if __name__ == '__main__':
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    time.sleep(1)
-    if proc is None or proc.returncode is not None:
-        if proc.returncode is not None:
-            print "LunaSrv exited immediately with a return code" + (str(proc.returncode))
-        else:
-            print " Failed to start LunaSrv"
-        sys.exit(-1)
+    # proc.wait(1)
+    # if proc is None or proc.returncode is not None:
+    #     if proc.returncode is not None:
+    #         print "LunaSrv exited immediately with a return code" + (str(proc.returncode))
+    #     else:
+    #         print " Failed to start LunaSrv"
+    #     sys.exit(-1)
     """
     1) Start reader_thread
     """
@@ -633,8 +633,8 @@ if __name__ == '__main__':
 
     sett_cap_heater_button = Button(luna, text="CAPSETT",
                                     command=lambda: sett_cap_heater_button_click(cap_heater_set_temp_entry))
-    sett_cap_heater_button.grid(row=7, column=3)
-
+    sett_cap_heater_button.grid(row=7, column=3
+    )
     """##### Laser Motor #####"""
     laser_motor_label = Label(luna, text="2) Laser Motor")
     laser_motor_label.grid(row=8, column=0, columnspan=4)

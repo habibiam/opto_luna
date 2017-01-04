@@ -67,21 +67,69 @@ def shutdown_button_click():
     luna.quit()
     cnum += 1
 
+def the_reader_thread():
+    while (True):
+        out = proc.stdout.readline()
+        id = out[:10].strip()
+        length = out[10:20].strip()
+        device_name = out[20:84].strip()
+        cmd = out[84:94].strip()
+        args = out[94:]
+        # print (id, length, device_name, cmd, args)
+        # try:
+        #     pass
+        # except IOError:
+        #     logging.info('CMD now part of the dictionary')
+        #
+        #
+        if cmd == "INVTHW":
+            logging.info("Inside back_and_forth: %s", out)
+            if device_name == "FluidValve":
+                return
+
+# def back_and_forth():
+#
+#     global automation_lock
+#
+#     right_thread1 = Thread(name="Go RIGHT1", target=x_moveright_button_click)
+#     right_thread1.start()
+#
+#     left_thread1 = Thread(name="Go LEFT1", target=x_moveleft_button_click)
+#     left_thread1.start()
+#
+#     right_thread2 = Thread(name="Go RIGHT2", target=x_moveright_button_click)
+#     right_thread2.start()
+#
+#     left_thread2 = Thread(name="Go LEFT2", target=x_moveleft_button_click)
+#     left_thread2.start()
+#
+#     right_thread1.join()
+#     left_thread1.join()
+#     right_thread2.join()
+#     left_thread2.join()
+#     logging.info("Finished start_thread_button_click")
+
 def back_and_forth():
 
     global automation_lock
 
+    right_thread1 = Thread(target=x_moveright_button_click)
     right_thread1.start()
+
+    left_thread1 = Thread(target=x_moveleft_button_click)
     left_thread1.start()
+
+    right_thread2 = Thread(target=x_moveright_button_click)
     right_thread2.start()
+
+    left_thread2 = Thread(target=x_moveleft_button_click)
     left_thread2.start()
 
     right_thread1.join()
     left_thread1.join()
     right_thread2.join()
     left_thread2.join()
-
-    print "Finished start_thread_button_click"
+    logging.info("Finished start_thread_button_click")
 
 def up_and_down():
 
@@ -314,11 +362,11 @@ def x_moveleft_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
+    finally:
+        # logging.info("releasing lock from")
+        automation_lock.release()
         out = proc.stdout.readline()
         logging.debug("out = " + out)
-    finally:
-        logging.info("releasing lock from")
-        automation_lock.release()
 
 def x_moveright_button_click():
     """
@@ -335,10 +383,11 @@ def x_moveright_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
+        time.sleep(3)
+    finally:
+        # logging.info("releasing lock from")
         out = proc.stdout.readline()
         logging.debug("out = " + out)
-    finally:
-        logging.info("releasing lock from")
         automation_lock.release()
 
 def small_x_moveleft_button_click():
@@ -356,9 +405,11 @@ def small_x_moveleft_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
+        time.sleep(3)
+    finally:
+        # logging.info("releasing lock from")
         out = proc.stdout.readline()
         logging.debug("out = " + out)
-    finally:
         automation_lock.release()
 
 def small_x_moveright_button_click():
@@ -376,10 +427,10 @@ def small_x_moveright_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        out = proc.stdout.readline()
-        logging.debug("out = " + out)
     finally:
         automation_lock.release()
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
 
 def z_moveup_button_click():
     """
@@ -396,10 +447,11 @@ def z_moveup_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        out = proc.stdout.readline()
-        logging.debug("out = " + out)
     finally:
         automation_lock.release()
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+
 
 def x_move_to_sample_button_click():
     """
@@ -416,10 +468,11 @@ def x_move_to_sample_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        out = proc.stdout.readline()
-        logging.debug("out = " + out)
     finally:
         automation_lock.release()
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+
 
 def x_move_to_buffer_button_click():
     """
@@ -436,10 +489,11 @@ def x_move_to_buffer_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXBUFFER", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        out = proc.stdout.readline()
-        logging.debug("out = " + out)
     finally:
         automation_lock.release()
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+
 
 def x_move_to_water_button_click():
     """
@@ -456,10 +510,11 @@ def x_move_to_water_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        out = proc.stdout.readline()
-        logging.debug("out = " + out)
     finally:
         automation_lock.release()
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+
 
 def x_move_to_waste_button_click():
     """
@@ -475,11 +530,12 @@ def x_move_to_waste_button_click():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
         proc.stdin.write(cmd)
+    finally:
+        automation_lock.release()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = " + out)
-    finally:
-        automation_lock.release()
+
 
 def z_movedown_button_click():
     """
@@ -496,10 +552,10 @@ def z_movedown_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        out = proc.stdout.readline()
-        logging.debug("out = " + out)
     finally:
         automation_lock.release()
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
 
 # dict_of_devices_and_commands \
 #     = {'HighVoltageSupply': ["GETVI", "SETV"],
@@ -668,13 +724,20 @@ if __name__ == '__main__':
     """
     1) Start reader_thread
     """
+    reader_thread = Thread(target=the_reader_thread)
+    # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
+    reader_thread.daemon = True
+    reader_thread.start()
+    """
+    Main difference here with Lock, Threads, along with the gui
+    """
     global automation_lock
     automation_lock = Lock()
 
-    right_thread1 = Thread(name="Go RIGHT1", target=x_moveright_button_click)
-    left_thread1 = Thread(name="Go LEFT1", target=x_moveleft_button_click)
-    right_thread2 = Thread(name="Go RIGHT2", target=x_moveright_button_click)
-    left_thread2 = Thread(name="Go LEFT2", target=x_moveleft_button_click)
+    # right_thread1 = Thread(name="Go RIGHT1", target=x_moveright_button_click)
+    # left_thread1 = Thread(name="Go LEFT1", target=x_moveleft_button_click)
+    # right_thread2 = Thread(name="Go RIGHT2", target=x_moveright_button_click)
+    # left_thread2 = Thread(name="Go LEFT2", target=x_moveleft_button_click)
 
     up_thread1 = Thread(target=z_moveup_button_click)
     up_thread2 = Thread(target=z_moveup_button_click)
