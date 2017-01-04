@@ -324,7 +324,7 @@ class Motor:
                 print "sent done to port"
 
             if move_gel_pump_down:
-                print "Moving Gel pump up"
+                print "Moving Gel pump down"
                 target_motor = xyz_motor(1, 200, 100)
                 atexit.register(target_motor.turn_off)
                 """
