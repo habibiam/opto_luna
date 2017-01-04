@@ -338,19 +338,6 @@ class Motor:
             #     port.write("done   \n")
             #     print "sent done to port"
 
-            if move_gel_pump_up:
-                GelPos = 0
-                print "Moving Gel Pump up 10uL  \r\n"
-                target_motor = xyz_motor(1, 200, 100)
-                atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 300, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                GelPos = GelPos + 10
-                for cycle in range(1, 10):  # Every 20 seconds pump one step
-                    print "Moving Gel Pump up at 3uL per hour  \r\n"
-                    time.sleep(0.2)
-                    target_motor.move(POSDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                Move_GelPump_Move = 0
-
 
             if move_gel_pump_down:
                 GelPos = 0
@@ -363,6 +350,19 @@ class Motor:
                     print "Moving Gel Pump down at 3uL per hour  \r\n"
                     time.sleep(0.2)
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                Move_GelPump_Move = 0
+
+            if move_gel_pump_up:
+                GelPos = 0
+                print "Moving Gel Pump up 10uL  \r\n"
+                target_motor = xyz_motor(1, 200, 100)
+                atexit.register(target_motor.turn_off)
+                target_motor.move(POSDIR, 300, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                GelPos = GelPos + 10
+                for cycle in range(1, 10):  # Every 20 seconds pump one step
+                    print "Moving Gel Pump up at 3uL per hour  \r\n"
+                    time.sleep(0.2)
+                    target_motor.move(POSDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
 
             if Move_GelPump_Home:
