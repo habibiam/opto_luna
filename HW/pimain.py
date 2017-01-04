@@ -182,7 +182,7 @@ class Motor:
         global Move_left_Laser_Enable, Move_right_Laser_Enable
         global Move_Laser_Home, LaserPos
         global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
-        global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
+        global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move, move_gel_pump_down, move_gel_pump_up
         global Move_l_Laser_Enable, Move_r_Laser_Enable
         # STAGE X Z edit
         # STAGE X Z edit
@@ -302,11 +302,47 @@ class Motor:
                 target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
                 Move_right_Laser_Enable = 0
 
+            if move_gel_pump_up:
+                print "Moving Gel pump up"
+                target_motor = xyz_motor(1, 200, 100)
+                atexit.register(target_motor.turn_off)
+                """
+                LOWCUR = 1  # lowest current setting is 1, max is 16
+                MIDCUR = 2  # medium current setting is 2, max is 16
+                HIGHCUR = 4  # high current setting is 3, max is 16
+                XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
+                NEGDIR = -1  # Negative move direction
+                POSDIR = 1  # Positive move direction
+
+                """
+                target_motor.move(NEGDIR, 10, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                move_gel_pump_up = 0
+                port.write("done   \n")
+                print "sent done to port"
+
+            if move_gel_pump_down:
+                print "Moving Gel pump up"
+                target_motor = xyz_motor(1, 200, 100)
+                atexit.register(target_motor.turn_off)
+                """
+                LOWCUR = 1  # lowest current setting is 1, max is 16
+                MIDCUR = 2  # medium current setting is 2, max is 16
+                HIGHCUR = 4  # high current setting is 3, max is 16
+                XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
+                NEGDIR = -1  # Negative move direction
+                POSDIR = 1  # Positive move direction
+
+                """
+                target_motor.move(POSDIR, 10, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                move_gel_pump_down = 0
+                port.write("done   \n")
+                print "sent done to port"
+
             if Move_GelPump_Home:
                 print  "Moving Gel Pump to the upper home switch "
                 target_motor = xyz_motor(1, 200, 100)
                 atexit.register(target_motor.turn_off)
-                HomeMax = 23800
+                HomeMax = 123800
                 GelPos = 0
                 temp = 0
                 for cycle in range(1, 2):
@@ -679,6 +715,8 @@ if __name__ == "__main__":
     global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
     global Move_l_Laser_Enable, Move_r_Laser_Enable
 
+    global move_gel_pump_up, move_gel_pump_down
+
     #################### STAGE X Z edit ####################
     global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
     move_stageX_left_small = move_stageX_left_big = move_stageX_right_small = move_stageX_right_big = move_stageZ_up = move_stageZ_down = 0.0
@@ -767,8 +805,15 @@ if __name__ == "__main__":
             Move_GelPump_Start = 1
             print "Moving Gel Pump to Start switch \r\n"
 
+        if (rcv == "GPUP"):
+            move_gel_pump_up = 1
+            print "Moving Gel Pump UP \r\n"
+        if (rcv == "GPDOWN"):
+            move_gel_pump_down = 1
+            print "Moving Gel Pump DOWN \r\n"
+
         if (rcv == "GPRATE"):
-            Move_GelPump_Move = 10
+            Move_GelPump_Move = 0
             print "Moving Gel Pump to position \r\n"
 
         # STAGE X Z edit
