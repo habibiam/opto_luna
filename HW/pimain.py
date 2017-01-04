@@ -5,6 +5,8 @@ import atexit
 import sys
 import RPi.GPIO as GPIO, os
 
+from math import fabs
+
 import json
 
 I2C60 = 1
@@ -193,9 +195,9 @@ class Motor:
         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
         z_stage_move_step = 6000 # 6000
-        x_stage_move_step_big = 4500
-        x_stage_move_step_small = 1500
-        x_stage_move_sample_to_bufer = 3500
+        x_stage_move_step_big = 4500 # 4500
+        x_stage_move_step_small = 4000 # 4000
+        sample_abs_pos = 3100 #3100
 
         while self._running:
 
@@ -503,9 +505,20 @@ class Motor:
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
 
+
+
+############################## SOLUTION STATION #################################
             # Relative positioning for Solution Station X and Z
             if move_stageX_left_small:
-                print "Moving Stage X LEFT"
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
                 target_motor.move(NEGDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
@@ -514,8 +527,16 @@ class Motor:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
                 port.write("done  \n")
-                # print "sent done to port"
             if move_stageX_right_small:
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
                 print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
@@ -527,6 +548,15 @@ class Motor:
                 port.write("done   \n")
                 # print "sent done to port"
             if move_stageX_left_big:
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
                 # print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
@@ -538,6 +568,15 @@ class Motor:
                 port.write("done   \n")
                 print "sent done to port"
             if move_stageX_right_big:
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] > 0:
+                    print "Moving Stage Z DOWN FIRST"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
                 # print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
@@ -549,6 +588,13 @@ class Motor:
                 port.write("done   \n")
                 print "sent done to port"
             if move_stageZ_up:
+                # Check to see if z is position 0, if not then bring z to home
+                if self.stage_x_and_z_pos["z_pos"] >= z_stage_move_step:
+                    print "Stage z is already at the top"
+                    move_stageZ_up = 0
+                    port.write("done   \n")
+                    print "sent done to port"
+
                 print "Moving Stage Z UP"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
@@ -560,6 +606,11 @@ class Motor:
                 port.write("done   \n")
                 print "sent done to port"
             if move_stageZ_down:
+                if self.stage_x_and_z_pos["z_pos"] <= 0:
+                    print "Stage z is already at the very bottom"
+                    move_stageZ_down = 0
+                    port.write("done   \n")
+                    print "sent done to port"
                 print "Moving Stage Z DOWN"
                 target_motor = xyz_motor(2, 200, 100)
                 atexit.register(target_motor.turn_off)
@@ -570,6 +621,8 @@ class Motor:
                 move_stageZ_down = 0
                 port.write("done   \n")
                 print "sent done to port"
+
+
 
             # Absolute positions for stage x
             if move_to_sample:
@@ -582,16 +635,19 @@ class Motor:
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
+
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                sample_abs_pos = 3500
-                current_x_pos = self.stage_x_and_z_pos["x_pos"]
+
+                current_x_pos = self.stage_x_and_z_pos["x_pos"] # get the current position from the json file
+                relative_steps = fabs(sample_abs_pos - current_x_pos) # find the relative pos
+
+                # Move motor based on current_x_pos of the motor and sample_abs_pos
                 if current_x_pos < sample_abs_pos: # if current_x_pos == 0
-                    relative_steps = sample_abs_pos - current_x_pos
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > sample_abs_pos: # if current_x_pos == 7500, 12000, 16500
-                    relative_steps = current_x_pos - sample_abs_pos
                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
+
                 self.stage_x_and_z_pos["x_pos"] = sample_abs_pos
                 # update the json file
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -615,11 +671,11 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 buffer_abs_pos = 7500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
+                relative_steps = fabs(buffer_abs_pos - current_x_pos)
+
                 if current_x_pos < buffer_abs_pos: # if current_x_pos == 0, 3500
-                    relative_steps = buffer_abs_pos - current_x_pos
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > buffer_abs_pos: # if current_x_pos == 12000, 16500
-                    relative_steps = current_x_pos - buffer_abs_pos
                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = buffer_abs_pos
@@ -643,11 +699,11 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 water_abs_pos = 12000
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                if current_x_pos < water_abs_pos:  # if current_x_pos == 0, 3500, 7500
-                    relative_steps = water_abs_pos - current_x_pos
+                relative_steps = fabs(buffer_abs_pos - current_x_pos)
+
+                if current_x_pos < buffer_abs_pos:  # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-                elif current_x_pos > water_abs_pos:  # if current_x_pos == 16500
-                    relative_steps = current_x_pos - water_abs_pos
+                elif current_x_pos > buffer_abs_pos:  # if current_x_pos == 12000, 16500
                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = water_abs_pos
@@ -671,11 +727,11 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 waste_abs_pos = 16500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                if current_x_pos < waste_abs_pos:  # if current_x_pos == 0, 3500, 7500, 12000
-                    relative_steps = waste_abs_pos - current_x_pos
+                relative_steps = fabs(buffer_abs_pos - current_x_pos)
+
+                if current_x_pos < buffer_abs_pos:  # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-                elif current_x_pos > waste_abs_pos:  # Should never ever go into this block of code
-                    relative_steps = current_x_pos - waste_abs_pos
+                elif current_x_pos > buffer_abs_pos:  # if current_x_pos == 12000, 16500
                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = waste_abs_pos
