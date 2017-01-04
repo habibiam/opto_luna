@@ -305,68 +305,68 @@ class Motor:
                 target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
                 Move_right_Laser_Enable = 0
 
-            # if move_gel_pump_up:
-            #     print "Moving Gel pump up"
-            #     target_motor = xyz_motor(1, 200, 100)
-            #     atexit.register(target_motor.turn_off)
-            #     """
-            #     LOWCUR = 1  # lowest current setting is 1, max is 16
-            #     MIDCUR = 2  # medium current setting is 2, max is 16
-            #     HIGHCUR = 4  # high current setting is 3, max is 16
-            #     XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
-            #     NEGDIR = -1  # Negative move direction
-            #     POSDIR = 1  # Positive move direction
-            #
-            #     """
-            #     target_motor.move(NEGDIR, 10, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-            #     move_gel_pump_up = 0
-            #     port.write("done   \n")
-            #     print "sent done to port"
-            #
-            # if move_gel_pump_down:
-            #     print "Moving Gel pump up"
-            #     target_motor = xyz_motor(1, 200, 100)
-            #     atexit.register(target_motor.turn_off)
-            #     """
-            #     LOWCUR = 1  # lowest current setting is 1, max is 16
-            #     MIDCUR = 2  # medium current setting is 2, max is 16
-            #     HIGHCUR = 4  # high current setting is 3, max is 16
-            #     XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
-            #     NEGDIR = -1  # Negative move direction
-            #     POSDIR = 1  # Positive move direction
-            #
-            #     """
-            #     target_motor.move(POSDIR, 10, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-            #     move_gel_pump_down = 0
-            #     port.write("done   \n")
-            #     print "sent done to port"
+            if move_gel_pump_up:
+                print "Moving Gel pump up"
+                target_motor = xyz_motor(1, 200, 100)
+                atexit.register(target_motor.turn_off)
+                """
+                LOWCUR = 1  # lowest current setting is 1, max is 16
+                MIDCUR = 2  # medium current setting is 2, max is 16
+                HIGHCUR = 4  # high current setting is 3, max is 16
+                XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
+                NEGDIR = -1  # Negative move direction
+                POSDIR = 1  # Positive move direction
 
+                """
+                target_motor.move(POSDIR, 1000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                move_gel_pump_up = 0
+                port.write("done   \n")
+                print "sent done to port"
 
             if move_gel_pump_down:
-                GelPos = 0
-                print "Moving Gel Pump down 10uL  \r\n"
+                print "Moving Gel pump up"
                 target_motor = xyz_motor(1, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 3000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                GelPos = GelPos + 10
-                for cycle in range(1, 10):  # Every 20 seconds pump one step
-                    print "Moving Gel Pump down at 3uL per hour  \r\n"
-                    time.sleep(0.2)
-                    target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                move_gel_pump_down= 0
+                """
+                LOWCUR = 1  # lowest current setting is 1, max is 16
+                MIDCUR = 2  # medium current setting is 2, max is 16
+                HIGHCUR = 4  # high current setting is 3, max is 16
+                XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
+                NEGDIR = -1  # Negative move direction
+                POSDIR = 1  # Positive move direction
 
-            if move_gel_pump_up:
-                GelPos = 0
-                print "Moving Gel Pump up 10uL  \r\n"
-                target_motor = xyz_motor(1, 200, 100)
-                atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 3000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                GelPos = GelPos + 10
-                for cycle in range(1, 10):  # Every 20 seconds pump one step
-                    print "Moving Gel Pump up at 3uL per hour  \r\n"
-                    time.sleep(0.2)
-                    target_motor.move(POSDIR, 1000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-                move_gel_pump_up = 0
+                """
+                target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+                move_gel_pump_down = 0
+                port.write("done   \n")
+                print "sent done to port"
+
+
+            # if move_gel_pump_down:
+            #     GelPos = 0
+            #     print "Moving Gel Pump down 10uL  \r\n"
+            #     target_motor = xyz_motor(1, 200, 100)
+            #     atexit.register(target_motor.turn_off)
+            #     target_motor.move(NEGDIR, 3000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+            #     GelPos = GelPos + 10
+            #     for cycle in range(1, 10):  # Every 20 seconds pump one step
+            #         print "Moving Gel Pump down at 3uL per hour  \r\n"
+            #         time.sleep(0.2)
+            #         target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+            #     move_gel_pump_down= 0
+            #
+            # if move_gel_pump_up:
+            #     GelPos = 0
+            #     print "Moving Gel Pump up 10uL  \r\n"
+            #     target_motor = xyz_motor(1, 200, 100)
+            #     atexit.register(target_motor.turn_off)
+            #     target_motor.move(POSDIR, 3000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+            #     GelPos = GelPos + 10
+            #     for cycle in range(1, 10):  # Every 20 seconds pump one step
+            #         print "Moving Gel Pump up at 3uL per hour  \r\n"
+            #         time.sleep(0.2)
+            #         target_motor.move(POSDIR, 1000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+            #     move_gel_pump_up = 0
 
             if Move_GelPump_Home:
                 print  "Moving Gel Pump to the upper home switch "
@@ -829,25 +829,19 @@ if __name__ == "__main__":
             print "Moving Laser to home switch \r\n"
 
         if (rcv == "GPHOME"):
-            # Move_GelPump_Home = 1
-            # print "Moving Gel Pump to Home switch \r\n"
-            move_gel_pump_up = 1
-            print "Moving Gel Pump UP \r\n"
-            # Move_GelPump_Start = 1
-            # print "Moving Gel Pump to Start switch \r\n"
+            Move_GelPump_Home = 1
+            print "Moving Gel Pump to Home switch \r\n"
 
         if (rcv == "GPSTART"):
-            # Move_GelPump_Start = 1
-            # print "Moving Gel Pump to Start switch \r\n"
+            Move_GelPump_Start = 1
+            print "Moving Gel Pump to Start switch \r\n"
+
+        if (rcv == "GPUP"):
+            move_gel_pump_up = 1
+            print "Moving Gel Pump UP \r\n"
+        if (rcv == "GPDOWN"):
             move_gel_pump_down = 1
             print "Moving Gel Pump DOWN \r\n"
-
-        # if (rcv == "GPUP"):
-        #     move_gel_pump_up = 1
-        #     print "Moving Gel Pump UP \r\n"
-        # if (rcv == "GPDOWN"):
-        #     move_gel_pump_down = 1
-        #     print "Moving Gel Pump DOWN \r\n"
 
         if (rcv == "GPRATE"):
             Move_GelPump_Move = 1

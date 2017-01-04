@@ -234,6 +234,37 @@ def gp_start_button_click():
     proc.stdin.write(cmd)
     cnum += 1
 
+def gp_up_button_click():
+    """
+    GPUP
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPUP", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
+
+def gp_down_button_click():
+    """
+    GPDOWN
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'Pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPDOWN", "args": args}
+    proc.stdin.write(cmd)
+    cnum += 1
+
 
 def gp_rate_button_click(entry):
     """
@@ -659,6 +690,12 @@ if __name__ == '__main__':
     gp_start_button = Button(luna, text="GPSTART", command=gp_start_button_click)
     gp_start_button.grid(row=12, column=2)
 
+    gp_up_button = Button(luna, text="GPUP", command=None)
+    gp_up_button.grid(row=14, column=1)
+
+    gp_down_button = Button(luna, text="GPDOWN", command=None)
+    gp_down_button.grid(row=14, column=2)
+
     set_gprate_label = Label(luna, text="set rate [microL/sec]:")
     set_gprate_label.grid(row=13, column=0)
     set_gprate_entry = Entry(luna)
@@ -668,32 +705,32 @@ if __name__ == '__main__':
 
     """ Stage X and Z"""
     stage_x_and_z_label = Label(luna, text="4) Solution Stage X and Z")
-    stage_x_and_z_label.grid(row=14, column=0, columnspan=4)
+    stage_x_and_z_label.grid(row=16, column=0, columnspan=4)
 
     x_moveleft_button = Button(luna, text="SXLFTBIG", command=x_moveleft_button_click)
-    x_moveleft_button.grid(row=16, column=1)
+    x_moveleft_button.grid(row=18, column=1)
     x_moveright_button = Button(luna, text="SXRGHTBIG", command=x_moveright_button_click)
-    x_moveright_button.grid(row=16, column=3)
+    x_moveright_button.grid(row=18, column=3)
 
     small_x_moveleft_button = Button(luna, text="SXLFTSM", command=small_x_moveleft_button_click)
-    small_x_moveleft_button.grid(row=17, column=1)
+    small_x_moveleft_button.grid(row=19, column=1)
     small_x_moveright_button = Button(luna, text="SXRGHTSM", command=small_x_moveright_button_click)
-    small_x_moveright_button.grid(row=17, column=3)
+    small_x_moveright_button.grid(row=19, column=3)
 
     z_moveup_button = Button(luna, text="ZUP", command=z_moveup_button_click)
-    z_moveup_button.grid(row=15, column=2)
+    z_moveup_button.grid(row=17, column=2)
     z_movedown_button = Button(luna, text="ZDOWN", command=z_movedown_button_click)
-    z_movedown_button.grid(row=16, column=2)
+    z_movedown_button.grid(row=18, column=2)
 
 
     x_sample_button = Button(luna, text="SXSAMPLE", command=x_move_to_sample_button_click)
-    x_sample_button.grid(row=18, column=0)
+    x_sample_button.grid(row=20, column=0)
     x_buffer_button = Button(luna, text="SXBUFFER", command=x_move_to_buffer_button_click)
-    x_buffer_button.grid(row=18, column=1)
+    x_buffer_button.grid(row=20, column=1)
     x_water_button = Button(luna, text="SXWATER", command=x_move_to_water_button_click)
-    x_water_button.grid(row=18, column=2)
+    x_water_button.grid(row=20, column=2)
     x_waste_button = Button(luna, text="SXWASTE", command=x_move_to_waste_button_click)
-    x_waste_button.grid(row=18, column=3)
+    x_waste_button.grid(row=20, column=3)
     """
     Turn off gui, then terminate the subproccess
     """

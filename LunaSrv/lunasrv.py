@@ -1093,6 +1093,109 @@ def processGPSTART(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+    return
+
+
+def processGPUP(receivedDeviceName, recievedArgs):
+    global scanner
+    global cnum
+    cmd_string = "GPUP"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
+
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+    return
+
+
+def processGPDOWN(receivedDeviceName, recievedArgs):
+
+    global scanner
+    global cnum
+    cmd_string = "GPDOWN"
+
+    logger.info("Handle "+cmd_string+" command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+    logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
+
+    data = aDevice.GetLastResponse()
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    args = ""
+    if "SYNTAX" in data:
+        args = "SYNTAX"
+    elif "FAIL" in data:
+        args = "FAIL"
+    elif "OK" in data:
+        args = data[16:]
+    else:
+        args = "SYNTAX"
+
+    # Send back results
+    size = 94 + len(args) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
+    return
+
 def processGPRATE(receivedDeviceName, recievedArgs):
     return
 
