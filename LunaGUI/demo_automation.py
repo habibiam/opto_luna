@@ -3,7 +3,7 @@ from Tkinter import *
 from time import sleep
 from serial import *
 
-from threading import Thread, Lock
+from threading import Thread, Lock, RLock
 import subprocess
 import itertools
 
@@ -133,13 +133,24 @@ def back_and_forth():
 
 def up_and_down():
 
+
+    down_thread1 = Thread(target=z_movedown_button_click)
     down_thread1.start()
-    down_thread1.join()
+
+    up_thread2 = Thread(target=z_moveup_button_click)
     up_thread2.start()
-    up_thread2.join()
+
+    down_thread2 = Thread(target=z_movedown_button_click)
     down_thread2.start()
-    down_thread2.join()
+
+    up_thread1 = Thread(target=z_moveup_button_click)
     up_thread1.start()
+
+    down_thread1.join()
+    up_thread2.join()
+    up_thread1.join()
+    down_thread2.join()
+    logging.info("Up and down function")
 
 ###############################################################333
 ################################ Dave's Machines ########################
@@ -364,9 +375,9 @@ def x_moveleft_button_click():
         cnum += 1
     finally:
         # logging.info("releasing lock from")
-        automation_lock.release()
         out = proc.stdout.readline()
         logging.debug("out = " + out)
+        automation_lock.release()
 
 def x_moveright_button_click():
     """
@@ -383,7 +394,7 @@ def x_moveright_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
-        time.sleep(3)
+        # time.sleep(3)
     finally:
         # logging.info("releasing lock from")
         out = proc.stdout.readline()
@@ -447,10 +458,12 @@ def z_moveup_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
+        time.sleep(3)
     finally:
-        automation_lock.release()
+        # logging.info("releasing lock from")
         out = proc.stdout.readline()
         logging.debug("out = " + out)
+        automation_lock.release()
 
 
 def x_move_to_sample_button_click():
@@ -552,10 +565,12 @@ def z_movedown_button_click():
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
         proc.stdin.write(cmd)
         cnum += 1
+        time.sleep(3)
     finally:
-        automation_lock.release()
+        # logging.info("releasing lock from")
         out = proc.stdout.readline()
         logging.debug("out = " + out)
+        automation_lock.release()
 
 # dict_of_devices_and_commands \
 #     = {'HighVoltageSupply': ["GETVI", "SETV"],
@@ -732,17 +747,17 @@ if __name__ == '__main__':
     Main difference here with Lock, Threads, along with the gui
     """
     global automation_lock
-    automation_lock = Lock()
+    automation_lock = RLock()
 
     # right_thread1 = Thread(name="Go RIGHT1", target=x_moveright_button_click)
     # left_thread1 = Thread(name="Go LEFT1", target=x_moveleft_button_click)
     # right_thread2 = Thread(name="Go RIGHT2", target=x_moveright_button_click)
     # left_thread2 = Thread(name="Go LEFT2", target=x_moveleft_button_click)
 
-    up_thread1 = Thread(target=z_moveup_button_click)
-    up_thread2 = Thread(target=z_moveup_button_click)
-    down_thread1 = Thread(target=z_movedown_button_click)
-    down_thread2 = Thread(target=z_movedown_button_click)
+    # up_thread1 = Thread(target=z_moveup_button_click)
+    # up_thread2 = Thread(target=z_moveup_button_click)
+    # down_thread1 = Thread(target=z_movedown_button_click)
+    # down_thread2 = Thread(target=z_movedown_button_click)
 
     HV_10_kV_on_thread = Thread(name="init gel HV on 10kV", target=on_setv_automation)
     HV_5_kV_on_thread = Thread(name="init gel HV on 5kV", target=lambda: on_setv_automation(set_vol=5))

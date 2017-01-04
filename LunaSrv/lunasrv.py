@@ -2149,20 +2149,10 @@ def processSXLFTSM(receivedDeviceName, recievedArgs):
                 moving_to_the_left = False
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2326,20 +2316,11 @@ def processSXRGHTSM(receivedDeviceName, recievedArgs):
                 moving_to_the_right = False
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
 
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2389,20 +2370,10 @@ def processSXSAMPLE(receivedDeviceName, recievedArgs):
                 moving_to_sample = False
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2453,20 +2424,10 @@ def processSXBUFFER(receivedDeviceName, recievedArgs):
 
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2517,20 +2478,10 @@ def processSXWATER(receivedDeviceName, recievedArgs):
 
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2581,20 +2532,11 @@ def processSXWASTE(receivedDeviceName, recievedArgs):
 
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
 
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2648,20 +2590,10 @@ def processSTAGEZUP(receivedDeviceName, recievedArgs):
 
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -2712,20 +2644,10 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
 
     logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
