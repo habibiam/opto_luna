@@ -829,10 +829,10 @@ if __name__ == "__main__":
             print "Moving Laser to home switch \r\n"
 
         if (rcv == "GPHOME"):
-            # Move_GelPump_Home = 1
-            # print "Moving Gel Pump to Home switch \r\n"
-            move_gel_pump_up = 1
-            print "Moving Gel Pump UP \r\n"
+            Move_GelPump_Home = 1
+            print "Moving Gel Pump to Home switch \r\n"
+            # move_gel_pump_up = 1
+            # print "Moving Gel Pump UP \r\n"
             # Move_GelPump_Start = 1
             # print "Moving Gel Pump to Start switch \r\n"
 
