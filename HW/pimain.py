@@ -347,12 +347,12 @@ class Motor:
                 print "Moving Gel Pump down 10uL  \r\n"
                 target_motor = xyz_motor(1, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 300, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                target_motor.move(NEGDIR, 3000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 GelPos = GelPos + 10
                 for cycle in range(1, 10):  # Every 20 seconds pump one step
                     print "Moving Gel Pump down at 3uL per hour  \r\n"
                     time.sleep(0.2)
-                    target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                    target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 move_gel_pump_down= 0
 
             if move_gel_pump_up:
@@ -360,12 +360,12 @@ class Motor:
                 print "Moving Gel Pump up 10uL  \r\n"
                 target_motor = xyz_motor(1, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 300, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                target_motor.move(POSDIR, 3000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 GelPos = GelPos + 10
                 for cycle in range(1, 10):  # Every 20 seconds pump one step
                     print "Moving Gel Pump up at 3uL per hour  \r\n"
                     time.sleep(0.2)
-                    target_motor.move(POSDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                    target_motor.move(POSDIR, 1000, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 move_gel_pump_up = 0
 
             if Move_GelPump_Home:
@@ -829,10 +829,10 @@ if __name__ == "__main__":
             print "Moving Laser to home switch \r\n"
 
         if (rcv == "GPHOME"):
-            Move_GelPump_Home = 1
-            print "Moving Gel Pump to Home switch \r\n"
-            # move_gel_pump_up = 1
-            # print "Moving Gel Pump UP \r\n"
+            # Move_GelPump_Home = 1
+            # print "Moving Gel Pump to Home switch \r\n"
+            move_gel_pump_up = 1
+            print "Moving Gel Pump UP \r\n"
             # Move_GelPump_Start = 1
             # print "Moving Gel Pump to Start switch \r\n"
 
