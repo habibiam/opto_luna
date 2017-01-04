@@ -193,9 +193,9 @@ class Motor:
         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
         z_stage_move_step = 6000 # 6000
-        x_stage_move_step_big = 4500 # 4500
-        x_stage_move_step_small = 1500 # 4000
-        x_stage_move_sample_to_bufer = 3500 # 3500
+        x_stage_move_step_big = 4500
+        x_stage_move_step_small = 1500
+        x_stage_move_sample_to_bufer = 3500
 
         while self._running:
 
