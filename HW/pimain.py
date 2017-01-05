@@ -599,33 +599,34 @@ class Motor:
                     move_stageZ_up = 0
                     port.write("done   \n")
                     print "sent done to port"
-
-                print "Moving Stage Z UP"
-                target_motor = xyz_motor(2, 200, 100)
-                atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # NEGDIR makes Stage Z go up
-                self.stage_x_and_z_pos["z_pos"] += z_stage_move_step
-                with open('stage_x_z_absolute_position.json', 'w') as wf:
-                    json.dump(self.stage_x_and_z_pos, wf)
-                move_stageZ_up = 0
-                port.write("done   \n")
-                print "sent done to port"
+                else:
+                    print "Moving Stage Z UP"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(NEGDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # NEGDIR makes Stage Z go up
+                    self.stage_x_and_z_pos["z_pos"] += z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
+                    move_stageZ_up = 0
+                    port.write("done   \n")
+                    print "sent done to port"
             if move_stageZ_down:
                 if self.stage_x_and_z_pos["z_pos"] <= 0:
                     print "Stage z is already at the very bottom"
                     move_stageZ_down = 0
                     port.write("done   \n")
                     print "sent done to port"
-                print "Moving Stage Z DOWN"
-                target_motor = xyz_motor(2, 200, 100)
-                atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-                self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-                with open('stage_x_z_absolute_position.json', 'w') as wf:
-                    json.dump(self.stage_x_and_z_pos, wf)
-                move_stageZ_down = 0
-                port.write("done   \n")
-                print "sent done to port"
+                else:
+                    print "Moving Stage Z DOWN"
+                    target_motor = xyz_motor(2, 200, 100)
+                    atexit.register(target_motor.turn_off)
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
+                    with open('stage_x_z_absolute_position.json', 'w') as wf:
+                        json.dump(self.stage_x_and_z_pos, wf)
+                    move_stageZ_down = 0
+                    port.write("done   \n")
+                    print "sent done to port"
 
 
 
