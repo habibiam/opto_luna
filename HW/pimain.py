@@ -702,13 +702,12 @@ class Motor:
                         json.dump(self.stage_x_and_z_pos, wf)
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                # water_abs_pos = 12000
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                relative_steps = abs(buffer_abs_pos - current_x_pos)
+                relative_steps = abs(water_abs_pos - current_x_pos)
 
-                if current_x_pos < buffer_abs_pos:  # if current_x_pos == 0, 3500
+                if current_x_pos < water_abs_pos:  # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-                elif current_x_pos > buffer_abs_pos:  # if current_x_pos == 12000, 16500
+                elif current_x_pos > water_abs_pos:  # if current_x_pos == 12000, 16500
                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = water_abs_pos
@@ -732,7 +731,7 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 # waste_abs_pos = 16500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                relative_steps = abs(buffer_abs_pos - current_x_pos)
+                relative_steps = abs(waste_abs_pos - current_x_pos)
 
                 if current_x_pos < buffer_abs_pos:  # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
