@@ -8,6 +8,7 @@ import RPi.GPIO as GPIO, os
 from math import fabs
 
 import json
+import time
 
 I2C60 = 1
 I2C61 = 0
@@ -341,13 +342,21 @@ class Motor:
                 XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
                 NEGDIR = -1  # Negative move direction
                 POSDIR = 1  # Positive move direction
+                import time
 
                 """
-                target_motor.move(NEGDIR, 2000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
+
+                min = 3
+                run_once = False
+                t_end = time.time() + 60 * min
+                counter = 0
+                while time.time() < t_end:
+                    target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)
+                    if (run_once): break
+                print "finished"
                 move_gel_pump_down = 0
                 port.write("done   \n")
                 print "sent done to port"
-
 
             # if move_gel_pump_down:
             #     GelPos = 0
