@@ -197,7 +197,12 @@ class Motor:
         z_stage_move_step = 6000 # 6000
         x_stage_move_step_big = 4500 # 4500
         x_stage_move_step_small = 4000 # 4000
+
         sample_abs_pos = 3100 #3100
+
+        buffer_abs_pos = 7100
+        water_abs_pos = 11600
+        waste_abs_pos = 16100
 
         while self._running:
 
@@ -669,7 +674,7 @@ class Motor:
                         json.dump(self.stage_x_and_z_pos, wf)
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                buffer_abs_pos = 7500
+                # buffer_abs_pos = 7500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 relative_steps = abs(buffer_abs_pos - current_x_pos)
 
@@ -697,7 +702,7 @@ class Motor:
                         json.dump(self.stage_x_and_z_pos, wf)
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                water_abs_pos = 12000
+                # water_abs_pos = 12000
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 relative_steps = abs(buffer_abs_pos - current_x_pos)
 
@@ -725,7 +730,7 @@ class Motor:
                         json.dump(self.stage_x_and_z_pos, wf)
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                waste_abs_pos = 16500
+                # waste_abs_pos = 16500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
                 relative_steps = abs(buffer_abs_pos - current_x_pos)
 
