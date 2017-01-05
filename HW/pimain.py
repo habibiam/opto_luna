@@ -314,9 +314,6 @@ class Motor:
                 Move_right_Laser_Enable = 0
 
             if move_gel_pump_up:
-                print "Moving Gel pump up"
-                target_motor = xyz_motor(1, 200, 100)
-                atexit.register(target_motor.turn_off)
                 """
                 LOWCUR = 1  # lowest current setting is 1, max is 16
                 MIDCUR = 2  # medium current setting is 2, max is 16
@@ -326,8 +323,18 @@ class Motor:
                 POSDIR = 1  # Positive move direction
 
                 """
-                target_motor.move(POSDIR, 2000, MICROSTEP, HIGHCUR)  # To move from big to big vial, increment is 4500
-                move_gel_pump_up = 0
+                print "Moving Gel pump up"
+                target_motor = xyz_motor(1, 200, 100)
+                atexit.register(target_motor.turn_off)
+                min = 2.0
+                run_once = False
+                t_end = time.time() + 60 * min
+                while time.time() < t_end:
+                    target_motor.move(POSDIR, 1, DOUBLECOILMICROSTEP, HIGHCUR)
+                    time.sleep(0.005)
+                    if (run_once): break
+                print "finished"
+                move_gel_pump_down = 0
                 port.write("done   \n")
                 print "sent done to port"
 
@@ -335,23 +342,12 @@ class Motor:
                 print "Moving Gel pump down"
                 target_motor = xyz_motor(1, 200, 100)
                 atexit.register(target_motor.turn_off)
-                """
-                LOWCUR = 1  # lowest current setting is 1, max is 16
-                MIDCUR = 2  # medium current setting is 2, max is 16
-                HIGHCUR = 4  # high current setting is 3, max is 16
-                XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
-                NEGDIR = -1  # Negative move direction
-                POSDIR = 1  # Positive move direction
-                import time
-
-                """
-
-                min = 3
+                min = 2.0
                 run_once = False
                 t_end = time.time() + 60 * min
-                counter = 0
                 while time.time() < t_end:
-                    target_motor.move(NEGDIR, 1000, MICROSTEP, HIGHCUR)
+                    target_motor.move(NEGDIR, 1, DOUBLECOILMICROSTEP, HIGHCUR)
+                    time.sleep(0.005)
                     if (run_once): break
                 print "finished"
                 move_gel_pump_down = 0
