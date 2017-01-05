@@ -1115,28 +1115,30 @@ def processGPUP(receivedDeviceName, recievedArgs):
         return
     logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
-
+    time.sleep(1)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
-    if "SYNTAX" in data:
+    if "" in data:
         # retry once
         aDevice.Write(cmd_string+"\n")
+        time.sleep(1)
         data = aDevice.GetLastResponse()
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
+    if "OK" in data:
+        # If cmd_string was successfully sent
+        moving_up = True
+        while (moving_up):
+            # Keep checking until the motor is done moving
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_up = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -1166,28 +1168,29 @@ def processGPDOWN(receivedDeviceName, recievedArgs):
         return
     logger.debug("Sending " + cmd_string + " to " + str(receivedDeviceName))
     aDevice.Write(cmd_string+"\n")
-
+    time.sleep(0.5)
     data = aDevice.GetLastResponse()
 
-    if "SYNTAX" in data:
+    if "" in data:
         # retry once
         aDevice.Write(cmd_string+"\n")
+        time.sleep(0.5)
         data = aDevice.GetLastResponse()
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
+    if "OK" in data:
+        # If cmd_string was successfully sent
+        moving_down = True
+        while (moving_down):
+            # Keep checking until the motor is done moving
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_down = False
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
@@ -1205,88 +1208,74 @@ Capillary Heater
 def processCAPHEATON(receivedDeviceName, recievedArgs):
     global scanner
     global cnum
+    cmd_string = "CAPHEATON"
 
-    logger.info("Handle CAPHEATON command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("CAPHEATON", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CAPHEATON", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
-    aDevice.Write("CAPHEATON\n")
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("CAPHEATON\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPHEATON", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+
 def processCAPHEATOFF(receivedDeviceName, recievedArgs):
     global scanner
     global cnum
+    cmd_string = "CAPHEATOFF"
 
-    logger.info("Handle CAPHEATOFF command")
+    logger.info("Handle " + cmd_string + " command")
 
     if scanner is None:
-        sendFAILResponse("CAPHEATOFF", receivedDeviceName)
-    return
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
 
     # Find the correct device by name (as defined in the xml file).
     aDevice = get_device_by_name(receivedDeviceName)
 
     if aDevice is None:
-        sendFAILResponse("CAPHEATOFF", receivedDeviceName)
+        sendFAILResponse(cmd_string, receivedDeviceName)
         return
 
-    aDevice.Write("CAPHEATOFF\n")
-    time.sleep(1)
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "SYNTAX" in data:
         # retry once
-        aDevice.Write("CAPHEATOFF\n")
+        aDevice.Write(cmd_string+"\n")
         data = aDevice.GetLastResponse()
 
-    args = ""
-    if "SYNTAX" in data:
-        args = "SYNTAX"
-    elif "FAIL" in data:
-        args = "FAIL"
-    elif "OK" in data:
-        args = data[16:]
-    else:
-        args = "SYNTAX"
-
     # Send back results
-    size = 94 + len(args) + 1
+    size = 94 + len(data) + 1
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": "CAPHEATOFF", "args": args}
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
 
     logger.debug("Sending command: <" + cmd + ">")
 
