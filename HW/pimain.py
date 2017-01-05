@@ -640,7 +640,7 @@ class Motor:
                 atexit.register(target_motor.turn_off)
 
                 current_x_pos = self.stage_x_and_z_pos["x_pos"] # get the current position from the json file
-                relative_steps = fabs(sample_abs_pos - current_x_pos) # find the relative pos
+                relative_steps = abs(sample_abs_pos - current_x_pos) # find the relative pos
 
                 # Move motor based on current_x_pos of the motor and sample_abs_pos
                 if current_x_pos < sample_abs_pos: # if current_x_pos == 0
@@ -671,7 +671,7 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 buffer_abs_pos = 7500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                relative_steps = fabs(buffer_abs_pos - current_x_pos)
+                relative_steps = abs(buffer_abs_pos - current_x_pos)
 
                 if current_x_pos < buffer_abs_pos: # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
@@ -699,7 +699,7 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 water_abs_pos = 12000
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                relative_steps = fabs(buffer_abs_pos - current_x_pos)
+                relative_steps = abs(buffer_abs_pos - current_x_pos)
 
                 if current_x_pos < buffer_abs_pos:  # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
@@ -727,7 +727,7 @@ class Motor:
                 atexit.register(target_motor.turn_off)
                 waste_abs_pos = 16500
                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-                relative_steps = fabs(buffer_abs_pos - current_x_pos)
+                relative_steps = abs(buffer_abs_pos - current_x_pos)
 
                 if current_x_pos < buffer_abs_pos:  # if current_x_pos == 0, 3500
                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
