@@ -200,9 +200,9 @@ class Motor:
 
         sample_abs_pos = 3100 #3100
 
-        buffer_abs_pos = 7100
-        water_abs_pos = 11600
-        waste_abs_pos = 16100
+        buffer_abs_pos = sample_abs_pos + x_stage_move_step_small#7100
+        water_abs_pos = buffer_abs_pos + x_stage_move_step_big #11600
+        waste_abs_pos = water_abs_pos + x_stage_move_step_big #16100
 
         while self._running:
 
