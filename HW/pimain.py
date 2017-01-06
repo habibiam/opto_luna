@@ -1,14 +1,11 @@
 #!/usr/bin/python
 from Opto_MotorHAT import Opto_MotorHAT, Opto_StepperMotor
-import time
 import atexit
 import sys
 import RPi.GPIO as GPIO, os
 
 import DAQCplate as DAC
 from threading import Thread
-
-from math import fabs
 
 import json
 import time
@@ -1350,8 +1347,6 @@ class Gel_Pump(Motor):
                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
                 Move_GelPump_Move = 0
 
-############################## SOLUTION STATION #################################
-
 
 class CapHeat:
     def __init__(self):
@@ -1447,9 +1442,6 @@ if __name__ == "__main__":
     LaserMotor = Laser_Motor()
     LM_Mot = Thread(target=LaserMotor.run)
     LM_Mot.start()
-
-
-
 
     print "Waiting for serial commands "
     port.write("\r\nEnter Pi Cmd:")
