@@ -1427,13 +1427,28 @@ if __name__ == "__main__":
     HeatThread = Thread(target=Heat.run)  # Create the thread to run Heat
     HeatThread.start()  # start runing the cap heater thread above
 
-    Mot = Motor()  # Create Class Motor
-    MotThread = Thread(target=Mot.run)  # Create the thread to run Heat
-    MotThread.start()  # start runing the Motor  thread above
+    # Mot = Motor()  # Create Class Motor
+    # MotThread = Thread(target=Mot.run)  # Create the thread to run Heat
+    # MotThread.start()  # start runing the Motor  thread above
 
     X_and_Z_Solution_Stage_Mot = X_and_Z_Solution_Stage_Motor()  # Create Class Motor
     X_Z_SS_Mot = Thread(target=X_and_Z_Solution_Stage_Mot.run)  # Create the thread to run Heat
     X_Z_SS_Mot.start()  # start runing the Motor  thread above
+
+    Reagent_Pump_Mot = Reagent_Pump()
+    RP_Mot = Thread(target=Reagent_Pump.run)
+    RP_Mot.start()
+
+    GelPump = Gel_Pump()
+    GP_Mot = Thread(target=GelPump.run)
+    GP_Mot.start()
+
+    LaserMotor = Laser_Motor()
+    LM_Mot = Thread(LaserMotor.run)
+    LM_Mot.start()
+
+
+
 
     print "Waiting for serial commands "
     port.write("\r\nEnter Pi Cmd:")
