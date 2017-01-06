@@ -1445,7 +1445,7 @@ if __name__ == "__main__":
     GP_Mot.start()
 
     LaserMotor = Laser_Motor()
-    LM_Mot = Thread(LaserMotor.run)
+    LM_Mot = Thread(target=LaserMotor.run)
     LM_Mot.start()
 
 
