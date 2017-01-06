@@ -1436,17 +1436,17 @@ if __name__ == "__main__":
     X_Z_SS_Mot = Thread(target=X_and_Z_Solution_Stage_Mot.run)  # Create the thread to run Heat
     X_Z_SS_Mot.start()  # start runing the Motor  thread above
 
-    Reagent_Pump_Mot = Reagent_Pump()
-    RP_Mot = Thread(target=Reagent_Pump.run)
-    RP_Mot.start()
-
-    GelPump = Gel_Pump()
-    GP_Mot = Thread(target=GelPump.run)
-    GP_Mot.start()
-
-    LaserMotor = Laser_Motor()
-    LM_Mot = Thread(target=LaserMotor.run)
-    LM_Mot.start()
+    # Reagent_Pump_Mot = Reagent_Pump()
+    # RP_Mot = Thread(target=Reagent_Pump.run)
+    # RP_Mot.start()
+    #
+    # GelPump = Gel_Pump()
+    # GP_Mot = Thread(target=GelPump.run)
+    # GP_Mot.start()
+    #
+    # LaserMotor = Laser_Motor()
+    # LM_Mot = Thread(target=LaserMotor.run)
+    # LM_Mot.start()
 
 
 
