@@ -744,7 +744,7 @@ class X_and_Z_Solution_Stage_Motor(Motor):
         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
 
-        z_stage_move_step = 6000 # 6000
+        z_stage_move_step = 6600 # 6000
         x_stage_move_step_big = 4500 # 4500
         x_stage_move_step_small = 4000 # 4000
 
@@ -1083,6 +1083,41 @@ class Laser_Motor(Motor):
                                               HIGHCUR)  # Retract one step at a time until home switch active
                             Move_right_Laser_Enable = 0
 
+                        if Move_Laser_Home:
+                            print  "Moving Laser stage to the home switch "
+                            target_motor = xyz_motor(3, 200, 100)
+                            atexit.register(target_motor.turn_off)
+                            HomeMax = 400
+                            LaserPos = 0
+                            print "Waiting for DAC addr7 input 1 Laser Home switch to become Active  high"
+                            temp = 0
+                            for cycle in range(1, 2):
+                                temp = temp + DAC.getDINbit(7, 1)
+                                time.sleep(.01)
+                            if (temp >= 1):  # if home switch is active, print complete message
+                                print "Input DAC(7,1) Home sensor is already active high, moving left 110 first"
+                                target_motor.move(NEGDIR, 110, MICROSTEP,
+                                                  HIGHCUR)  # Moving left, away from the capillary
+                            temp = 0
+                            for cycle in range(1, 3):
+                                temp = temp + DAC.getDINbit(7, 1)
+                                time.sleep(.01)
+                            print "Now starting Home"
+                            while ((temp == 0) and (LaserPos < HomeMax) and (
+                                        Move_Laser_Home == 1)):  # if home switch not active, move 1 step
+                                temp = 0
+                                for cycle in range(1, 2):
+                                    temp = temp + DAC.getDINbit(7, 1)
+                                    time.sleep(.01)
+                                target_motor.move(POSDIR, 5, MICROSTEP, HIGHCUR)  # Moving towards the capillary
+                                LaserPos = LaserPos + 1
+
+                            print "Completed Laser move to Home switch"
+                            if ((DAC.getDINbit(7, 1) == 1)):  # if home switch is active, reset LaserPos
+                                print "Input DAC(7,1) Laser Home sensor is Now Active high"
+                                print  LaserPos
+                                LaserPos = 0
+                            Move_Laser_Home = 0
 class Reagent_Pump(Motor):
     def __init__(self):
         Motor.__init__(self)
@@ -1301,40 +1336,6 @@ class Gel_Pump(Motor):
                     print  GelPos
                 Move_GelPump_Start = 0
 
-            if Move_Laser_Home:
-                print  "Moving Laser stage to the home switch "
-                target_motor = xyz_motor(3, 200, 100)
-                atexit.register(target_motor.turn_off)
-                HomeMax = 400
-                LaserPos = 0
-                print "Waiting for DAC addr7 input 1 Laser Home switch to become Active  high"
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 1)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,1) Home sensor is already active high, moving left 110 first"
-                    target_motor.move(NEGDIR, 110, MICROSTEP, HIGHCUR)  # Moving left, away from the capillary
-                temp = 0
-                for cycle in range(1, 3):
-                    temp = temp + DAC.getDINbit(7, 1)
-                    time.sleep(.01)
-                print "Now starting Home"
-                while ((temp == 0) and (LaserPos < HomeMax) and (
-                            Move_Laser_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 1)
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 5, MICROSTEP, HIGHCUR)  # Moving towards the capillary
-                    LaserPos = LaserPos + 1
-
-                print "Completed Laser move to Home switch"
-                if ((DAC.getDINbit(7, 1) == 1)):  # if home switch is active, reset LaserPos
-                    print "Input DAC(7,1) Laser Home sensor is Now Active high"
-                    print  LaserPos
-                    LaserPos = 0
-                Move_Laser_Home = 0
 
             if Move_GelPump_Move:
                 GelPos = 0
