@@ -1,10 +1,11 @@
-# Author: Kevin Kim
-# Version: 1.0.1, November 2016
 """
-Module: SG1_writer.py
-Author: Kevin Kim, Optokey
-Description: SG1_Writer is able to take list of list and convert them into an .SG1 file that is able to be viewed
- on genemarker.
+
+Author: Kevin Kim
+Date: November 2016
+Version: 1.0.1,
+
+Can convert a list of list of data into a SG1 file that can be read in Gene Marker HD.
+
 """
 from __future__ import division
 
@@ -13,19 +14,15 @@ import logging
 import struct
 from datetime import datetime
 
-# TODO Recommended Ratio
-
 """ Loggers """
 FORMAT = '%(levelname)s:%(funcName)s:%(message)s'
-logging.basicConfig(format=FORMAT, level=logging.INFO)
-
+# logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 class SG1_Writer:
     """
     Class to create SG1 binary files using a list of list of 5 dyes.
     Has similar structure to that of an FSA file.
     """
-
     def write_header_type(self):
         """
         Write's the 'SG1F' header for the file
@@ -34,14 +31,6 @@ class SG1_Writer:
         self.write_entry_name('S', 'G', '1', 'F')
 
     def write_entry_name(self, a, b, c, d):
-        """
-        function used to write header and entry names
-        :param a:
-        :param b:
-        :param c:
-        :param d:
-        :return:
-        """
         # logging.info('write_entry_name started for %s', ''.join([a, b, c, d]))
         for letter in [a, b, c, d]:
             self.file.write(struct.pack('c', letter))
@@ -61,10 +50,11 @@ class SG1_Writer:
         if denominator > numerator:
             # logging.info('Finished recommended_ratio')
             # logging.info('recommended_ratio = ' + str(numerator/denominator))
-            return numerator / denominator
+            return numerator/denominator
         else:
             # logging.info('recommended_ratio = 1')
             return 1
+
 
     def filtered_with_ratio(self, list_list_dyes, ratio):
         """
@@ -80,21 +70,70 @@ class SG1_Writer:
             new_list_of_list.append(new_list)
         return new_list_of_list
 
+    def month_to_offset(self, month):
+        return month*256
+
+    def year_to_offset(self, year):
+        total_months = year*256
+        return self.month_to_offset(total_months)
+
+    def date_to_offset(self, y, m, d):
+        """
+        Converts dates into data offset data that can be stored on to the RUND entry of the
+        SG1 file
+
+        :param y: int - year
+        :param m: int - month
+        :param d: int - day
+        :return:
+        """
+        year_converted = self.year_to_offset(y)
+        month_converted = self.month_to_offset(m)
+        return year_converted + month_converted + d
+
+    def seconds_to_offset(self, seconds):
+        return seconds*256
+
+    def minutes_to_offset(self, minutes):
+        total_seconds = minutes*256
+        return self.seconds_to_offset(total_seconds)
+
+    def hours_to_offset(self, hours):
+        total_minutes = hours*256
+        return self.minutes_to_offset(total_minutes)
+
+    def time_to_offset(self, hr, min, sec):
+        """
+        Converts time into time offset data that can be stored on to the RUNT entry of the
+        SG1 file
+
+        :param hr: int - hour
+        :param min: int - minute
+        :param sec: int - seconds
+        :return:
+        """
+        hours_converted = self.hours_to_offset(hr)
+        minutes_converted = self.minutes_to_offset(min)
+        seconds_converted = self.seconds_to_offset(sec)
+        return hours_converted + minutes_converted + seconds_converted
+
+
     def __init__(self, fn, list_of_list):
         """
 
-        :param fn: string - directory and filename
+        :param fn: string - filename and directory
         :param list_of_list: - list of list containing the values for joe, flu, tmr, cxr, and wen.
         """
 
         logging.info("Variables")
         self.filename = fn
         self.file = open(fn, 'wb')
-        self.time_made = datetime.now()
-        numerator = 32767  # The biggest value that a short can go to.
+        self.time_made = datetime.today()
+
+        numerator = 32767 # The biggest value that a short can go to.
 
         logging.info("Header")
-        self.write_header_type()  # 0-3 (4 bytes)
+        self.write_header_type() # 0-3 (4 bytes)
 
         logging.info("Version")
         self.file.write(struct.pack('>h', 101))  # 4, 5 (2 bytes)
@@ -106,18 +145,18 @@ class SG1_Writer:
         # Number
         self.file.write(struct.pack('>i', 1))  # 10 - 13 (int = 4 bytes)
         # Element Type
-        self.file.write(struct.pack('>h', 1023))  # 14, 15 (short = 2 bytes)
+        self.file.write(struct.pack('>h', 1023)) # 14, 15 (short = 2 bytes)
         # Element Size
-        self.file.write(struct.pack('>h', 28))  # 16, 17 (short = 2 bytes)
+        self.file.write(struct.pack('>h', 28)) # 16, 17 (short = 2 bytes)
         # Number of Elements
-        self.file.write(struct.pack('>i', 10))  # # 18 - 21 (int = 4 bytes)
+        self.file.write(struct.pack('>i', 10)) # # 18 - 21 (int = 4 bytes)
         # Data Size = Element Size * Number of Elements
         # For sg1 file, will always be 28*10=280
-        self.file.write(struct.pack('>i', 280))  # 22 - 25
+        self.file.write(struct.pack('>i', 280)) # 22 - 25
         # Data offset
-        self.file.write(struct.pack('>i', entry_data_offset))  # 26 - 29 (int = 4 bytes)
+        self.file.write(struct.pack('>i', entry_data_offset)) # 26 - 29 (int = 4 bytes)
         # Data handle = 0 always
-        self.file.write(struct.pack('>i', 0))  # 30 - 33
+        self.file.write(struct.pack('>i', 0)) # 30 - 33
         # DirEntry Unused space (pg 10) # 34 - 128
         for it in range(47):
             self.file.write(struct.pack('>h', 0))
@@ -132,7 +171,7 @@ class SG1_Writer:
         """TRAC/DATA (0-4 entries)"""
         data_data_offset = 128
         for TRAC_number, dye in itertools.izip([1, 2, 3, 4, 105], filtered_list_of_list):
-            logging.info("TRAC/DATA " + str(TRAC_number))
+            logging.info("TRAC/DATA "+str(TRAC_number))
             # Iterating through a list of numbers that corresponds with the number variable.
             # Name
             self.write_entry_name('T', 'R', 'A', 'C')
@@ -161,7 +200,7 @@ class SG1_Writer:
             self.seek(entry_data_offset)
 
         logging.info("Dye# (entry 5)")
-        dye_data_offset = 327680  # 5
+        dye_data_offset = 327680 # 5
         # dye_data_offset = 327688  # 5
         # Name
         self.write_entry_name('D', 'y', 'e', '#')
@@ -180,23 +219,21 @@ class SG1_Writer:
         self.file.write(struct.pack('>i', dye_data_offset))
         # Data handle = 0 ALWAYS (I Think)
         self.file.write(struct.pack('>i', 0))
+
+        """RUND / date (entry 6 and 7)"""
         """
-        todays_date_and_time = str(datetime.today())
-        date_and_time_list = todays_date_and_time.split()
-        date_list_str = date_and_time_list[0].split('-')
-        date_list_int = [int(x) for x in date_list_str]
-        print date_list_int
-        time_list_str = date_and_time_list[1].split(':')
-        time_list_int = [float(x) for x in time_list_str]
+        RUND 1 = Run Start Date
+        RUND 2 = Run Stop Date
         """
 
-        # DATE_dataoffsetpos = 70626
-        # date_data_offset = 132123409 # = 2016-11-17
-        # date_data_offset = 132123414 # = 2016-11-22
-        date_data_offset = 132123420  # = 2016-11-28
+        year = self.time_made.year
+        month = self.time_made.month
+        day = self.time_made.day
+
+        date_data_offset = self.date_to_offset(year, month, day)
         logging.info('RUND / date (entry 6 and 7)')
-        for date in range(1, 3):
-            logging.info("RUND" + str(date))
+        for date in range(1,3):
+            logging.info("RUND"+str(date))
             # Name
             self.write_entry_name('R', 'U', 'N', 'D')
             # Number (do a for loop and put i)
@@ -222,10 +259,13 @@ class SG1_Writer:
         RUNT 1 = Run Start Time
         RUNT 2 = Run Stop Time
         """
-        # time_data_offset = 201326592
-        time_data_offset = 271132672
+        hour = self.time_made.hour
+        minute = self.time_made.minute
+        seconds = self.time_made.second
+
+        time_data_offset = self.time_to_offset(hour, minute, seconds)
         logging.info('RUNT / time (entry 8 and 9)')
-        for time in range(1, 3):
+        for time in range(1,3):
             # Name
             logging.info("RUNT" + str(time))
             self.write_entry_name('R', 'U', 'N', 'T')
