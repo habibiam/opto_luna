@@ -1,13 +1,9 @@
-from Tkinter import *
-# import Tkinter as tk
-from time import sleep
-from serial import *
-
-from threading import Thread, Lock, RLock
-import subprocess
-import itertools
-
 import logging
+import subprocess
+from Tkinter import *
+from serial import *
+from threading import Thread, RLock
+
 from tendo import singleton
 
 FORMAT = '%(levelname)s:%(funcName)s:%(message)s'
@@ -88,6 +84,83 @@ def the_reader_thread():
 
 
 ##### SEQUENCSE OF AUTOMATION #######
+
+def auto1():
+    down_thread1 = Thread(target=STAGEZDN_Thread)
+    down_thread1.start()
+
+    # water_thread1 = Thread(target=SXWATER_Thread)
+    # water_thread1.start()
+
+    waste_thread1 = Thread(target=SXWASTE_Thread)
+    waste_thread1.start()
+
+    up_thread1 = Thread(target=STAGEZUP_Thread)
+    up_thread1.start()
+
+    down_thread2 = Thread(target=STAGEZDN_Thread)
+    down_thread2.start()
+
+    buffer_thread1 = Thread(target=SXBUFFER_Thread)
+    buffer_thread1.start()
+
+    up_thread2 = Thread(target=STAGEZUP_Thread)
+    up_thread2.start()
+
+    down_thread1.join()
+    down_thread2.join()
+    waste_thread1.join()
+    # water_thread1.join()
+    up_thread1.join()
+    up_thread2.join()
+    buffer_thread1.join()
+
+    logging.info("Finished auto1")
+
+
+def auto2():
+    down_thread1 = Thread(target=STAGEZDN_Thread)
+    down_thread1.start()
+
+    water_thread1 = Thread(target=SXWATER_Thread)
+    water_thread1.start()
+
+    up_thread1 = Thread(target=STAGEZUP_Thread)
+    up_thread1.start()
+
+    down_thread2 = Thread(target=STAGEZDN_Thread)
+    down_thread2.start()
+
+    waste_thread1 = Thread(target=SXWASTE_Thread)
+    waste_thread1.start()
+
+    up_thread2 = Thread(target=STAGEZUP_Thread)
+    up_thread2.start()
+
+    down_thread3 = Thread(target=STAGEZDN_Thread)
+    down_thread3.start()
+
+    buffer_thread1 = Thread(target=SXBUFFER_Thread)
+    buffer_thread1.start()
+
+    up_thread3 = Thread(target=STAGEZUP_Thread)
+    up_thread3.start()
+
+    down_thread1.join()
+    down_thread2.join()
+    down_thread3.join()
+
+    waste_thread1.join()
+    water_thread1.join()
+    up_thread1.join()
+    up_thread2.join()
+    up_thread3.join()
+
+    buffer_thread1.join()
+
+    logging.info("Finished auto1")
+
+
 def back_and_forth():
 
     global automation_lock
@@ -136,43 +209,52 @@ def up_and_down():
 """
 Capillary Heater
 """
-def turn_on_cap_heater_button_click():
+def CAPHEATON_Thread():
     """
-    Button click to turn on capillary heater
+
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATON", "args": args}
-    proc.stdin.write(cmd)
-    proc.stdin.flush()
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATON", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 
-def turn_off_cap_heater_button_click():
+def CAPHEATOFF_Thread():
     """
-    Button click to turn off capillary heater
+
     :return:
     """
-    global proc
-    global cnum
-    size = 94
-    name = 'Pi'
-    args = ''
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATOFF", "args": args}
-    proc.stdin.write(cmd)
-    proc.stdin.flush()
-    cnum += 1
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'Pi'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATOFF", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
 
 
 def gett_cap_heater_button_click():
+    #TODO To make this into a thread and have it in pimain.py
     """
-    Button click to turn on capillary heater
+
     :return:
     """
     global proc
@@ -208,8 +290,6 @@ def sett_cap_heater_button_click(entry):
 """
 Laser Motor
 """
-
-
 def move_left_button_click():
     """
     Button click to move the Laser Motor counter-clockwise by one increment
@@ -278,10 +358,33 @@ def CAPREADY_button_click():
     cnum += 1
 
 
+""" Fluidic Valve Commands """
+def FVALVEPOS_Thread(valve_pos = "CLOSED"):
+    """
+    Thread function that set's the Fluidic Valve to whatever position is passed as the
+    parameter
+    :param valve_pos: string "A"|"B"|"CLOSED"
+    :return:
+    """
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        name = 'FluidValve'
+        size = 94 + len(valve_pos)
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "FVALVEPOS", "args": valve_pos}
+        proc.stdin.write(cmd)
+        cnum += 1
+    finally:
+        # logging.info("releasing lock from")
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+        automation_lock.release()
+
 """
 Gel Pump
 """
-def gp_home_button_click():
+def GPHOME_Thread():
     """
     GPHOME
     :return:
@@ -303,7 +406,7 @@ def gp_home_button_click():
         automation_lock.release()
 
 
-def gp_start_button_click():
+def GPSTART_Thread():
     """
     GPSTART
     :return:
@@ -325,24 +428,114 @@ def gp_start_button_click():
         automation_lock.release()
 
 
-def gp_rate_button_click(entry):
-    """
-    GPRATE_10 [microL/sec]
-    :return:
-    """
-    #TODO still need to fix this
-    input = entry.get()
-    global proc
-    global cnum
-    size = 94 + len(input)
-    name = 'Pi'
-    args = input
-    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPRATE", "args": args}
-    proc.stdin.write(cmd)
-    cnum += 1
+# def gp_rate_button_click(entry):
+#     """
+#     GPRATE_10 [microL/sec]
+#     :return:
+#     """
+#     #TODO still need to fix this
+#     input = entry.get()
+#     global proc
+#     global cnum
+#     size = 94 + len(input)
+#     name = 'Pi'
+#     args = input
+#     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+#           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPRATE", "args": args}
+#     proc.stdin.write(cmd)
+#     cnum += 1
 
 ################################ Dave's Machines ########################
+"""
+OBIS Laser
+"""
+
+def GETLPWR_Thread():
+    """
+    Get Laser Power
+    CMD: 			GETLPWR
+    Device Name: 	OBISLaser
+    Response:  		OK________[power in watts]\n
+    Example: 		GETLPWR___\n
+    Description: 		Will return the current output power (in watts).
+
+    Still need to test
+    :return:
+    """
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'OBISLaser'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETLPWR", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+    finally:
+        # logging.info("releasing lock from")
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+        automation_lock.release()
+
+def SETLPOWER_Thread(watts=1):
+    """
+    Set Laser Power
+    CMD: 			SETLPWR [watts]
+    Device Name: 	OBISLaser
+    Response: 		OK________\n
+    Example: 		SETLPWR___0.01600\n
+    Description: 		Will set the current output power (in watts).
+
+    Still need to test
+    :param watts:
+    :return:
+    """
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        watts = str(watts)
+        size = 94 + len(watts)
+        name = 'OBISLaser'
+        args = watts
+        cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLPOWER", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = "+out)
+    finally:
+        automation_lock.release()
+
+def SETLSTATE_Thread(state="OFF"):
+    """
+    Turn Laser ON or OFF
+    CMD: 			SETLSTATE [ON|OFF]
+    Device Name: 	OBISLaser
+    Response: 		OK________\n
+    Example:		SETLSTATE_OFF\n
+    Description:		Will turn on or off the laser.
+
+    Still need to test
+    Command to turn on the OBIS Laser on/off
+    :param state: "ON" or "OFF" (default)
+    :return:
+    """
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94 + len(state)
+        name = 'OBISLaser'
+        args = state
+        cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLSTATE", "args": args}
+        proc.stdin.write(cmd)
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = "+out)
+    finally:
+        automation_lock.release()
+
 
 
 """
@@ -369,6 +562,7 @@ def SXLFTBIG_Thread():
         logging.debug("out = " + out)
         automation_lock.release()
 
+
 def SXRGHTBIG_Thread():
     """
 
@@ -389,6 +583,7 @@ def SXRGHTBIG_Thread():
         out = proc.stdout.readline()
         logging.debug("out = " + out)
         automation_lock.release()
+
 
 def SXLFTSM_Thread():
     """
@@ -559,7 +754,7 @@ def STAGEZDN_Thread():
 """
 High Voltage Power Supply
 """
-def on_getvi_button_click():
+def GETVI_Thread():
     """
 
     :return:
@@ -591,7 +786,7 @@ def on_setv_button_click(entry):
     proc.stdin.write(cmd)
     cnum+=1
 
-def on_setv_automation(set_vol=10):
+def SETV_Thread(set_vol=10):
     """
 
     :param set_vol:
@@ -724,8 +919,8 @@ if __name__ == '__main__':
     # down_thread1 = Thread(target=z_movedown_button_click)
     # down_thread2 = Thread(target=z_movedown_button_click)
 
-    HV_10_kV_on_thread = Thread(name="init gel HV on 10kV", target=on_setv_automation)
-    HV_5_kV_on_thread = Thread(name="init gel HV on 5kV", target=lambda: on_setv_automation(set_vol=5))
+    HV_10_kV_on_thread = Thread(name="init gel HV on 10kV", target=SETV_Thread)
+    HV_5_kV_on_thread = Thread(name="init gel HV on 5kV", target=lambda: SETV_Thread(set_vol=5))
     # HV_5_kV_on_thread = Thread(name="init gel HV on 5kV", target=on_setv_automation, args=(5, ))
     move_down_thread1 = Thread(name="go down1", target=STAGEZDN_Thread)
     move_down_thread2 = Thread(name="go down2", target=STAGEZDN_Thread)
@@ -742,8 +937,8 @@ if __name__ == '__main__':
     move_to_sample_thread1 = Thread(name="Go to sample1", target=SXSAMPLE_Thread)
     move_to_buffer_thread1 = Thread(name="Go to buffer1", target=SXBUFFER_Thread)
     # HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=on_setv_automation(set_vol=0))
-    HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=lambda: on_setv_automation(set_vol=0))
-    HV_5_kV_off_thread = Thread(name="init gel HV off 5kV", target=lambda: on_setv_automation(set_vol=0))
+    HV_10_kV_off_thread = Thread(name="init gel HV off 10kV", target=lambda: SETV_Thread(set_vol=0))
+    HV_5_kV_off_thread = Thread(name="init gel HV off 5kV", target=lambda: SETV_Thread(set_vol=0))
     # reader_thread = Thread(target=the_reader_thread)
     # Set the thread as a daemon thread, aka when the gui closes down, the thread also ends.
 
@@ -778,6 +973,9 @@ if __name__ == '__main__':
 
     start_automation_thread_button = Button(luna, text="Start automation", command=start_thread_button_click)
     start_automation_thread_button.grid(row=5, column=1)
+
+    start_automation1_thread_button = Button(luna, text="auto1", command=auto2)
+    start_automation1_thread_button.grid(row=5, column=2)
 
     """
     Turn off gui, then terminate the subproccess
