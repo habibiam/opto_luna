@@ -117,6 +117,37 @@ def auto1():
 
     logging.info("Finished auto1")
 
+def buffer():
+    down_thread1 = Thread(target=STAGEZDN_Thread)
+    down_thread1.start()
+
+    buffer_thread1 = Thread(target=SXBUFFER_Thread)
+    buffer_thread1.start()
+
+    up_thread1 = Thread(target=STAGEZUP_Thread)
+    up_thread1.start()
+
+    down_thread1.join()
+    buffer_thread1.join()
+    up_thread1.join()
+
+    logging.info("Finished auto1")
+
+def waste():
+    down_thread1 = Thread(target=STAGEZDN_Thread)
+    down_thread1.start()
+
+    waste_thread1 = Thread(target=SXWASTE_Thread)
+    waste_thread1.start()
+
+    up_thread1 = Thread(target=STAGEZUP_Thread)
+    up_thread1.start()
+
+    down_thread1.join()
+    waste_thread1.join()
+    up_thread1.join()
+
+    logging.info("Finished auto1")
 
 def auto2():
     down_thread1 = Thread(target=STAGEZDN_Thread)
@@ -204,6 +235,38 @@ def up_and_down():
     down_thread2.join()
     logging.info("Up and down function")
 
+"""
+High Voltage Power Supply
+"""
+def on_getvi_button_click():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'HighVoltageSupply'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
+def on_setv_button_click(entry):
+    input = entry.get()
+    global proc
+    global cnum
+    size = 94 + len(input)
+    name = 'HighVoltageSupply'
+    args = input
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
 
 ################################ Dave's Machines ########################
 """
@@ -223,6 +286,7 @@ def CAPHEATON_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATON", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = " + out)
@@ -244,6 +308,7 @@ def CAPHEATOFF_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPHEATOFF", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = " + out)
@@ -284,6 +349,7 @@ def sett_cap_heater_button_click(entry):
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPSETT", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -374,6 +440,7 @@ def FVALVEPOS_Thread(valve_pos = "CLOSED"):
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "FVALVEPOS", "args": valve_pos}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -398,6 +465,7 @@ def GPHOME_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPHOME", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -420,6 +488,7 @@ def GPSTART_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPSTART", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -471,6 +540,7 @@ def GETLPWR_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETLPWR", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -501,6 +571,7 @@ def SETLPOWER_Thread(watts=1):
         cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLPOWER", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = "+out)
@@ -530,6 +601,7 @@ def SETLSTATE_Thread(state="OFF"):
         cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETLSTATE", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = "+out)
@@ -555,6 +627,7 @@ def SXLFTBIG_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -577,6 +650,7 @@ def SXRGHTBIG_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -599,6 +673,7 @@ def SXLFTSM_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         out = proc.stdout.readline()
@@ -619,6 +694,7 @@ def SXRGHTSM_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         out = proc.stdout.readline()
@@ -639,6 +715,7 @@ def STAGEZUP_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -661,6 +738,7 @@ def SXSAMPLE_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         out = proc.stdout.readline()
@@ -682,6 +760,7 @@ def SXBUFFER_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXBUFFER", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         out = proc.stdout.readline()
@@ -702,6 +781,7 @@ def SXWATER_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         out = proc.stdout.readline()
@@ -722,6 +802,7 @@ def SXWASTE_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         out = proc.stdout.readline()
@@ -743,6 +824,7 @@ def STAGEZDN_Thread():
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
     finally:
         # logging.info("releasing lock from")
@@ -763,11 +845,12 @@ def GETVI_Thread():
     automation_lock.acquire()
     try:
         size = 94
-        name = 'Pi'
+        name = 'HighVoltageSupply'
         args = ''
         cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = " + out)
@@ -784,6 +867,7 @@ def on_setv_button_click(entry):
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum+=1
 
 def SETV_Thread(set_vol=10):
@@ -802,6 +886,7 @@ def SETV_Thread(set_vol=10):
         cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
         proc.stdin.write(cmd)
+        proc.stdin.flush()
         cnum += 1
         out = proc.stdout.readline()
         logging.debug("out = "+out)
@@ -971,11 +1056,41 @@ if __name__ == '__main__':
     u_and_d_thread = Button(luna, text="Up and Down", command=up_and_down)
     u_and_d_thread.grid(row=4, column=1)
 
-    start_automation_thread_button = Button(luna, text="Start automation", command=start_thread_button_click)
-    start_automation_thread_button.grid(row=5, column=1)
+    start_automation_thread_button = Button(luna, text="Waste", command=waste)
+    start_automation_thread_button.grid(row=5, column=2)
 
-    start_automation1_thread_button = Button(luna, text="auto1", command=auto2)
-    start_automation1_thread_button.grid(row=5, column=2)
+    start_automation1_thread_button = Button(luna, text="buffer", command=buffer)
+    start_automation1_thread_button.grid(row=5, column=1)
+
+    """High Voltage Supply"""
+    high_voltage_label = Label(luna, text="2) High Voltage Supply")
+    high_voltage_label.grid(row=8, column=0, columnspan=4)
+
+
+    voltage_label = Label(luna, text="Voltage (V):")
+    current_label = Label(luna, text="Current (A):")
+
+    voltage_label.grid(row=9, column=0)
+    current_label.grid(row=9, column=2)
+
+    current_volts = StringVar()
+    current_amps = StringVar()
+
+    current_volts_dynamic_label = Label(luna, textvariable=current_volts, width=10)
+    current_amps_dynamic_label = Label(luna, textvariable=current_amps, width=10)
+    current_volts_dynamic_label.grid(row=10, column=1)
+    current_amps_dynamic_label.grid(row=10, column=3)
+
+    getvi_button = Button(luna, text="GETVI", command=GETVI_Thread)
+    getvi_button.grid(row=11, column=3)
+
+    # Set voltage row on GUI
+    set_voltage_label = Label(luna, text="set volt:")
+    set_voltage_label.grid(row=11, column=0)
+    set_voltage_entry = Entry(luna)
+    set_voltage_entry.grid(row=11, column=1)
+    setv_button = Button(luna, text="SETV", command=lambda: on_setv_button_click(set_voltage_entry))
+    setv_button.grid(row=11, column=2)
 
     """
     Turn off gui, then terminate the subproccess

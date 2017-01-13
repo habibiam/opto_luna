@@ -27,6 +27,7 @@ def on_send_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "INVTHW", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -63,6 +64,7 @@ def on_getvi_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum+=1
 
 def on_setv_button_click(entry):
@@ -75,6 +77,7 @@ def on_setv_button_click(entry):
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum+=1
 
 
@@ -150,6 +153,7 @@ def sett_cap_heater_button_click(entry):
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "CAPSETT", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -242,6 +246,7 @@ def gp_home_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPHOME", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -258,6 +263,7 @@ def gp_start_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPSTART", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def gp_up_button_click():
@@ -273,6 +279,7 @@ def gp_up_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPUP", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -289,6 +296,7 @@ def gp_down_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPDOWN", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -306,6 +314,7 @@ def gp_rate_button_click(entry):
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GPRATE", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -325,6 +334,7 @@ def x_moveleft_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTBIG", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def x_moveright_button_click():
@@ -340,6 +350,7 @@ def x_moveright_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTBIG", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def small_x_moveleft_button_click():
@@ -355,6 +366,7 @@ def small_x_moveleft_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXLFTSM", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def small_x_moveright_button_click():
@@ -370,6 +382,7 @@ def small_x_moveright_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXRGHTSM", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def z_moveup_button_click():
@@ -385,6 +398,7 @@ def z_moveup_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZUP", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def x_move_to_sample_button_click():
@@ -400,6 +414,7 @@ def x_move_to_sample_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXSAMPLE", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def x_move_to_buffer_button_click():
@@ -430,6 +445,7 @@ def x_move_to_water_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWATER", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def x_move_to_waste_button_click():
@@ -445,6 +461,7 @@ def x_move_to_waste_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SXWASTE", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 def z_movedown_button_click():
@@ -460,6 +477,7 @@ def z_movedown_button_click():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "STAGEZDN", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -517,6 +535,7 @@ def check_continous_capture():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SPCISCRUN", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 """ Fluidic Valve Commands """
@@ -535,6 +554,7 @@ def set_fluidic_valve_clicked():
     cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "FVALVEPOS", "args": args}
     proc.stdin.write(cmd)
+    proc.stdin.flush()
     cnum += 1
 
 
@@ -621,14 +641,14 @@ def the_reader_thread():
             luna.quit()
             # elif (dict_of_devices_and_commands[device_name]):
             #     pass
-            #     # if cmd=="GETVI":
-            #     #     if args !="FAIL":
-            #     #         args_list = args.split()
-            #     #         volt = args_list[0]
-            #     #         current = args_list[1]
-            #     #         current_volts.set(volt)
-            #     #         current_amps.set(current)
-            #     #         list_box.insert(END, "Received current voltage and current.")
+        if cmd=="GETVI":
+            if args !="FAIL":
+                # args_list = args.split()
+                # volt = args_list[0]
+                # current = args_list[1]
+                # current_volts.set(volt)
+                # current_amps.set(current)
+                list_box.insert(END, "Received current voltage and current.")
             #     # elif cmd=="SETV":
             #     #     list_box.insert(END, "Set voltage")
             #     # # TEC Controller
