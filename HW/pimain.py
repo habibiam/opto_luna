@@ -1,17 +1,18 @@
 #!/usr/bin/python
+from Opto_MotorHAT import Opto_MotorHAT, Opto_StepperMotor
 import atexit
-import json
-import serial
 import sys
-import time
-from threading import Thread
-
-import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO, os
 
 import DAQCplate as DAC
-from Opto_MotorHAT import Opto_MotorHAT
+from threading import Thread
 
-import spidev
+import json
+import time
+
+import serial
+
+from CapHeat import CapHeat
 
 I2C60 = 1
 I2C61 = 0
@@ -20,13 +21,11 @@ I2C63 = 3
 FASTSTEP = 1  # This is Full Stepping mode, use to home motors at fastest speed
 FULLSTEP = 1  # This is Full Stepping mode, use to home motors at fastest speed
 MICROSTEP = 4  # This is 16 micro step per full step mode, use to precise position or for pumping slowly
-DOUBLESTEP = 2 # Wei
+DOUBLECOILMICROSTEP = 2 # Wei
 
 LOWCUR = 1  # lowest current setting is 1, max is 16
 MIDCUR = 2  # medium current setting is 2, max is 16
 HIGHCUR = 4  # high current setting is 3, max is 16
-LASCUR = 3
-REAGENTCUR = 4
 XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
 NEGDIR = -1  # Negative move direction
 POSDIR = 1  # Positive move direction
@@ -62,20 +61,6 @@ class xyz_motor(object):
     """
 
     def __init__(self, axies, steps_per_rev, rpm):
-        """
-
-        :param axies:
-        :param steps_per_rev:
-        :param rpm:
-        """
-        """
-        self.spi: set spi clock speed to 100 kHz for accurate reads (to remove the error in the reads)
-        for the DAQC and relay Boards
-        """
-        self.spi = spidev.SpiDev()
-        self.speed = 100000
-        self.spi.open(0,1)
-        self.spi.max_speed_hz=self.speed
 
         if axies == 1:  # Board 1,GelPump  pins M1 and M2
             self.driver_hat = Opto_MotorHAT(addr=0x60)
@@ -100,18 +85,6 @@ class xyz_motor(object):
             self.stepper_motor = self.driver_hat.getStepper(steps_per_rev, 1)
         elif axies == 8:  # Board 4, pins M3 and M4
             self.driver_hat = Opto_MotorHAT(addr=0x63)
-            self.stepper_motor = self.driver_hat.getStepper(steps_per_rev, 2)
-        elif axies == 9:  # Board 5, pins M1 and M2
-            self.driver_hat = Opto_MotorHAT(addr=0x64)
-            self.stepper_motor = self.driver_hat.getStepper(steps_per_rev, 1)
-        elif axies == 10:  # Board 5, pins M3 and M4
-            self.driver_hat = Opto_MotorHAT(addr=0x64)
-            self.stepper_motor = self.driver_hat.getStepper(steps_per_rev, 2)
-        elif axies == 11:  # Board 6, pins M1 and M2
-            self.driver_hat = Opto_MotorHAT(addr=0x65)
-            self.stepper_motor = self.driver_hat.getStepper(steps_per_rev, 1)
-        elif axies == 12:  # Board 6, pins M3 and M4
-            self.driver_hat = Opto_MotorHAT(addr=0x65)
             self.stepper_motor = self.driver_hat.getStepper(steps_per_rev, 2)
         else:
             print "Please choose the correct motor from below:"
@@ -163,22 +136,6 @@ class xyz_motor(object):
         self.driver_hat.getMotor(3).run(Opto_MotorHAT.RELEASE)
         self.driver_hat.getMotor(4).run(Opto_MotorHAT.RELEASE)
 
-def readlineusbCR(usbport):
-    """
-    Used for when the pi is the LunaSrv. Replacement/no external PC
-    :param usbport:
-    :return:
-    """
-    rv = ""
-    while True:
-        ch = usbport.read()
-        if ch >= 'a' and ch <= 'z':
-            # ch = ch - ' '
-            print "USE CAPS"
-            #port.write("USE CAPS\r\n")
-        if ch == '\r' or ch == '\n' or ch == '':
-            return rv
-        rv += ch
 
 def readlineCR(port):
     rv = ""
@@ -205,551 +162,6 @@ class Motor:
 
     def run(self):
         pass
-
-#         global Move_left_Laser_Enable, Move_right_Laser_Enable
-#         global Move_Laser_Home, LaserPos
-#         global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
-#         global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
-#
-#         global move_gel_pump_down, move_gel_pump_up
-#
-#         global Move_l_Laser_Enable, Move_r_Laser_Enable
-#         # STAGE X Z edit
-#         # STAGE X Z edit
-#         global move_stageX_left_small, move_stageX_left_big, move_stageX_right_small, move_stageX_right_big, move_stageZ_up, move_stageZ_down
-#         global move_to_sample, move_to_buffer, move_to_water, move_to_waste
-#
-#         z_stage_move_step = 6000 # 6000
-#         x_stage_move_step_big = 4500 # 4500
-#         x_stage_move_step_small = 4000 # 4000
-#
-#         sample_abs_pos = 3100 #3100
-#
-#         buffer_abs_pos = sample_abs_pos + x_stage_move_step_small#7100
-#         water_abs_pos = buffer_abs_pos + x_stage_move_step_big #11600
-#         waste_abs_pos = water_abs_pos + x_stage_move_step_big #16100
-#
-#         while self._running:
-#
-#             if Move_ReagentW_Home:
-#                 print  "Moving ReagentW stage to the home switch "
-#                 target_motor = xyz_motor(2, 100, 600)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 3800
-#                 ReagentWPos = 0
-#                 print "Waiting for DAC addr7 input 3 ReagentW Home switch to become Active "
-#                 while ((DAC.getDINbit(7, 4) != 1) and (ReagentWPos < HomeMax) and (
-#                     Move_ReagentW_Home == 1)):  # if home switch not active, move 1 step
-#                     target_motor.move(NEGDIR, 1, FASTSTEP,
-#                                       MIDCUR)  # Retract one step at a time until home switch active
-#                     ReagentWPos = ReagentWPos + 1
-#                 if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentWPos
-#                     print "Input DAC(7,4) ReagentW Home sensor is active"
-#                     print  ReagentWPos
-#                     ReagentWPos = 0
-#                 Move_ReagentW_Home = 0
-#
-#             if Move_ReagentM_Home:
-#                 print  "Moving ReagentM stage to the home switch "
-#                 target_motor = xyz_motor(4, 600, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 3800
-#                 ReagentMPos = 0
-#                 print "Waiting for DAC addr7 input 3 ReagentW Home switch to become Active "
-#                 while ((DAC.getDINbit(7, 4) != 1) and (ReagentMPos < HomeMax) and (
-#                     Move_ReagentM_Home == 1)):  # if home switch not active, move 1 step
-#                     target_motor.move(NEGDIR, 1, FASTSTEP,
-#                                       MIDCUR)  # Retract one step at a time until home switch active
-#                     ReagentMPos = ReagentMPos + 1
-#                 if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentWPos
-#                     print "Input DAC(7,4) ReagentW Home sensor is active"
-#                     print  ReagentMPos
-#                     ReagentMPos = 0
-#                 Move_ReagentM_Home = 0
-#
-#             if Move_ReagentB_Home:
-#                 print  "Moving ReagentB stage to the home switch "
-#                 target_motor = xyz_motor(5, 600, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 3800
-#                 ReagentBPos = 0
-#                 print "Waiting for DAC addr7 input 3 ReagentB Home switch to become Active "
-#                 while ((DAC.getDINbit(7, 5) != 1) and (ReagentBPos < HomeMax) and (
-#                     Move_ReagentB_Home == 1)):  # if home switch not active, move 1 step
-#                     target_motor.move(NEGDIR, 1, FASTSTEP,
-#                                       MIDCUR)  # Retract one step at a time until home switch active
-#                     ReagentBPos = ReagentBPos + 1
-#                 if ((DAC.getDINbit(7, 5) == 1)):  # if home switch is active, reset ReagentBPos
-#                     print "Input DAC(7,5) ReagentB Home sensor is active"
-#                     print  ReagentBPos
-#                     ReagentBPos = 0
-#                 Move_ReagentB_Home = 0
-#
-#             if Move_ReagentP_Home:
-#                 print  "Moving ReagentP stage to the home switch "
-#                 target_motor = xyz_motor(6, 600, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 3800
-#                 ReagentPPos = 0
-#                 print "Waiting for DAC addr7 input 3 ReagentP Home switch to become Active "
-#                 while ((DAC.getDINbit(7, 6) != 1) and (ReagentPPos < HomeMax) and (
-#                     Move_ReagentP_Home == 1)):  # if home switch not active, move 1 step
-#                     target_motor.move(NEGDIR, 1, FASTSTEP,
-#                                       MIDCUR)  # Retract one step at a time until home switch active
-#                     ReagentPPos = ReagentPPos + 1
-#                 if ((DAC.getDINbit(7, 6) == 1)):  # if home switch is active, reset ReagentPPos
-#                     print "Input DAC(7,6) ReagentP Home sensor is active"
-#                     print  ReagentPPos
-#                     ReagentPPos = 0
-#                 Move_ReagentP_Home = 0
-#
-#             if Move_l_Laser_Enable:
-#                 print  "Moving Laser3 stage to the left "
-#                 target_motor = xyz_motor(2, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 for cycle in range(1, 2000):
-#                     target_motor.move(NEGDIR, 1, FULLSTEP,
-#                                       HIGHCUR)  # Retract one step at a time until home switch active
-#                     time.sleep(.001)
-#                 Move_l_Laser_Enable = 0
-#
-#             if Move_r_Laser_Enable:
-#                 print  "Moving Laser stage to the right "
-#                 target_motor = xyz_motor(2, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 for cycle in range(1, 2000):
-#                     target_motor.move(POSDIR, 1, FULLSTEP,
-#                                       HIGHCUR)  # Retract one step at a time until home switch active
-#                     time.sleep(.001)
-#                 Move_r_Laser_Enable = 0
-#
-#             if Move_left_Laser_Enable:
-#                 print  "Moving Laser stage to the left "
-#                 target_motor = xyz_motor(3, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
-#                 Move_left_Laser_Enable = 0
-#
-#             if Move_right_Laser_Enable:
-#                 print  "Moving Laser stage to the right "
-#                 target_motor = xyz_motor(3, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
-#                 Move_right_Laser_Enable = 0
-#
-#             if move_gel_pump_up:
-#                 """
-#                 LOWCUR = 1  # lowest current setting is 1, max is 16
-#                 MIDCUR = 2  # medium current setting is 2, max is 16
-#                 HIGHCUR = 4  # high current setting is 3, max is 16
-#                 XZSTATIONCUR = 6 # optimal current to run the X and Z solution station
-#                 NEGDIR = -1  # Negative move direction
-#                 POSDIR = 1  # Positive move direction
-#
-#                 """
-#                 print "Moving Gel pump up"
-#                 target_motor = xyz_motor(1, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 min = 2.0
-#                 run_once = False
-#                 t_end = time.time() + 60 * min
-#                 while time.time() < t_end:
-#                     target_motor.move(POSDIR, 1, DOUBLECOILMICROSTEP, HIGHCUR)
-#                     time.sleep(0.005)
-#                     if (run_once): break
-#                 print "finished"
-#                 move_gel_pump_down = 0
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#
-#             if move_gel_pump_down:
-#                 print "Moving Gel pump down"
-#                 target_motor = xyz_motor(1, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 min = 2.0
-#                 run_once = False
-#                 t_end = time.time() + 60 * min
-#                 while time.time() < t_end:
-#                     target_motor.move(NEGDIR, 1, DOUBLECOILMICROSTEP, HIGHCUR)
-#                     time.sleep(0.005)
-#                     if (run_once): break
-#                 print "finished"
-#                 move_gel_pump_down = 0
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#
-#
-#             if Move_GelPump_Home:
-#                 print  "Moving Gel Pump to the upper home switch "
-#                 target_motor = xyz_motor(1, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 123800
-#                 GelPos = 0
-#                 temp = 0
-#                 for cycle in range(1, 2):
-#                     temp = temp + DAC.getDINbit(7, 0)
-#                     time.sleep(.01)
-#                 if (temp >= 1):  # if home switch is active, print complete message
-#                     print "Input DAC(7,0) Home sensor is already active high, moving down 110 first"
-#                     target_motor.move(NEGDIR, 60, MICROSTEP,
-#                                       LOWCUR)  # Retract one step at a time until home switch active
-#                 temp = 0
-#                 for cycle in range(1, 2):
-#                     temp = temp + DAC.getDINbit(7, 0)
-#                     time.sleep(.01)
-#                 print "Starting Home, for DAC addr7 input 0 Gel Home switch to become Active "
-#                 while ((temp == 0) and (GelPos < HomeMax) and (
-#                     Move_GelPump_Home == 1)):  # if home switch not active, move 1 step
-#                     temp = 0
-#                     for cycle in range(1, 2):
-#                         temp = temp + DAC.getDINbit(7, 0)
-#                         time.sleep(.01)
-#                     target_motor.move(POSDIR, 10, FASTSTEP,
-#                                       LOWCUR)  # Go forward, up to top of gel pump to allow gel replacement
-#                     GelPos = GelPos + 1
-#                 print "Completed Gel Pump move to Home switch"
-#                 print  GelPos
-#                 if ((DAC.getDINbit(7, 0) == 1)):  # if home switch is active, reset GelPos
-#                     print "Input DAC(7,0) Gel Home sensor is active high"
-#                     print  GelPos
-#                     GelPos = 0
-#                 Move_GelPump_Home = 0
-#
-#             if Move_GelPump_Start:
-#                 target_motor = xyz_motor(1, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 123800
-#                 GelPos = 0
-#                 temp = 0
-#                 print "Waiting for DAC addr7 input 2 Gel Start switch to become Active "
-#
-#                 for cycle in range(1, 3):
-#                     temp = DAC.getADC(7, 2)
-#                     print temp
-#                     time.sleep(.02)
-#                     if (temp == 0):  # if home switch is active, print complete message
-#                         print "Input DAC Analog input(7,2) Gel Start sensor is already active low, moving up to get off top"
-#                         target_motor.move(POSDIR, 30, FASTSTEP, LOWCUR)  # bring motor up
-#
-#                 ave = 5.0
-#                 while ((ave >= 0.8) and (GelPos < HomeMax) and (
-#                     Move_GelPump_Start == 1)):  # if gel start switch not active, move 9 step
-#                     temp = 0.0
-#                     ave = 0.0
-#                     good_count = 8
-#                     for cycle in range(1, 9):
-#                         temp = DAC.getADC(7, 2)
-#                         time.sleep(.002)
-#                         if (temp > 3.1 or temp < 0.3):
-#                             temp = 0  # Ignore bad reads
-#                             good_count = good_count - 1
-#                             # reduce ave count to make up for bad data
-#                         ave = ave + temp
-#                         print "temp=", temp
-#                     if (good_count == 0): good_count = 1
-#                     ave = (ave / good_count)
-#                     time.sleep(.002)
-#                     print "Ave and good_count = ", ave, good_count
-#
-#                     target_motor.move(NEGDIR, 9, MICROSTEP, LOWCUR)  # bring motor down one step at a time
-#                     GelPos = GelPos + 9
-#
-#                 print "Completed Gel Pump move to top of syring, steps moved =", GelPos
-#                 temp = 0
-#                 for cycle in range(1, 4):
-#                     temp = (temp + DAC.getADC(7, 2))
-#                     time.sleep(.02)
-#                 print "Input Analog input(7,2) Gel Start sensor "
-#                 print temp
-#                 if (temp <= 5):  # if home switch is active, print complete message
-#                     print "Input analog DAC(7,2) Gel Start sensor is now Active Low"
-#                     print  GelPos
-#                 Move_GelPump_Start = 0
-#
-#             if Move_Laser_Home:
-#                 print  "Moving Laser stage to the home switch "
-#                 target_motor = xyz_motor(3, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 HomeMax = 400
-#                 LaserPos = 0
-#                 print "Waiting for DAC addr7 input 1 Laser Home switch to become Active  high"
-#                 temp = 0
-#                 for cycle in range(1, 2):
-#                     temp = temp + DAC.getDINbit(7, 1)
-#                     time.sleep(.01)
-#                 if (temp >= 1):  # if home switch is active, print complete message
-#                     print "Input DAC(7,1) Home sensor is already active high, moving left 110 first"
-#                     target_motor.move(NEGDIR, 110, MICROSTEP, HIGHCUR)  # Moving left, away from the capillary
-#                 temp = 0
-#                 for cycle in range(1, 3):
-#                     temp = temp + DAC.getDINbit(7, 1)
-#                     time.sleep(.01)
-#                 print "Now starting Home"
-#                 while ((temp == 0) and (LaserPos < HomeMax) and (
-#                     Move_Laser_Home == 1)):  # if home switch not active, move 1 step
-#                     temp = 0
-#                     for cycle in range(1, 2):
-#                         temp = temp + DAC.getDINbit(7, 1)
-#                         time.sleep(.01)
-#                     target_motor.move(POSDIR, 5, MICROSTEP, HIGHCUR)  # Moving towards the capillary
-#                     LaserPos = LaserPos + 1
-#
-#                 print "Completed Laser move to Home switch"
-#                 if ((DAC.getDINbit(7, 1) == 1)):  # if home switch is active, reset LaserPos
-#                     print "Input DAC(7,1) Laser Home sensor is Now Active high"
-#                     print  LaserPos
-#                     LaserPos = 0
-#                 Move_Laser_Home = 0
-#
-#             if Move_GelPump_Move:
-#                 GelPos = 0
-#                 print "Moving Gel Pump down 10uL  \r\n"
-#                 target_motor = xyz_motor(1, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(NEGDIR, 300, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-#                 GelPos = GelPos + 10
-#                 for cycle in range(1, 10):  # Every 20 seconds pump one step
-#                     print "Moving Gel Pump down at 3uL per hour  \r\n"
-#                     time.sleep(0.2)
-#                     target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
-#                 Move_GelPump_Move = 0
-#
-#
-#
-# ############################## SOLUTION STATION #################################
-#             # Relative positioning for Solution Station X and Z
-#             if move_stageX_left_small:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(NEGDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
-#                 self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_small
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_stageX_left_small = 0
-#                 port.write("done  \n")
-#             if move_stageX_right_small:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 print "Moving Stage X RIGHT"
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(POSDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
-#                 self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_small
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_stageX_right_small = 0
-#                 port.write("done   \n")
-#                 # print "sent done to port"
-#             if move_stageX_left_big:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 # print "Moving Stage X LEFT"
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(NEGDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
-#                 self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_big
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_stageX_left_big = 0
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#             if move_stageX_right_big:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 # print "Moving Stage X RIGHT"
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 target_motor.move(POSDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
-#                 self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_big
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_stageX_right_big = 0
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#             if move_stageZ_up:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] >= z_stage_move_step:
-#                     print "Stage z is already at the top"
-#                     move_stageZ_up = 0
-#                     port.write("done   \n")
-#                     print "sent done to port"
-#                 else:
-#                     print "Moving Stage Z UP"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(NEGDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # NEGDIR makes Stage Z go up
-#                     self.stage_x_and_z_pos["z_pos"] += z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                     move_stageZ_up = 0
-#                     port.write("done   \n")
-#                     print "sent done to port"
-#             if move_stageZ_down:
-#                 if self.stage_x_and_z_pos["z_pos"] <= 0:
-#                     print "Stage z is already at the very bottom"
-#                     move_stageZ_down = 0
-#                     port.write("done   \n")
-#                     print "sent done to port"
-#                 else:
-#                     print "Moving Stage Z DOWN"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                     move_stageZ_down = 0
-#                     port.write("done   \n")
-#                     print "sent done to port"
-#
-#
-#
-#             # Absolute positions for stage x
-#             if move_to_sample:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#
-#                 current_x_pos = self.stage_x_and_z_pos["x_pos"] # get the current position from the json file
-#                 relative_steps = abs(sample_abs_pos - current_x_pos) # find the relative pos
-#
-#                 # Move motor based on current_x_pos of the motor and sample_abs_pos
-#                 if current_x_pos < sample_abs_pos: # if current_x_pos == 0
-#                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 elif current_x_pos > sample_abs_pos: # if current_x_pos == 7500, 12000, 16500
-#                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#
-#                 self.stage_x_and_z_pos["x_pos"] = sample_abs_pos
-#                 # update the json file
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_to_sample = 0
-#                 # Print to the LunaSrv
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#
-#             if move_to_buffer:
-#                 # Check to see if z is position 0, if not then bring z to home
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 # buffer_abs_pos = 7500
-#                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-#                 relative_steps = abs(buffer_abs_pos - current_x_pos)
-#
-#                 if current_x_pos < buffer_abs_pos: # if current_x_pos == 0, 3500
-#                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 elif current_x_pos > buffer_abs_pos: # if current_x_pos == 12000, 16500
-#                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 # update the json file
-#                 self.stage_x_and_z_pos["x_pos"] = buffer_abs_pos
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_to_buffer = 0
-#                 # Print to the LunaSrv
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#
-#             if move_to_water:
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-#                 relative_steps = abs(water_abs_pos - current_x_pos)
-#
-#                 if current_x_pos < water_abs_pos:  # if current_x_pos == 0, 3500
-#                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 elif current_x_pos > water_abs_pos:  # if current_x_pos == 12000, 16500
-#                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 # update the json file
-#                 self.stage_x_and_z_pos["x_pos"] = water_abs_pos
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_to_water = 0
-#                 # Print to the LunaSrv
-#                 port.write("done   \n")
-#                 print "sent done to port"
-#
-#             if move_to_waste:
-#                 if self.stage_x_and_z_pos["z_pos"] > 0:
-#                     print "Moving Stage Z DOWN FIRST"
-#                     target_motor = xyz_motor(2, 200, 100)
-#                     atexit.register(target_motor.turn_off)
-#                     target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
-#                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
-#                     with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                         json.dump(self.stage_x_and_z_pos, wf)
-#                 target_motor = xyz_motor(6, 200, 100)
-#                 atexit.register(target_motor.turn_off)
-#
-#                 current_x_pos = self.stage_x_and_z_pos["x_pos"]
-#                 relative_steps = abs(waste_abs_pos - current_x_pos)
-#
-#                 if current_x_pos < waste_abs_pos:  # if current_x_pos == 0, 3500
-#                     target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 elif current_x_pos > waste_abs_pos:  # if current_x_pos == 12000, 16500
-#                     target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
-#                 # update the json file
-#                 self.stage_x_and_z_pos["x_pos"] = waste_abs_pos
-#                 with open('stage_x_z_absolute_position.json', 'w') as wf:
-#                     json.dump(self.stage_x_and_z_pos, wf)
-#                 move_to_waste = 0
-#                 # Print to the LunaSrv
-#                 port.write("done   \n")
-#                 print "sent done to port"
 
 class X_and_Z_Solution_Stage_Motor(Motor):
 
@@ -804,83 +216,78 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
-                # Now moving the stage x to the left.
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, x_stage_move_step_small, DOUBLESTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
+                target_motor.move(NEGDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
                 self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_small
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_small = 0
                 port.write("done  \n")
-
             if move_stageX_right_small:
                 # Check to see if z is position 0, if not then bring z to home
                 if self.stage_x_and_z_pos["z_pos"] > 0:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
-                # Now moving the stage x to the left.
+                print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, x_stage_move_step_small, DOUBLESTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
+                target_motor.move(POSDIR, x_stage_move_step_small, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to small vial or vice versa, increment is 4000
                 self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_small
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_small = 0
                 port.write("done   \n")
                 # print "sent done to port"
-
             if move_stageX_left_big:
                 # Check to see if z is position 0, if not then bring z to home
                 if self.stage_x_and_z_pos["z_pos"] > 0:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
                 # print "Moving Stage X LEFT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, x_stage_move_step_big, DOUBLESTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
+                target_motor.move(NEGDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
                 self.stage_x_and_z_pos["x_pos"] -= x_stage_move_step_big
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_left_big = 0
                 port.write("done   \n")
                 print "sent done to port"
-
             if move_stageX_right_big:
                 # Check to see if z is position 0, if not then bring z to home
                 if self.stage_x_and_z_pos["z_pos"] > 0:
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
                 # print "Moving Stage X RIGHT"
                 target_motor = xyz_motor(6, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, x_stage_move_step_big, DOUBLESTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
+                target_motor.move(POSDIR, x_stage_move_step_big, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # To move from big to big vial, increment is 4500
                 self.stage_x_and_z_pos["x_pos"] += x_stage_move_step_big
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
                     json.dump(self.stage_x_and_z_pos, wf)
                 move_stageX_right_big = 0
                 port.write("done   \n")
                 print "sent done to port"
-
             if move_stageZ_up:
                 # Check to see if z is position 0, if not then bring z to home
                 if self.stage_x_and_z_pos["z_pos"] >= z_stage_move_step:
@@ -892,14 +299,13 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z UP"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(NEGDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # NEGDIR makes Stage Z go up
+                    target_motor.move(NEGDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # NEGDIR makes Stage Z go up
                     self.stage_x_and_z_pos["z_pos"] += z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
                     move_stageZ_up = 0
                     port.write("done   \n")
                     print "sent done to port"
-
             if move_stageZ_down:
                 if self.stage_x_and_z_pos["z_pos"] <= 0:
                     print "Stage z is already at the very bottom"
@@ -910,7 +316,7 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z DOWN"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -927,7 +333,7 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -940,9 +346,9 @@ class X_and_Z_Solution_Stage_Motor(Motor):
 
                 # Move motor based on current_x_pos of the motor and sample_abs_pos
                 if current_x_pos < sample_abs_pos: # if current_x_pos == 0
-                    target_motor.move(POSDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > sample_abs_pos: # if current_x_pos == 7500, 12000, 16500
-                    target_motor.move(NEGDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
 
                 self.stage_x_and_z_pos["x_pos"] = sample_abs_pos
                 # update the json file
@@ -959,7 +365,7 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -970,9 +376,9 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                 relative_steps = abs(buffer_abs_pos - current_x_pos)
 
                 if current_x_pos < buffer_abs_pos: # if current_x_pos == 0, 3500
-                    target_motor.move(POSDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > buffer_abs_pos: # if current_x_pos == 12000, 16500
-                    target_motor.move(NEGDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = buffer_abs_pos
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -987,7 +393,7 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -997,9 +403,9 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                 relative_steps = abs(water_abs_pos - current_x_pos)
 
                 if current_x_pos < water_abs_pos:  # if current_x_pos == 0, 3500
-                    target_motor.move(POSDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > water_abs_pos:  # if current_x_pos == 12000, 16500
-                    target_motor.move(NEGDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = water_abs_pos
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -1014,7 +420,7 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                     print "Moving Stage Z DOWN FIRST"
                     target_motor = xyz_motor(2, 200, 100)
                     atexit.register(target_motor.turn_off)
-                    target_motor.move(POSDIR, z_stage_move_step, DOUBLESTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
+                    target_motor.move(POSDIR, z_stage_move_step, DOUBLECOILMICROSTEP, XZSTATIONCUR)  # POSDIR makes Stage Z go down
                     self.stage_x_and_z_pos["z_pos"] -= z_stage_move_step
                     with open('stage_x_z_absolute_position.json', 'w') as wf:
                         json.dump(self.stage_x_and_z_pos, wf)
@@ -1025,9 +431,9 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                 relative_steps = abs(waste_abs_pos - current_x_pos)
 
                 if current_x_pos < waste_abs_pos:  # if current_x_pos == 0, 3500
-                    target_motor.move(POSDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(POSDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 elif current_x_pos > waste_abs_pos:  # if current_x_pos == 12000, 16500
-                    target_motor.move(NEGDIR, relative_steps, DOUBLESTEP, XZSTATIONCUR)
+                    target_motor.move(NEGDIR, relative_steps, DOUBLECOILMICROSTEP, XZSTATIONCUR)
                 # update the json file
                 self.stage_x_and_z_pos["x_pos"] = waste_abs_pos
                 with open('stage_x_z_absolute_position.json', 'w') as wf:
@@ -1038,7 +444,6 @@ class X_and_Z_Solution_Stage_Motor(Motor):
                 print "sent done to port"
 
 
-
 class Laser_Motor(Motor):
     def __init__(self):
         Motor.__init__(self)
@@ -1046,285 +451,202 @@ class Laser_Motor(Motor):
     def run(self):
         global Move_left_Laser_Enable, Move_right_Laser_Enable
         global Move_Laser_Home, LaserPos
+
         global Move_l_Laser_Enable, Move_r_Laser_Enable
 
         while self._running:
+            if Move_l_Laser_Enable:
+                print  "Moving Laser3 stage to the left "
+                target_motor = xyz_motor(2, 200, 100)
+                atexit.register(target_motor.turn_off)
+                for cycle in range(1, 2000):
+                    target_motor.move(NEGDIR, 1, FULLSTEP,
+                                      HIGHCUR)  # Retract one step at a time until home switch active
+                    time.sleep(.001)
+                Move_l_Laser_Enable = 0
+
+            if Move_r_Laser_Enable:
+                print  "Moving Laser stage to the right "
+                target_motor = xyz_motor(2, 200, 100)
+                atexit.register(target_motor.turn_off)
+                for cycle in range(1, 2000):
+                    target_motor.move(POSDIR, 1, FULLSTEP,
+                                      HIGHCUR)  # Retract one step at a time until home switch active
+                    time.sleep(.001)
+                Move_r_Laser_Enable = 0
 
             if Move_left_Laser_Enable:
                 print  "Moving Laser stage to the left "
                 target_motor = xyz_motor(3, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(NEGDIR, 2, MICROSTEP,
-                                  HIGHCUR)  # Retract one step at a time until home switch active
+                target_motor.move(NEGDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
                 Move_left_Laser_Enable = 0
 
             if Move_right_Laser_Enable:
                 print  "Moving Laser stage to the right "
                 target_motor = xyz_motor(3, 200, 100)
                 atexit.register(target_motor.turn_off)
-                target_motor.move(POSDIR, 2, MICROSTEP,
-                                  HIGHCUR)  # Retract one step at a time until home switch active
+                target_motor.move(POSDIR, 2, MICROSTEP, HIGHCUR)  # Retract one step at a time until home switch active
                 Move_right_Laser_Enable = 0
 
-            if Move_Laser_Home:
-                print  "Moving Laser stage to the home switch "
-                target_motor = xyz_motor(3, 200, 100)
-                atexit.register(target_motor.turn_off)
-                HomeMax = 400
-                LaserPos = 0
-                print "Waiting for DAC addr7 input 1 Laser Home switch to become Active  high"
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 1)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,1) Home sensor is already active high, moving left 110 first"
-                    target_motor.move(NEGDIR, 110, MICROSTEP,
-                                      HIGHCUR)  # Moving left, away from the capillary
-                temp = 0
-                for cycle in range(1, 3):
-                    temp = temp + DAC.getDINbit(7, 1)
-                    time.sleep(.01)
-                print "Now starting Home"
-                while ((temp == 0) and (LaserPos < HomeMax) and (
-                            Move_Laser_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 1)
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 5, MICROSTEP, HIGHCUR)  # Moving towards the capillary
-                    LaserPos = LaserPos + 1
+            class Laser_Motor(Motor):
+                def __init__(self):
+                    Motor.__init__(self)
 
-                print "Completed Laser move to Home switch"
-                if ((DAC.getDINbit(7, 1) == 1)):  # if home switch is active, reset LaserPos
-                    print "Input DAC(7,1) Laser Home sensor is Now Active high"
-                    print  LaserPos
-                    LaserPos = 0
-                Move_Laser_Home = 0
+                def run(self):
+                    global Move_left_Laser_Enable, Move_right_Laser_Enable
+                    global Move_Laser_Home, LaserPos
 
+                    global Move_l_Laser_Enable, Move_r_Laser_Enable
 
+                    while self._running:
+                        if Move_l_Laser_Enable:
+                            print  "Moving Laser3 stage to the left "
+                            target_motor = xyz_motor(2, 200, 100)
+                            atexit.register(target_motor.turn_off)
+                            for cycle in range(1, 2000):
+                                target_motor.move(NEGDIR, 1, FULLSTEP,
+                                                  HIGHCUR)  # Retract one step at a time until home switch active
+                                time.sleep(.001)
+                            Move_l_Laser_Enable = 0
 
+                        if Move_r_Laser_Enable:
+                            print  "Moving Laser stage to the right "
+                            target_motor = xyz_motor(2, 200, 100)
+                            atexit.register(target_motor.turn_off)
+                            for cycle in range(1, 2000):
+                                target_motor.move(POSDIR, 1, FULLSTEP,
+                                                  HIGHCUR)  # Retract one step at a time until home switch active
+                                time.sleep(.001)
+                            Move_r_Laser_Enable = 0
+
+                        if Move_left_Laser_Enable:
+                            print  "Moving Laser stage to the left "
+                            target_motor = xyz_motor(3, 200, 100)
+                            atexit.register(target_motor.turn_off)
+                            target_motor.move(NEGDIR, 2, MICROSTEP,
+                                              HIGHCUR)  # Retract one step at a time until home switch active
+                            Move_left_Laser_Enable = 0
+
+                        if Move_right_Laser_Enable:
+                            print  "Moving Laser stage to the right "
+                            target_motor = xyz_motor(3, 200, 100)
+                            atexit.register(target_motor.turn_off)
+                            target_motor.move(POSDIR, 2, MICROSTEP,
+                                              HIGHCUR)  # Retract one step at a time until home switch active
+                            Move_right_Laser_Enable = 0
+
+                        if Move_Laser_Home:
+                            print  "Moving Laser stage to the home switch "
+                            target_motor = xyz_motor(3, 200, 100)
+                            atexit.register(target_motor.turn_off)
+                            HomeMax = 400
+                            LaserPos = 0
+                            print "Waiting for DAC addr7 input 1 Laser Home switch to become Active  high"
+                            temp = 0
+                            for cycle in range(1, 2):
+                                temp = temp + DAC.getDINbit(7, 1)
+                                time.sleep(.01)
+                            if (temp >= 1):  # if home switch is active, print complete message
+                                print "Input DAC(7,1) Home sensor is already active high, moving left 110 first"
+                                target_motor.move(NEGDIR, 110, MICROSTEP,
+                                                  HIGHCUR)  # Moving left, away from the capillary
+                            temp = 0
+                            for cycle in range(1, 3):
+                                temp = temp + DAC.getDINbit(7, 1)
+                                time.sleep(.01)
+                            print "Now starting Home"
+                            while ((temp == 0) and (LaserPos < HomeMax) and (
+                                        Move_Laser_Home == 1)):  # if home switch not active, move 1 step
+                                temp = 0
+                                for cycle in range(1, 2):
+                                    temp = temp + DAC.getDINbit(7, 1)
+                                    time.sleep(.01)
+                                target_motor.move(POSDIR, 5, MICROSTEP, HIGHCUR)  # Moving towards the capillary
+                                LaserPos = LaserPos + 1
+
+                            print "Completed Laser move to Home switch"
+                            if ((DAC.getDINbit(7, 1) == 1)):  # if home switch is active, reset LaserPos
+                                print "Input DAC(7,1) Laser Home sensor is Now Active high"
+                                print  LaserPos
+                                LaserPos = 0
+                            Move_Laser_Home = 0
 class Reagent_Pump(Motor):
     def __init__(self):
         Motor.__init__(self)
 
     def run(self):
         global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
-        global Move_ReagentS_Home, Move_ReagentE_Home
 
         while self._running:
-
             if Move_ReagentW_Home:
-                print  "Moving Reagent W Pump to the home switch "
-                target_motor = xyz_motor(2, 200, 100)
+                print  "Moving ReagentW stage to the home switch "
+                target_motor = xyz_motor(2, 100, 600)
                 atexit.register(target_motor.turn_off)
-                HomeMax = 23800
+                HomeMax = 3800
                 ReagentWPos = 0
-                temp = 0
-                target_motor.move(NEGDIR, 6000, DOUBLESTEP, REAGENTCUR)  # Move up
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 5)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,5) Home sensor is already active high, moving up 2000"
-                    target_motor.move(NEGDIR, 2000, DOUBLESTEP, REAGENTCUR)  # Move up
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 5)
-                    time.sleep(.01)
-                print "Starting Home, for DAC addr7 input 5 Home switch to become Active "
-                while ((temp == 0) and (ReagentWPos < HomeMax) and (
-                            Move_ReagentW_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 5)
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 50, DOUBLESTEP, REAGENTCUR)  # Move down to switch
-                    ReagentWPos = ReagentWPos + 50
-                print "Completed ReagentWPos Pump move to Home switch"
-                print  ReagentWPos
-                if ((DAC.getDINbit(7, 5) == 1)):  # if home switch is active, reset ReagentWPos
-                    print "Input DAC(7,5) ReagentWPos Home sensor is active high"
+                print "Waiting for DAC addr7 input 3 ReagentW Home switch to become Active "
+                while ((DAC.getDINbit(7, 4) != 1) and (ReagentWPos < HomeMax) and (
+                    Move_ReagentW_Home == 1)):  # if home switch not active, move 1 step
+                    target_motor.move(NEGDIR, 1, FASTSTEP,
+                                      MIDCUR)  # Retract one step at a time until home switch active
+                    ReagentWPos = ReagentWPos + 1
+                if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentWPos
+                    print "Input DAC(7,4) ReagentW Home sensor is active"
                     print  ReagentWPos
                     ReagentWPos = 0
                 Move_ReagentW_Home = 0
 
-            if Move_ReagentS_Home:
-                print  "Moving Reagent S Pump to the home switch "
-                target_motor = xyz_motor(8, 200, 100)
-                atexit.register(target_motor.turn_off)
-                HomeMax = 23800
-                ReagentSPos = 0
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 4)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(6,0) Home sensor is already active high, moving up 2000"
-                    target_motor.move(NEGDIR, 2000, DOUBLESTEP, REAGENTCUR)  # Move up
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 4)
-                    time.sleep(.01)
-                print "Starting Home, for DAC addr7 input 4 Home switch to become Active "
-                print  "Moving Reagent S Pump to the home switch, input 4 "
-                while ((temp == 0) and (ReagentSPos < HomeMax) and (
-                            Move_ReagentS_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 4)
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 50, DOUBLESTEP, REAGENTCUR)  # Move down to switch
-                    if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentSPos
-                        print "Input DAC(7,4) ReagentSPos Home sensor is active high"
-                    ReagentSPos = ReagentSPos + 1
-                print "Completed ReagentSPos Pump move to Home switch"
-                print  ReagentSPos
-                if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentSPos
-                    print "Input DAC(7,4) ReagentSPos Home sensor is active high"
-                    print  ReagentSPos
-                    ReagentSPos = 0
-                Move_ReagentS_Home = 0
-
-            if Move_ReagentE_Home:
-                print  "Moving Reagent E Pump to the home switch "
-                target_motor = xyz_motor(7, 200, 100)
-                atexit.register(target_motor.turn_off)
-                HomeMax = 23800
-                ReagentEPos = 0
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 7)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,7) Home sensor is already active high, moving up 2000"
-                    target_motor.move(NEGDIR, 2000, DOUBLESTEP, REAGENTCUR)  # Move up
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 7)
-                    time.sleep(.01)
-                print "Starting Home, for DAC addr7 input 7 Home switch to become Active "
-                while ((temp == 0) and (ReagentEPos < HomeMax) and (
-                            Move_ReagentE_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 50, DOUBLESTEP, REAGENTCUR)  # Move down to switch
-                    ReagentEPos = ReagentEPos + 1
-                print "Completed ReagentEPos Pump move to Home switch"
-                print  ReagentEPos
-                if ((DAC.getDINbit(7, 7) == 1)):  # if home switch is active, reset ReagentEPos
-                    print "Input DAC(7,7) ReagentEPos Home sensor is active high"
-                    print  ReagentEPos
-                    ReagentEPos = 0
-                Move_ReagentE_Home = 0
-
             if Move_ReagentM_Home:
-                print  "Moving Reagent M Pump to the home switch "
-                target_motor = xyz_motor(3, 200, 100)
+                print  "Moving ReagentM stage to the home switch "
+                target_motor = xyz_motor(4, 600, 100)
                 atexit.register(target_motor.turn_off)
-                HomeMax = 16100
+                HomeMax = 3800
                 ReagentMPos = 0
-                temp = 0
-                target_motor.move(NEGDIR, 8000, DOUBLESTEP, REAGENTCUR)  # Move up
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 4)
-                    if (temp > 0):
-                        print "Input DAC(7,4) Home sensor is already active high"
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,4) Home sensor is already active high, moving up 2000"
-                    target_motor.move(NEGDIR, 2000, DOUBLESTEP, REAGENTCUR)  # Move up
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 4)
-                    if (temp >= 1):
-                        print "Input DAC(7,4) Home sensor is already active high"
-                    time.sleep(.01)
-                print "Starting Home, for DAC addr7 input 4 Home switch to become Active "
-                while ((temp == 0) and (ReagentMPos < HomeMax) and (
-                            Move_ReagentM_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 4)
-                        if (temp > 0):
-                            print "Input DAC(7,4) Home sensor is already active high"
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 50, DOUBLESTEP, REAGENTCUR)  # Move down to switch
-                    ReagentMPos = ReagentMPos + 50
-                print "Completed ReagentMPos Pump move to Home switch"
-                print  ReagentMPos
-                if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentMPos
-                    print "Input DAC(7,4) ReagentMPos Home sensor is active high"
+                print "Waiting for DAC addr7 input 3 ReagentW Home switch to become Active "
+                while ((DAC.getDINbit(7, 4) != 1) and (ReagentMPos < HomeMax) and (
+                    Move_ReagentM_Home == 1)):  # if home switch not active, move 1 step
+                    target_motor.move(NEGDIR, 1, FASTSTEP,
+                                      MIDCUR)  # Retract one step at a time until home switch active
+                    ReagentMPos = ReagentMPos + 1
+                if ((DAC.getDINbit(7, 4) == 1)):  # if home switch is active, reset ReagentWPos
+                    print "Input DAC(7,4) ReagentW Home sensor is active"
                     print  ReagentMPos
                     ReagentMPos = 0
                 Move_ReagentM_Home = 0
 
             if Move_ReagentB_Home:
-                print  "Moving Reagent B Pump to the home switch "
-                target_motor = xyz_motor(2, 200, 100)
+                print  "Moving ReagentB stage to the home switch "
+                target_motor = xyz_motor(5, 600, 100)
                 atexit.register(target_motor.turn_off)
-                HomeMax = 18000
+                HomeMax = 3800
                 ReagentBPos = 0
-                temp = 0
-                target_motor.move(NEGDIR, 8000, DOUBLESTEP, REAGENTCUR)  # Move up
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 5)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,5) Home sensor is already active high, moving up 2000"
-                    target_motor.move(NEGDIR, 2000, DOUBLESTEP, REAGENTCUR)  # Move up
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 5)
-                    time.sleep(.01)
-                print "Starting Home, for DAC addr7 input 5 Home switch to become Active "
-                while ((temp == 0) and (ReagentBPos < HomeMax) and (
-                            Move_ReagentB_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 5)
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 50, DOUBLESTEP, REAGENTCUR)  # Move down to switch
-                    ReagentBPos = ReagentBPos + 50
-                print "Completed ReagentBPos Pump move to Home switch"
-                print  ReagentBPos
+                print "Waiting for DAC addr7 input 3 ReagentB Home switch to become Active "
+                while ((DAC.getDINbit(7, 5) != 1) and (ReagentBPos < HomeMax) and (
+                    Move_ReagentB_Home == 1)):  # if home switch not active, move 1 step
+                    target_motor.move(NEGDIR, 1, FASTSTEP,
+                                      MIDCUR)  # Retract one step at a time until home switch active
+                    ReagentBPos = ReagentBPos + 1
                 if ((DAC.getDINbit(7, 5) == 1)):  # if home switch is active, reset ReagentBPos
-                    print "Input DAC(7,5) ReagentBPos Home sensor is active high"
+                    print "Input DAC(7,5) ReagentB Home sensor is active"
                     print  ReagentBPos
                     ReagentBPos = 0
                 Move_ReagentB_Home = 0
 
             if Move_ReagentP_Home:
-                print  "Moving Reagent P Pump to the home switch "
-                target_motor = xyz_motor(6, 200, 100)
+                print  "Moving ReagentP stage to the home switch "
+                target_motor = xyz_motor(6, 600, 100)
                 atexit.register(target_motor.turn_off)
-                HomeMax = 23800
+                HomeMax = 3800
                 ReagentPPos = 0
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 6)
-                    time.sleep(.01)
-                if (temp >= 1):  # if home switch is active, print complete message
-                    print "Input DAC(7,6) Home sensor is already active high, moving up 2000"
-                    target_motor.move(NEGDIR, 2000, DOUBLESTEP, REAGENTCUR)  # Move up
-                temp = 0
-                for cycle in range(1, 2):
-                    temp = temp + DAC.getDINbit(7, 6)
-                    time.sleep(.01)
-                print "Starting Home, for DAC addr7 input 6 Home switch to become Active "
-                while ((temp == 0) and (ReagentPPos < HomeMax) and (
-                            Move_ReagentP_Home == 1)):  # if home switch not active, move 1 step
-                    temp = 0
-                    for cycle in range(1, 2):
-                        temp = temp + DAC.getDINbit(7, 6)
-                        time.sleep(.01)
-                    target_motor.move(POSDIR, 50, DOUBLESTEP, REAGENTCUR)  # Move down to switch
+                print "Waiting for DAC addr7 input 3 ReagentP Home switch to become Active "
+                while ((DAC.getDINbit(7, 6) != 1) and (ReagentPPos < HomeMax) and (
+                    Move_ReagentP_Home == 1)):  # if home switch not active, move 1 step
+                    target_motor.move(NEGDIR, 1, FASTSTEP,
+                                      MIDCUR)  # Retract one step at a time until home switch active
                     ReagentPPos = ReagentPPos + 1
-                print "Completed ReagentPPos Pump move to Home switch"
-                print  ReagentPPos
                 if ((DAC.getDINbit(7, 6) == 1)):  # if home switch is active, reset ReagentPPos
-                    print "Input DAC(7,6) ReagentPPos Home sensor is active high"
+                    print "Input DAC(7,6) ReagentP Home sensor is active"
                     print  ReagentPPos
                     ReagentPPos = 0
                 Move_ReagentP_Home = 0
@@ -1356,7 +678,7 @@ class Gel_Pump(Motor):
                 run_once = False
                 t_end = time.time() + 60 * min
                 while time.time() < t_end:
-                    target_motor.move(POSDIR, 1, DOUBLESTEP, HIGHCUR)
+                    target_motor.move(POSDIR, 1, DOUBLECOILMICROSTEP, HIGHCUR)
                     time.sleep(0.005)
                     if (run_once): break
                 print "finished"
@@ -1372,7 +694,7 @@ class Gel_Pump(Motor):
                 run_once = False
                 t_end = time.time() + 60 * min
                 while time.time() < t_end:
-                    target_motor.move(NEGDIR, 1, DOUBLESTEP, HIGHCUR)
+                    target_motor.move(NEGDIR, 1, DOUBLECOILMICROSTEP, HIGHCUR)
                     time.sleep(0.005)
                     if (run_once): break
                 print "finished"
@@ -1468,62 +790,73 @@ class Gel_Pump(Motor):
                 Move_GelPump_Start = 0
 
 
+            if Move_GelPump_Move:
+                GelPos = 0
+                print "Moving Gel Pump down 10uL  \r\n"
+                target_motor = xyz_motor(1, 200, 100)
+                atexit.register(target_motor.turn_off)
+                target_motor.move(NEGDIR, 300, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                GelPos = GelPos + 10
+                for cycle in range(1, 10):  # Every 20 seconds pump one step
+                    print "Moving Gel Pump down at 3uL per hour  \r\n"
+                    time.sleep(0.2)
+                    target_motor.move(NEGDIR, 1, MICROSTEP, HIGHCUR)  # Go downward, gel pump down to pump gel
+                Move_GelPump_Move = 0
 
-class CapHeat:
-    def __init__(self):
-        self._running = True
 
-    def terminate(self):
-        self._running = False
-
-    def run(self):
-        global Cap_Heater_Enable
-
-        while self._running:
-            while Cap_Heater_Enable == 0:
-                DAC.clrDOUTbit(7, 0)  # De-activate 24V to capillary heater pins NOpen and COMM
-                # Analog input is on DACQ plate address 7 pin 0
-                # print  "Heating OFF, Capillary temperature voltage is "
-                time.sleep(2)
-
-            while Cap_Heater_Enable:
-                temp = DAC.getADC(7, 0)
-                time.sleep(.02)
-                for cycle in range(1, 10):
-                    temp = DAC.getADC(7, 0)  #
-                    time.sleep(.02)
-                    temp = (9 * temp + DAC.getADC(7, 0)) / 10
-                    time.sleep(.02)
-                for cycle in range(1, 10):
-                    temp3 = DAC.getADC(7, 0)
-                    if ((temp3 > (temp + .6) or (temp3 < (temp - .6)))):
-                        temp3 = temp  # if new reading is way larger or smaller than average, ignore it
-                    time.sleep(.02)
-                    temp2 = DAC.getADC(7, 0)
-                    if ((temp2 > (temp + .6) or (temp2 < (temp - .6)))):
-                        temp2 = temp  # if new reading is way larger or smaller than average, ignore it
-                    time.sleep(.02)
-                    temp = (temp + temp2 + temp3) / 3
-                    time.sleep(.02)
-                print  temp
-                if (temp >= 2.00):  # If higher than 2.097V, then cooler than 60 celcius
-                    DAC.setDOUTbit(7, 0)  # Activate 24V to capillary heater pins NOpen and COMM
-                    # print  "Heating ON, Capillary temperature voltage is "
-                    # print  temp
-                    time.sleep(2)
-                if (temp <= 1.86):
-                    DAC.clrDOUTbit(7, 0)  # De-activate 24V to capillary heater pins NOpen and COMM
-                    # print  "Heating OFF, Capillary temperature voltage is "
-                    # print  temp
-                    time.sleep(2)
+# class CapHeat:
+#     def __init__(self):
+#         self._running = True
+#
+#     def terminate(self):
+#         self._running = False
+#
+#     def run(self):
+#         global Cap_Heater_Enable
+#
+#         while self._running:
+#             while Cap_Heater_Enable == 0:
+#                 DAC.clrDOUTbit(7, 0)  # De-activate 24V to capillary heater pins NOpen and COMM
+#                 # Analog input is on DACQ plate address 7 pin 0
+#                 # print  "Heating OFF, Capillary temperature voltage is "
+#                 time.sleep(2)
+#
+#             while Cap_Heater_Enable:
+#                 temp = DAC.getADC(7, 0)
+#                 time.sleep(.02)
+#                 for cycle in range(1, 10):
+#                     temp = DAC.getADC(7, 0)  #
+#                     time.sleep(.02)
+#                     temp = (9 * temp + DAC.getADC(7, 0)) / 10
+#                     time.sleep(.02)
+#                 for cycle in range(1, 10):
+#                     temp3 = DAC.getADC(7, 0)
+#                     if ((temp3 > (temp + .6) or (temp3 < (temp - .6)))):
+#                         temp3 = temp  # if new reading is way larger or smaller than average, ignore it
+#                     time.sleep(.02)
+#                     temp2 = DAC.getADC(7, 0)
+#                     if ((temp2 > (temp + .6) or (temp2 < (temp - .6)))):
+#                         temp2 = temp  # if new reading is way larger or smaller than average, ignore it
+#                     time.sleep(.02)
+#                     temp = (temp + temp2 + temp3) / 3
+#                     time.sleep(.02)
+#                 print  temp
+#                 if (temp >= 2.00):  # If higher than 2.097V, then cooler than 60 celcius
+#                     DAC.setDOUTbit(7, 0)  # Activate 24V to capillary heater pins NOpen and COMM
+#                     # print  "Heating ON, Capillary temperature voltage is "
+#                     # print  temp
+#                     time.sleep(2)
+#                 if (temp <= 1.86):
+#                     DAC.clrDOUTbit(7, 0)  # De-activate 24V to capillary heater pins NOpen and COMM
+#                     # print  "Heating OFF, Capillary temperature voltage is "
+#                     # print  temp
+#                     time.sleep(2)
 
 if __name__ == "__main__":
 
     global Cap_Heater_Enable, Move_left_Laser_Enable, Move_right_Laser_Enable
     global Move_Laser_Home, Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
-    global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home, Move_ReagentS_Home, Move_ReagentE_Home
-    Move_ReagentW_Home=Move_ReagentM_Home=Move_ReagentB_Home=Move_ReagentP_Home=Move_ReagentS_Home=Move_ReagentE_Home=0.0
-
+    global Move_ReagentW_Home, Move_ReagentM_Home, Move_ReagentB_Home, Move_ReagentP_Home
     global Move_l_Laser_Enable, Move_r_Laser_Enable
 
     global move_gel_pump_up, move_gel_pump_down
@@ -1540,14 +873,15 @@ if __name__ == "__main__":
 
     ######################################################################333333
     Move_left_Laser_Enable = Move_right_Laser_Enable = Move_ReagentW_Home = Move_l_Laser_Enable = Move_r_Laser_Enable = 0.0
-    Move_ReagentS_Home = 0.0
-    Move_ReagentE_Home = 0.0
-
     Cap_Heater_Enable = Move_Laser_Home = Move_GelPump_Home = Move_GelPump_Start = Move_GelPump_Move = 0.0
     Move_ReagentP_Home = Move_ReagentB_Home = Move_ReagentM_Home = 0
     Heat = CapHeat()  # Create Class CapHeat
     HeatThread = Thread(target=Heat.run)  # Create the thread to run Heat
     HeatThread.start()  # start runing the cap heater thread above
+
+    # Mot = Motor()  # Create Class Motor
+    # MotThread = Thread(target=Mot.run)  # Create the thread to run Heat
+    # MotThread.start()  # start runing the Motor  thread above
 
     X_and_Z_Solution_Stage_Mot = X_and_Z_Solution_Stage_Motor()  # Create Class Motor
     X_Z_SS_Mot = Thread(target=X_and_Z_Solution_Stage_Mot.run)  # Create the thread to run Heat
@@ -1581,14 +915,6 @@ if __name__ == "__main__":
 
         if (rcv == "L"):
             Move_l_Laser_Enable = 1
-
-        if (rcv == "REHOME"):
-            Move_ReagentE_Home = 1
-            print "Move_Reagent E Home Moving Home\r\n"
-
-        if (rcv == "RSHOME"):
-            Move_ReagentS_Home = 1
-            print "Move_Reagent S Home Moving Home\r\n"
 
         if (rcv == "RWHOME"):
             Move_ReagentW_Home = 1
@@ -1692,8 +1018,6 @@ if __name__ == "__main__":
         if (rcv == "K") or (rcv == "KILL") or (rcv == "QUIT") or (rcv == "Q"):
             Cap_Heater_Enable = 0
             Move_ReagentW_Home = 0
-            Move_ReagentS_Home = 0
-            Move_ReagentE_Home = 0
             Move_ReagentM_Home = 0
             Move_ReagentB_Home = 0
             Move_ReagentP_Home = 0
