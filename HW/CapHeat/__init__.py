@@ -20,6 +20,7 @@ class CapHeat:
 
     def run(self):
         global Cap_Heater_Enable
+        Cap_Heater_Enable = 0.0
 
         while self._running:
             while Cap_Heater_Enable == 0:
