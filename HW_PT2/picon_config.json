@@ -1,0 +1,20 @@
+{
+  "DAC0": {
+    "input1": 10, 
+    "input2": 5, 
+    "input3": 10, 
+    "input4": 3, 
+    "input5": 10 
+  },
+  "Cap Heat": {
+    "power": 10 
+  },
+  "Capillary Heater": {
+    "temperature" : 50 
+  },
+  "Spectrometer": {
+    "exposure time": 250, 
+    "duration": 3600000, 
+    "time between reads": 250 
+  }
+}

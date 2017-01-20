@@ -1,0 +1,14 @@
+            temp = 0.0
+            Home_AD_ave = 0.0
+            good_count = 8
+            for cycle in range(1, 9):
+                temp = DAC.getADC(7, 1)
+                time.sleep(.001)
+                if (temp > 4.1 or temp < 0.3):
+                    temp = 0  # Ignore bad reads
+                    good_count = good_count - 1
+                    # reduce ave count to make up for bad data
+                Home_AD_ave = Home_AD_ave + temp
+                print "temp=", temp
+            if (good_count == 0): good_count = 1
+            Home_AD_ave = (Home_AD_ave / good_count)
