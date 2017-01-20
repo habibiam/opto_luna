@@ -1,1 +1,134 @@
-Pending!
+//Please use mbed compiler to compile this file!
+#include "mbed.h"
+#include <stdio.h>
+#include <string.h>
+#include <Serial.h>
+
+#define CMD_GET_VI "GETVI"   // Get Voltage and Current 
+#define CMD_SET_V  "SETV"    // Set Voltage
+#define RX_BUFFER_LEN 64
+#define MAX_OUT_NXP 3.3
+#define TRANSFER_RATE 10.6668
+char inBuffer[RX_BUFFER_LEN + 1];
+float Vmon, Imon;
+
+void setVoltage(float);
+float getVoltage();
+float getCurrent();
+void getVI();
+
+AnalogOut VProg(p18);     //dac = 0.of, 0 = 0V, 0.5f = 1.65V, 1.0f = 3.3V
+AnalogIn VMon(p16);       //read voltage to adc
+AnalogIn IMon(p17);       //read current to adc 
+DigitalOut HV_Enable(p8);    //turn off HV 
+Serial pc(USBTX, USBRX);  //define Serial Port
+
+
+int main() {
+    
+    pc.baud(115200);
+    pc.format(8, SerialBase::None, 1);
+    
+    HV_Enable = 0;
+    setVoltage(0.0);
+
+    while(true)
+    {
+        char msg[256]; // msg to send back to pc. 
+        int i = 0;
+        char ch = ' ';
+        memset(inBuffer, 0, RX_BUFFER_LEN);
+        /*
+            Read commond from Luna Server, and store the command in an buffer.
+        */
+        do {
+            if(pc.readable()) {
+                ch = pc.getc();
+                if (i < sizeof(inBuffer)) {
+                    inBuffer[i++] = ch;    
+                }
+            }
+        } while(ch != '\n');
+               
+        inBuffer[i] = '\x0';
+        
+        /*
+            Now need to compare what's in the buffer. 
+        */
+        if (strncmp((char *)inBuffer, CMD_GET_VI, strlen(CMD_GET_VI)) == 0)
+        {   
+            getVI();
+            float v = getVoltage();
+            float c = getCurrent();
+            sprintf((char *)&msg, "OK     %-8s %f %f\n", CMD_GET_VI, v, c);
+        } 
+        else if (strncmp((char *)inBuffer, CMD_SET_V, strlen(CMD_SET_V)) == 0)
+        {
+            int l = strlen(CMD_SET_V) + 1;
+            float value = atof((char *)(inBuffer +  l));
+            if (value == 0.0F && *(inBuffer + l) != '0') {
+                sprintf((char *)&msg, "FAIL     %-8s\n",CMD_SET_V);
+            }
+            else
+            {
+                setVoltage(value);
+                sprintf((char *)&msg, "OK     %-8s\n",CMD_SET_V);
+            }
+        }
+        else
+        {
+            sprintf((char *)&msg, "SYNTAX %-8s\n",inBuffer);
+        }
+    
+        /*
+            Write the information in msg buffer to PC.
+        */
+        for(int i = 0; i < strlen((char*)&msg); i++)
+        {    
+            pc.putc(msg[i]);  
+        }
+        pc.putc('\n');
+    
+        wait(1);
+    }
+}
+
+    //Set Voltage
+    void setVoltage(float val)
+    {   
+        if(val == 0.0)
+        {
+            HV_Enable = 0;
+        }
+        else
+        {
+            HV_Enable = 1;
+        }
+        float input = (val / TRANSFER_RATE);
+        if(input > 1.0){
+            input = 1.0;
+        }
+        VProg = input;
+    }
+    
+    void getVI()
+    { 
+        Vmon = VMon;
+        Vmon = float (Vmon * MAX_OUT_NXP);  
+        
+        Imon = IMon;
+        //Imon = (Imon * MAX_OUT_NXP) / 0.017444;   // I in uA
+        Imon = (Imon * MAX_OUT_NXP);
+    }
+    
+    //Return Voltage
+    float getVoltage()
+    {      
+        return Vmon;
+    }
+
+    //Return Current
+    float getCurrent()
+    {
+        return Imon;
+    }       
