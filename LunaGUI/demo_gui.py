@@ -727,7 +727,7 @@ luna = LunaUI()
 
 if __name__ == '__main__':
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    # proc.wait(1)
+    # proc.wait(1) # wait one second
     # if proc is None or proc.returncode is not None:
     #     if proc.returncode is not None:
     #         print "LunaSrv exited immediately with a return code" + (str(proc.returncode))
