@@ -519,6 +519,22 @@ def gp_down_button_click():
 #     cnum += 1
 
 ################################ Dave's Machines ########################
+def kill_pi_clicked():
+    """
+
+    :return:
+    """
+    global proc
+    global cnum
+    size = 94
+    name = 'pi'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "KILL", "args": args}
+    proc.stdin.write(cmd)
+    proc.stdin.flush()
+    cnum+=1
+
 """
 OBIS Laser
 """
@@ -1072,16 +1088,6 @@ if __name__ == '__main__':
     stage_x_and_z_label = Label(luna, text="5) Solution Stage X and Z")
     stage_x_and_z_label.grid(row=20, column=0, columnspan=4)
 
-    # x_moveleft_button = Button(luna, text="SXLFTBIG", command=x_moveleft_button_click)
-    # x_moveleft_button.grid(row=22, column=1)
-    # x_moveright_button = Button(luna, text="SXRGHTBIG", command=x_moveright_button_click)
-    # x_moveright_button.grid(row=22, column=3)
-    #
-    # small_x_moveleft_button = Button(luna, text="SXLFTSM", command=small_x_moveleft_button_click)
-    # small_x_moveleft_button.grid(row=23, column=1)
-    # small_x_moveright_button = Button(luna, text="SXRGHTSM", command=small_x_moveright_button_click)
-    # small_x_moveright_button.grid(row=23, column=3)
-
     z_moveup_button = Button(luna, text="ZUP", command=STAGEZUP_Thread)
     z_moveup_button.grid(row=21, column=2)
     z_movedown_button = Button(luna, text="ZDOWN", command=STAGEZDN_Thread)
@@ -1146,6 +1152,9 @@ if __name__ == '__main__':
     # start_continuous_spectrometer_button.grid(row=30, column=2)
     # start_continuous_spectrometer_button = Button(luna, text="SPCISCRUN", command=check_continous_capture)
     # start_continuous_spectrometer_button.grid(row=30, column=3)
+
+    kill_pi_button = Button(luna, text="kill pi", command=kill_pi_clicked)
+    kill_pi_button.grid(row=31, column=1)
 
     """
     Turn off gui, then terminate the subproccess

@@ -1170,22 +1170,24 @@ def processGPDOWN(receivedDeviceName, recievedArgs):
     aDevice.Write(cmd_string+"\n")
     time.sleep(0.5)
     data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
     if "" in data:
         # retry once
         aDevice.Write(cmd_string+"\n")
         time.sleep(0.5)
         data = aDevice.GetLastResponse()
+        logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
 
-    if "OK" in data:
-        # If cmd_string was successfully sent
-        moving_down = True
-        while (moving_down):
-            # Keep checking until the motor is done moving
-            data = aDevice.GetLastResponse()
-            if data=="done":
-                moving_down = False
-    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
+    # if "OK" in data:
+    #     # If cmd_string was successfully sent
+    #     moving_down = True
+    #     while (moving_down):
+    #         # Keep checking until the motor is done moving
+    #         data = aDevice.GetLastResponse()
+    #         if data=="done":
+    #             moving_down = False
+    # logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
 
     # Send back results
     size = 94 + len(data) + 1
@@ -2646,6 +2648,60 @@ def processSTAGEZDN(receivedDeviceName, recievedArgs):
     sys.stdout.write(cmd)
     sys.stdout.flush()
 
+def processKILL(receivedDeviceName, recievedArgs):
+    """
+    KILL command that will stop the pimain.py from running on pi
+    :param receivedDeviceName: The name of the device.
+    :param recievedArgs: None
+    :return: None
+    """
+    global scanner
+    global cnum
+    cmd_string = "KILL"
+
+    logger.info("Handle " + cmd_string + " command")
+
+    if scanner is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    # Find the correct device by name (as defined in the xml file).
+    aDevice = get_device_by_name(receivedDeviceName)
+
+    if aDevice is None:
+        sendFAILResponse(cmd_string, receivedDeviceName)
+        return
+
+    logger.debug("Sending "+cmd_string+" to " + str(receivedDeviceName))
+    aDevice.Write(cmd_string+"\n")
+    time.sleep(1)
+    data = aDevice.GetLastResponse()
+    logger.debug("Last response from " + str(receivedDeviceName) + " is " + str(data))
+
+    if "SYNTAX" in data:
+        # retry once
+        aDevice.Write(cmd_string+"\n")
+        data = aDevice.GetLastResponse()
+
+    if "OK" in data:
+        moving_down = True
+        while (moving_down):
+            data = aDevice.GetLastResponse()
+            if data=="done":
+                moving_down = False
+
+    logger.debug("if OK in data: " + str(receivedDeviceName) + " is " + str(data))
+
+    # Send back results
+    size = 94 + len(data) + 1
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": receivedDeviceName, "cmd": cmd_string, "args": data}
+
+    logger.debug("Sending command: <" + cmd + ">")
+
+    sys.stdout.write(cmd)
+    sys.stdout.flush()
+
 
 def get_device_by_name(receivedDeviceName):
     """
@@ -2804,7 +2860,8 @@ if __name__ == '__main__':
                "SXWATER": processSXWATER,
                "SXWASTE": processSXWASTE,
                "STAGEZUP": processSTAGEZUP,
-               "STAGEZDN": processSTAGEZDN
+               "STAGEZDN": processSTAGEZDN,
+                "KILL": processKILL
             }
 
     # Get path to this file...
