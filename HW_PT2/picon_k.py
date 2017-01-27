@@ -10,10 +10,13 @@ import RPi.GPIO as GPIO, os
 import piplates.RELAYplate as RELAY
 
 from CapHeat import CapHeat
+from Y_Stage import Y_Stage
 from threading import Thread
 from Gel_Pump import Gel_Pump
 from Solenoid import Solenoid
 from xyz_motor import xyz_motor
+from Z_Pipetip import Z_Pipetip
+from Z_Manifold import Z_Manifold
 from Laser_Motor import Laser_Motor
 from Reagent_Pump import Reagent_Pump
 from Solenoid_Sequence import Solenoid_Sequence
@@ -90,64 +93,20 @@ port = serial.Serial("/dev/ttyS0", baudrate=115200, timeout=60.0)
 
 if __name__ == "__main__":
 
-    global Solenoid_Enable
-    global Solenoid_Off
-    global S_Sequence_Enable
-    global Cap_Heater_Enable
-    global Cap_Heater_Off
-    global Move_ReagentM_Home
-    global Move_ReagentP_Home
-    global Move_ReagentW_Home
-    global Move_ReagentS_Home
-    global Move_ReagentE_Home
-    global Move_ReagentB_Home
-    global move_gel_pump_up, move_gel_pump_down
-    global Move_GelPump_Home, Move_GelPump_Start, Move_GelPump_Move
-    global Move_left_Laser_Enable, Move_right_Laser_Enable, Move_Laser_Home
-    global Move_l_Laser_Enable, Move_r_Laser_Enable
-    
-
-    ############################# STAGE X Z edit #############################
-    
-    global move_stageZ_up, move_stageZ_down
-    global move_stageX_left_small, move_stageX_left_big
-    global move_stageX_right_small, move_stageX_right_big
-    
-    move_stageX_left_small = move_stageX_left_big = 0.0
-    move_stageX_right_small = move_stageX_right_big = 0.0
-    move_stageZ_up = move_stageZ_down = 0.0
-
-    # absolute positions
-    global move_to_sample, move_to_buffer, move_to_water, move_to_waste
-    
-    move_to_sample = move_to_buffer = move_to_water = move_to_waste = 0.0
-
-    ##########################################################################
-
-    ############################ Initialization ##############################
- 
-    Solenoid_Enable = 0.0
-    Solenoid_Off = 0.0
-    S_Sequence_Enable = 0.0
-    Cap_Heater_Enable = 0.0
-    Cap_Heater_Off = 0.0
-    move_gel_pump_down = move_gel_pump_up = 0.0
-    Move_ReagentM_Home = Move_ReagentP_Home = 0.0
-    Move_ReagentW_Home = Move_ReagentS_Home = 0.0
-    Move_ReagentE_Home = Move_ReagentB_Home = 0.0
-    Move_GelPump_Home = Move_GelPump_Start = Move_GelPump_Move = 0.0
-    Move_left_Laser_Enable = Move_right_Laser_Enable = 0.0
-    Move_l_Laser_Enable = Move_r_Laser_Enable = Move_Laser_Home = 0.0
-
-    ##########################################################################
-
     ######################### Create Class Object ############################
+    
     
     Sol = Solenoid()  
 
     Heat = CapHeat()
+
+    Ystage = Y_Stage()
     
     GelPump = Gel_Pump()
+
+    Zpipetip = Z_Pipetip()
+
+    Zmanifold = Z_Manifold()
     
     LaserMotor = Laser_Motor()
     
@@ -196,19 +155,49 @@ if __name__ == "__main__":
             RP_Mot.start()
             
         if (rcv == "RSHOME"):
+            print "Move_Reagent S Home Moving Home\r\n"
             RP_Mot = Thread(target=Reagent_Pump_Mot.move_reagentS_home)
             RP_Mot.start()
-            print "Move_Reagent S Home Moving Home\r\n"
             
         if (rcv == "RBHOME"):
+            print "Move_Reagent B Home Moving Home\r\n"
             RP_Mot = Thread(target=Reagent_Pump_Mot.move_reagentB_home)
             RP_Mot.start()
-            print "Move_Reagent B Home Moving Home\r\n"
 
         if (rcv == "REHOME"):
+            print "Move_Reagent E Home Moving Home\r\n"
             RP_Mot = Thread(target=Reagent_Pump_Mot.move_reagentE_home)
             RP_Mot.start()
-            print "Move_Reagent E Home Moving Home\r\n"
+
+        if (rcv == "YHOME"):
+            print "Move Y Stage Home Moving Home\r\n"
+            Y_Mot = Thread(target=Ystage.move_Y_home)
+            Y_Mot.start()
+
+        if (rcv == "YSTART"):
+            print "Start moving Y-Stage\r\n"
+            Y_Mot = Thread(target=Ystage.move_Y_start)
+            Y_Mot.start()
+            
+        if (rcv == "ZMHOME"):
+            print "Move Z_Manifold Home Moving Home\r\n"
+            ZM_Mot = Thread(target=Zmanifold.Move_ZM_Home)
+            ZM_Mot.start()
+
+        if (rcv == "ZMSTART"):
+            print "Start moving Z_Manifold\r\n"
+            ZM_Mot = Thread(target=Zmanifold.Move_ZM_start)
+            ZM_Mot.start()
+
+        if (rcv == "ZPHOME"):
+            print "Move Z_Pipetip Home Moving Home\r\n"
+            ZP_Mot = Thread(target=Zpipetip.Move_ZP_Home)
+            ZP_Mot.start()
+
+        if (rcv == "ZPSTART"):
+            print "Start moving Z_Pipetip\r\n"
+            ZP_Mot = Thread(target=Zpipetip.Move_ZP_start)
+            ZP_Mot.start()
 
         if (rcv == "CAPHEATON"):
             print "Capillary Heater ON\r\n"
@@ -258,13 +247,12 @@ if __name__ == "__main__":
         if (rcv == "GPHOME"):
             print "Moving Gel Pump to Home switch \r\n"
             GP_Mot = Thread(target=GelPump.move_gelPump_home)
-            GP_Mot.start()
+            GP_Mot.start()      
 
         if (rcv == "GPSTART"):
             print "Moving Gel Pump to Start switch \r\n"
             GP_Mot = Thread(target=GelPump.move_gelPump_start)
             GP_Mot.start()
-           
 
         if (rcv == "GPUP"):
             print "Moving Gel Pump UP \r\n"
