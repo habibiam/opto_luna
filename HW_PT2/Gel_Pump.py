@@ -62,8 +62,7 @@ class Gel_Pump:
             time.sleep(0.005)
             if (run_once): break
         print "finished"
-        port.write("done   \n")
-        print "sent done to port"
+        port.write("GP Done\n")
 
     def move_gel_pump_down(self):
         print "Moving Gel pump down"
@@ -74,11 +73,11 @@ class Gel_Pump:
         t_end = time.time() + 60 * min
         while time.time() < t_end:
             target_motor.move(NEGDIR, 1, DOUBLESTEP, HIGHCUR)
-            time.sleep(0.005)
+            time.sleep(0.02)
+            time.sleep(2.00)
             if (run_once): break
         print "finished"
-        port.write("done   \n")
-        print "sent done to port"
+        port.write("GP Done\n")
 
     def move_gelPump_home(self):
         print  "Moving Gel Pump to the upper home switch "
