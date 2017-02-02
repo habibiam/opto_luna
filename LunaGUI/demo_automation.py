@@ -857,26 +857,29 @@ High Voltage Power Supply
 
 Need to fix this in order to automate it.
 """
-def GETVI_Thread():
+def GETVI_Thread2():
     """
 
     :return:
     """
-    global proc, cnum, automation_lock
-    automation_lock.acquire()
-    try:
-        size = 94
-        name = 'HighVoltageSupply'
-        args = ''
-        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
-              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
+    counter = 0
+
+    global proc
+    global cnum
+    size = 94
+    name = 'HighVoltageSupply'
+    args = ''
+    cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+          {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
+    while(counter<5):
         proc.stdin.write(cmd)
         proc.stdin.flush()
-        cnum += 1
+        cnum+=1
         out = proc.stdout.readline()
         logging.debug("out = " + out)
-    finally:
-        automation_lock.release()
+        time.sleep(5)
+        counter+=1
+
 
 def on_getvi_button_click():
     """
@@ -905,9 +908,32 @@ def on_setv_button_click(entry):
           {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
     proc.stdin.write(cmd)
     proc.stdin.flush()
+    out = proc.stdout.readline()
+    logging.debug("out = "+out)
     cnum+=1
 
-def SETV_Thread(set_vol=10):
+def GETVI_Thread():
+    """
+
+    :return:
+    """
+    global proc, cnum, automation_lock
+    automation_lock.acquire()
+    try:
+        size = 94
+        name = 'HighVoltageSupply'
+        args = ''
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+              {"cnum": cnum, "size": size, "deviceName": name, "cmd": "GETVI", "args": args}
+        proc.stdin.write(cmd)
+        proc.stdin.flush()
+        cnum += 1
+        out = proc.stdout.readline()
+        logging.debug("out = " + out)
+    finally:
+        automation_lock.release()
+
+def SETV_Thread(set_vol="10"):
     """
 
     :param set_vol:
@@ -920,7 +946,7 @@ def SETV_Thread(set_vol=10):
         size = 94 + len(set_vol)
         name = 'HighVoltageSupply'
         args = set_vol
-        cmd = '%(cnum)01u0d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
+        cmd = '%(cnum)010d%(size)010d%(deviceName)-64s%(cmd)-10s%(args)s\n' % \
               {"cnum": cnum, "size": size, "deviceName": name, "cmd": "SETV", "args": args}
         proc.stdin.write(cmd)
         proc.stdin.flush()
@@ -929,6 +955,25 @@ def SETV_Thread(set_vol=10):
         out = proc.stdout.readline()
         logging.debug("out = "+out)
         automation_lock.release()
+
+def continuouse_GETVI():
+    # global automation_lock
+
+    setv_thread1 = Thread(target=SETV_Thread, kwargs={"set_vol": "10"})
+    setv_thread1.start()
+    for i in range(3):
+        getvi_THREAD1 = Thread(target=GETVI_Thread)
+        getvi_THREAD1.start()
+    setv_thread0 = Thread(target=SETV_Thread, kwargs={"set_vol": "0"})
+    setv_thread0.start()
+    getvi_THREAD = Thread(target=GETVI_Thread)
+    getvi_THREAD.start()
+
+    getvi_THREAD1.join()
+    setv_thread1.join()
+    setv_thread0.join()
+    getvi_THREAD.join()
+    logging.info("Finished start_thread_button_click")
 
 cnum = 1
 
@@ -1044,7 +1089,7 @@ if __name__ == '__main__':
     current_volts_dynamic_label.grid(row=10, column=1)
     current_amps_dynamic_label.grid(row=10, column=3)
 
-    getvi_button = Button(luna, text="GETVI", command=on_getvi_button_click)
+    getvi_button = Button(luna, text="GETVI", command=GETVI_Thread)
     getvi_button.grid(row=11, column=3)
 
     # Set voltage row on GUI
@@ -1058,7 +1103,7 @@ if __name__ == '__main__':
     laser_motor_label = Label(luna, text="3) Laser Motor")
     laser_motor_label.grid(row=12, column=0, columnspan=4)
 
-    lm_moveleft_button = Button(luna, text="LASLEFT", command=LASLEFT_Thread)
+    lm_moveleft_button = Button(luna, text="LASLEFT", command=continuouse_GETVI)
     lm_moveleft_button.grid(row=13, column=1)
     lm_moveright_button = Button(luna, text="LASRIGHT", command=LASRIGHT_Thread)
     lm_moveright_button.grid(row=13, column=2)
